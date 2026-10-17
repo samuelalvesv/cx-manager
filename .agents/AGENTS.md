@@ -45,6 +45,7 @@ Para assegurar governança estrita, rastreabilidade e zero sobreposição de res
    - **Plugin `dotnet-msbuild`**: subagentes `msbuild`, `msbuild-code-review`, `build-perf`, skills `binlog-failure-analysis`, `binlog-generation`, `build-parallelism`, `build-perf-baseline`, `build-perf-diagnostics`, `check-bin-obj-clash`, `copy-to-output-directory`, `directory-build-organization`, `eliminate-redundant-restores`, `eval-performance`, `extension-points`, `including-generated-files`, `incremental-build`, `item-management`, `msbuild-antipatterns`, `msbuild-modernization`, `property-patterns`, `resolve-project-references`, `target-authoring`
    - **Plugin `dotnet-nuget`**: skill `convert-to-cpm`
    - **Plugin `dotnet-template-engine`**: subagente `template-engine`, skills `template-authoring`, `template-comparison`, `template-discovery`, `template-instantiation`, `template-smart-defaults`, `template-validation`
+   - **Plugin `mattpocock-skills`**: skills `setup-matt-pocock-skills`, `triage`, `to-spec`, `to-tickets`, `wayfinder`, `implement`, `implement-spec`, `codebase-design`, `diagnosing-bugs`, `domain-modeling`, `grill-me`, `grill-with-docs`, `grilling`, `handoff`, `pr`, `prototype`, `research`, `retro`, `tdd`, `teach`, `to-questionnaire`, `wait-what`, `wizard`, `writing-for-agents`
    - **Plugin `ponytail`**: skills `ponytail`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help`, `ponytail-review`
    - **Skills Globais Standalone**: `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions`, `web-design-guidelines`, `writing-guidelines`
    - **Subagentes Nativos**: `self`, `research`, `image-generator`
@@ -52,3 +53,19 @@ Para assegurar governança estrita, rastreabilidade e zero sobreposição de res
 4. **Princípio de Não-Indução, Decisões Determinísticas e Documentação Agnóstica**:
    - **Decisões Determinísticas (Zero Escolhas em Aberto)**: As regras nunca devem transferir uma decisão técnica ou arquitetural para o agente oferecendo alternativas concorrentes (como *"usar `DateTimeOffset` ou `DateTime`"*); a documentação deve sempre definir qual padrão único adotar.
    - **Documentação Agnóstica nas Skills**: As skills operacionais nunca devem explicar o que as ferramentas globais fazem, pré-filtrar subtemas nem parafrasear regras de arquitetura ou negócio — elas apenas mapeiam as ferramentas disponíveis e apontam para os arquivos de regras aplicáveis em `rules/`. Essa salvaguarda elimina o viés de confirmação, a indução de respostas e a visão de túnel (*tunnel vision*) da IA, assegurando que qualquer análise considere a totalidade das regras, skills e subagentes de forma integral e irrestrita.
+
+## Agent skills
+
+### Rastreador de demandas (Issue tracker)
+
+Arquivos markdown locais sob `.scratch/`. Consulte `docs/agents/issue-tracker.md`.
+
+### Rótulos de triagem (Triage labels)
+
+Cinco papéis canônicos de triagem (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). Consulte `docs/agents/triage-labels.md`.
+
+### Documentação de domínio (Domain docs)
+
+Contexto único (`GLOSSARY.md` + `docs/adr/` na raiz do repositório). Consulte `docs/agents/domain.md`.
+
+
