@@ -1,0 +1,6 @@
+@CxManager.Api_HostAddress = http://localhost:5037
+
+GET {{CxManager.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

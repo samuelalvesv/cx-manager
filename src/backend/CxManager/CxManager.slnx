@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="CxManager.Api/CxManager.Api.csproj" />
+  <Project Path="CxManager.AppHost/CxManager.AppHost.csproj" />
+  <Project Path="CxManager.Core/CxManager.Core.csproj" />
+  <Project Path="CxManager.Infrastructure/CxManager.Infrastructure.csproj" />
+  <Project Path="CxManager.IntegrationTests/CxManager.IntegrationTests.csproj" />
+  <Project Path="CxManager.ServiceDefaults/CxManager.ServiceDefaults.csproj" />
+  <Project Path="CxManager.UnitTests/CxManager.UnitTests.csproj" />
+</Solution>
