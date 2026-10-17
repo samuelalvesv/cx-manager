@@ -1,4 +1,4 @@
-﻿namespace CxManager.Infrastructure;
+namespace CxManager.Infrastructure;
 
 public class Class1
 {

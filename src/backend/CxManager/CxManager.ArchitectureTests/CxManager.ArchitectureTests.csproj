@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.eNhancedEdition" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CxManager.Domain\CxManager.Domain.csproj" />
+    <ProjectReference Include="..\CxManager.Application\CxManager.Application.csproj" />
+    <ProjectReference Include="..\CxManager.Contract\CxManager.Contract.csproj" />
+    <ProjectReference Include="..\CxManager.Infrastructure\CxManager.Infrastructure.csproj" />
+    <ProjectReference Include="..\CxManager.Api\CxManager.Api.csproj" />
+  </ItemGroup>
+
+</Project>

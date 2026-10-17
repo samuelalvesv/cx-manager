@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Riok.Mapperly">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CxManager.Domain\CxManager.Domain.csproj" />
+    <ProjectReference Include="..\CxManager.Contract\CxManager.Contract.csproj" />
+  </ItemGroup>
+
+</Project>

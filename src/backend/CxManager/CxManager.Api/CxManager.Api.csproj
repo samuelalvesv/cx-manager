@@ -1,19 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CxManager.ServiceDefaults\CxManager.ServiceDefaults.csproj" />
-      <ProjectReference Include="..\CxManager.Core\CxManager.Core.csproj" />
       <ProjectReference Include="..\CxManager.Infrastructure\CxManager.Infrastructure.csproj" />
+      <ProjectReference Include="..\CxManager.Domain\CxManager.Domain.csproj" />
+      <ProjectReference Include="..\CxManager.Application\CxManager.Application.csproj" />
+      <ProjectReference Include="..\CxManager.Contract\CxManager.Contract.csproj" />
     </ItemGroup>
 
 </Project>

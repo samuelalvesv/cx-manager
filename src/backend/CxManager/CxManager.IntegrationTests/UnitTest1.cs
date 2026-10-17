@@ -1,4 +1,4 @@
-﻿namespace CxManager.IntegrationTests;
+namespace CxManager.IntegrationTests;
 
 public class UnitTest1
 {

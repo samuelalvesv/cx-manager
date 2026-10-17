@@ -1,4 +1,4 @@
-﻿namespace CxManager.UnitTests;
+namespace CxManager.UnitTests;
 
 public class UnitTest1
 {
