@@ -59,6 +59,7 @@ flowchart TD
   - `src/backend/CxManager/CxManager.Contract/Responses/[Feature]/`
 - **Regras Aplicáveis**:
   - [.agents/rules/contracts-rules.md](../../rules/contracts-rules.md)
+  - [.agents/rules/data-integrity-rules.md](../../rules/data-integrity-rules.md)
   - [.agents/rules/architecture.md](../../rules/architecture.md)
   - [.agents/rules/csharp-conventions.md](../../rules/csharp-conventions.md)
 - **Ferramentas Globais**:
@@ -167,6 +168,7 @@ flowchart TD
 - **Regras Aplicáveis**:
   - [.agents/rules/frontend-rules.md](../../rules/frontend-rules.md)
   - [.agents/rules/contracts-rules.md](../../rules/contracts-rules.md)
+  - [.agents/rules/data-integrity-rules.md](../../rules/data-integrity-rules.md)
 - **Ferramentas Globais**:
   - Servidor MCP `mui-mcp`
   - Skills `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions`, `web-design-guidelines`

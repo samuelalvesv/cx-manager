@@ -1,0 +1,101 @@
+using CxManager.Domain.Validation;
+
+namespace CxManager.Domain.Entities;
+
+public sealed class SurveyResponse : Entity
+{
+    private const int MinChannelLength = 2;
+    private const int MaxChannelLength = 30;
+    private const int MaxCommentLength = 1000;
+
+    public long SurveyId { get; private set; }
+    public long ContactId { get; private set; }
+    public int Score { get; private set; }
+    public string? Comment { get; private set; }
+    public string Channel { get; private set; }
+
+    public DateTimeOffset RespondedAt => CreatedAt;
+
+    private SurveyResponse(
+        long id,
+        long surveyId,
+        long contactId,
+        int score,
+        string? comment,
+        string channel,
+        DateTimeOffset respondedAt,
+        DateTimeOffset? deletedAt) : base(id: id, createdAt: respondedAt, deletedAt: deletedAt)
+    {
+        SurveyId = surveyId;
+        ContactId = contactId;
+        Score = score;
+        Comment = comment;
+        Channel = channel;
+    }
+
+    public static SurveyResponse Create(
+        long surveyId,
+        long contactId,
+        int score,
+        string channel,
+        string? comment = null,
+        DateTimeOffset? respondedAt = null)
+    {
+        long validatedSurveyId = DomainValidation.ValidatePositiveId(value: surveyId, fieldName: "pesquisa");
+        long validatedContactId = DomainValidation.ValidatePositiveId(value: contactId, fieldName: "contato");
+        string validatedChannel = ValidateChannel(channel: channel);
+        string? validatedComment = ValidateComment(comment: comment);
+
+        return new SurveyResponse(
+            id: 0,
+            surveyId: validatedSurveyId,
+            contactId: validatedContactId,
+            score: score,
+            comment: validatedComment,
+            channel: validatedChannel,
+            respondedAt: respondedAt ?? DateTimeOffset.UtcNow,
+            deletedAt: null);
+    }
+
+    public static SurveyResponse Reconstitute(
+        long id,
+        long surveyId,
+        long contactId,
+        int score,
+        string? comment,
+        string channel,
+        DateTimeOffset respondedAt,
+        DateTimeOffset? deletedAt)
+    {
+        return new SurveyResponse(
+            id: id,
+            surveyId: surveyId,
+            contactId: contactId,
+            score: score,
+            comment: comment,
+            channel: channel,
+            respondedAt: respondedAt,
+            deletedAt: deletedAt);
+    }
+
+    public void UpdateComment(string? comment)
+        => Comment = ValidateComment(comment: comment);
+
+    private static string ValidateChannel(string channel)
+    {
+        string validated = DomainValidation.ValidateRequiredString(
+            value: channel,
+            fieldName: "canal",
+            minLength: MinChannelLength,
+            maxLength: MaxChannelLength);
+
+        return validated.ToLowerInvariant();
+    }
+
+    private static string? ValidateComment(string? comment) =>
+        DomainValidation.ValidateOptionalString(
+            value: comment,
+            fieldName: "comentário",
+            minLength: 1,
+            maxLength: MaxCommentLength);
+}

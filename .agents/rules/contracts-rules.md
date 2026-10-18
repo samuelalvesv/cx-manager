@@ -27,7 +27,7 @@ applyTo: "src/backend/CxManager/CxManager.Contract/**/*.cs"
   - É proibido expor propriedades de tipos genéricos (`object`, `dynamic`) ou dicionários não tipados.
   - Instantes temporais devem utilizar obrigatoriamente `DateTimeOffset` em UTC para serialização estrita em ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
   - Filtros de data sem componente de hora devem utilizar obrigatoriamente `DateOnly` no formato ISO 8601 (`YYYY-MM-DD`).
-- **Sincronia Estrita com o Frontend**: Qualquer adição ou alteração nos contratos de `CxManager.Contract` deve ser refletida simetricamente nos tipos TypeScript do frontend (`src/frontend/src/types/`) e registrada no `JsonSerializerContext` da camada `CxManager.Api`.
+- **Sincronia Estrita e Simetria de Tipos**: Seguir integralmente a Cadeia Canônica de Simetria de Tipos e Nulabilidade em [.agents/rules/data-integrity-rules.md](data-integrity-rules.md). Qualquer adição ou alteração nos contratos de `CxManager.Contract` deve ser refletida simetricamente nos tipos TypeScript do frontend (`src/frontend/src/types/`), no schema SQLite e registrada no `JsonSerializerContext` da camada `CxManager.Api`.
 
 ## Ferramentas Globais
 

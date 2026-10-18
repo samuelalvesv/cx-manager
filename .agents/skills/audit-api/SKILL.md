@@ -36,6 +36,7 @@ Invocação com escopo restrito aos arquivos alterados no diff (utilizado primor
 A avaliação de contratos, APIs e transporte é regida integralmente pelas regras documentadas em [.agents/rules/](../../rules/):
 
 - **Contratos REST**: Seguir integralmente [.agents/rules/contracts-rules.md](../../rules/contracts-rules.md).
+- **Integridade de Dados & Simetria de Tipos**: Seguir integralmente [.agents/rules/data-integrity-rules.md](../../rules/data-integrity-rules.md).
 - **APIs**: Seguir integralmente [.agents/rules/api-rules.md](../../rules/api-rules.md).
 - **ServiceDefaults**: Seguir integralmente [.agents/rules/service-defaults-rules.md](../../rules/service-defaults-rules.md).
 - **Convenções C# & AOT**: Seguir integralmente [.agents/rules/csharp-conventions.md](../../rules/csharp-conventions.md).

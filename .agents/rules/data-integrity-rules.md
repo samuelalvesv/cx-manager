@@ -1,6 +1,6 @@
 ---
 name: data-integrity-rules
-description: Soft delete filtering invariants (deleted_at IS NULL), survey scale isolation (NPS vs CSAT), rounding precision rules, and contact uniqueness constraints. Use this rule whenever writing SQL queries, domain logic, analytics calculations, or data validations.
+description: End-to-end type and nullability symmetry (Domain <-> Contract <-> SQLite DDL <-> TypeScript), soft delete invariants (deleted_at IS NULL), survey scale isolation (NPS vs CSAT), rounding precision, and contact uniqueness constraints. Use this rule whenever writing domain entities, DTO contracts, SQLite DDL/queries, or frontend types.
 ---
 
 # Integridade de Dados, Soft Delete & Escalas Analíticas — CxManager
@@ -53,6 +53,38 @@ O sistema opera com tipos de pesquisa que possuem escalas matemáticas incompat�
 - **Filtro de Período**: Filtra pelo instante de resposta em UTC, sendo **inclusivo nas duas pontas** (todo o dia final até `23:59:59.9999999Z` em UTC deve ser incluído).
 - **Agrupamento Mensal**: Agrupado pelo ano e mês de resposta em UTC no formato `"YYYY-MM"`, ordenado cronologicamente de forma ascendente.
 - **Agrupamento por Segmento**: Obtido via `JOIN` entre respostas válidas e contatos ativos; contatos cujo segmento seja nulo devem ser agrupados sob o rótulo `"Sem segmento"`, ordenando o resultado pelo score NPS de forma decrescente.
+
+---
+
+## 5. Cadeia Canônica de Simetria de Tipos e Nulabilidade (Ponta a Ponta)
+
+Para garantir a integridade absoluta dos dados e prevenir divergências de contrato entre a persistência, o transporte e a interface, todas as propriedades devem preservar paridade estrita de tipos e nulabilidade através dos 4 elos da aplicação: **C# Domain**, **C# Contract**, **SQLite DDL** e **Frontend TypeScript**.
+
+### Regra Inviolável de Nulabilidade e Obrigatoriedade
+- **Campos Obrigatórios no Domínio**: Se uma propriedade for obrigatória no modelo de domínio (`string`, `long`, `DateTimeOffset`), ela **deve** ser:
+  1. Definida obrigatoriamente com a constraint `NOT NULL` no schema DDL do SQLite.
+  2. Declarada como `required` e não-anulável no DTO de contrato (`required string Prop { get; init; }`).
+  3. Mapeada no TypeScript do frontend como propriedade não-anulável (`readonly prop: string;`), sem união `| null`.
+- **Campos Opcionais no Domínio**: Se uma propriedade for opcional no modelo de domínio (`string?`, `DateTimeOffset?`), ela **deve** ser:
+  1. Permitida como anulável no schema DDL do SQLite (sem a constraint `NOT NULL`).
+  2. Declarada como `required` com tipo anulável explícito no DTO de contrato (`required string? Prop { get; init; }`).
+  3. Mapeada no TypeScript do frontend como propriedade explicitamente anulável (`readonly prop: string | null;`). É expressamente proibido utilizar `prop?: string` para campos de resposta vindos da API, forçando a presença explícita de `null` no transporte JSON.
+
+### Matriz Canônica de Correspondência de Tipos
+
+| Semântica de Dados | 1. C# Domain | 2. C# Contract | 3. SQLite DDL | 4. Frontend TypeScript |
+| :--- | :--- | :--- | :--- | :--- |
+| **Texto Obrigatório** | `string` (validado `[min, max]`) | `required string Prop { get; init; }` | `TEXT NOT NULL` | `readonly prop: string;` |
+| **Texto Opcional** | `string?` (validado `[min, max]`) | `required string? Prop { get; init; }` | `TEXT` | `readonly prop: string \| null;` |
+| **Identificador / Chave Primária** | `long` (validado `> 0`) | `required long Prop { get; init; }` | `INTEGER PRIMARY KEY AUTOINCREMENT` | `readonly prop: number;` |
+| **Chave Estrangeira Obrigatória** | `long` (validado `> 0`) | `required long Prop { get; init; }` | `INTEGER NOT NULL REFERENCES ...` | `readonly prop: number;` |
+| **Instantâneo Temporal UTC** | `DateTimeOffset` (UTC) | `required DateTimeOffset Prop { get; init; }` | `TEXT NOT NULL` (ISO 8601 UTC) | `readonly prop: string;` |
+| **Instantâneo Opcional UTC** | `DateTimeOffset?` (UTC) | `required DateTimeOffset? Prop { get; init; }` | `TEXT` (ISO 8601 UTC ou NULL) | `readonly prop: string \| null;` |
+| **Data Pura (sem componente de hora)**| `DateOnly` | `required DateOnly Prop { get; init; }` | `TEXT NOT NULL` (YYYY-MM-DD) | `readonly prop: string;` |
+| **Enumeração de Negócio** | `enum DomainEnum` | `required string Prop { get; init; }` | `TEXT NOT NULL` | `readonly prop: 'A' \| 'B';` (Union) |
+| **Booleano** | `bool` | `required bool Prop { get; init; }` | `INTEGER NOT NULL` (0 ou 1) | `readonly prop: boolean;` |
+| **Métrica Decimal / Flutuante** | `double` / `decimal` | `required double Prop { get; init; }` | `REAL NOT NULL` | `readonly prop: number;` |
+| **Métrica Decimal Opcional** | `double?` / `decimal?` | `required double? Prop { get; init; }` | `REAL` | `readonly prop: number \| null;` |
 
 ## Ferramentas Globais
 

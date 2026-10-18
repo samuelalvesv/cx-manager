@@ -1,4 +1,7 @@
 using System.Reflection;
+using Dapper;
+
+[module: DapperAot]
 
 namespace CxManager.Infrastructure;
 

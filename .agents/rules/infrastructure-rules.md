@@ -23,8 +23,9 @@ applyTo: "src/backend/CxManager/CxManager.Infrastructure/**/*.{cs,sql}"
   - Cálculos analíticos (`COUNT`, `SUM`, `AVG`, `CASE WHEN`, `GROUP BY`, `JOIN`) e paginação (`LIMIT @pageSize OFFSET @offset`) devem ocorrer integralmente no motor SQLite.
   - Repositórios nunca devem retornar `IQueryable` nem carregar tabelas inteiras para a memória para filtrar, paginar ou agregar com LINQ no C#.
   - Consultas de coleção devem ser materializadas na camada de infraestrutura retornando `IReadOnlyList<T>` e consultas unitárias retornando `T?`.
-- **Invariante Crítica de Soft Delete e Escalas**:
+- **Integridade de Dados, Soft Delete e Simetria de Nulabilidade**:
   - Seguir integralmente [.agents/rules/data-integrity-rules.md](data-integrity-rules.md).
+  - O schema DDL do SQLite e as queries devem respeitar estritamente a Cadeia Canônica de Simetria de Tipos e Nulabilidade definida em `data-integrity-rules.md`, sendo mandatório o uso de `NOT NULL` em colunas correspondentes a propriedades obrigatórias de domínio.
   - Toda query sobre contatos ou respostas deve filtrar explicitamente `deleted_at IS NULL`.
 
 ## Convenções de Modelagem e Escrita SQL (SQLite)

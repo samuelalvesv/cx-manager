@@ -37,6 +37,7 @@ A avaliação de interface e componentes frontend é regida integralmente pelas 
 
 - **Frontend React & TypeScript**: Seguir integralmente [.agents/rules/frontend-rules.md](../../rules/frontend-rules.md).
 - **Contratos REST**: Seguir integralmente [.agents/rules/contracts-rules.md](../../rules/contracts-rules.md).
+- **Integridade de Dados & Simetria de Tipos**: Seguir integralmente [.agents/rules/data-integrity-rules.md](../../rules/data-integrity-rules.md).
 - **Arquitetura Geral**: Seguir integralmente [.agents/rules/architecture.md](../../rules/architecture.md).
 
 ---

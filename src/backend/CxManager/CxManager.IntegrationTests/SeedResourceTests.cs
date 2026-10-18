@@ -8,7 +8,7 @@ public sealed class SeedResourceTests
     [Fact]
     public void SeedResource_ShouldBeEmbeddedInInfrastructureAssembly()
     {
-        Assembly infrastructureAssembly = CxManager.Infrastructure.InfrastructureMarker.Assembly;
+        Assembly infrastructureAssembly = Infrastructure.InfrastructureMarker.Assembly;
         const string resourceName = "CxManager.Infrastructure.Data.seed.json";
 
         using Stream? stream = infrastructureAssembly.GetManifestResourceStream(name: resourceName);
@@ -16,7 +16,7 @@ public sealed class SeedResourceTests
         Assert.True(condition: stream is not null, userMessage: $"O recurso embutido '{resourceName}' não foi encontrado no assembly de infraestrutura.");
         Assert.True(condition: stream.Length > 0, userMessage: "O arquivo seed.json embutido está vazio.");
 
-        using JsonDocument document = JsonDocument.Parse(utf8Json: stream);
+        using var document = JsonDocument.Parse(utf8Json: stream);
         JsonElement root = document.RootElement;
 
         Assert.True(condition: root.TryGetProperty(propertyName: "company", value: out JsonElement company), userMessage: "Propriedade 'company' ausente no seed.json.");

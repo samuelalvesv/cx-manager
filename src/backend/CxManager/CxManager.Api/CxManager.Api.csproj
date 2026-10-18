@@ -3,6 +3,7 @@
     <PropertyGroup>
         <IsAotCompatible>true</IsAotCompatible>
         <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+        <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
     </PropertyGroup>
 
     <ItemGroup>

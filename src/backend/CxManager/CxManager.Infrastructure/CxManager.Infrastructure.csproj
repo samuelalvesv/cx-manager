@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Dapper.AOT</InterceptorsNamespaces>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\CxManager.Domain\CxManager.Domain.csproj" />
     <ProjectReference Include="..\CxManager.Application\CxManager.Application.csproj" />
@@ -9,6 +13,7 @@
     <PackageReference Include="Dapper" />
     <PackageReference Include="Dapper.AOT" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
