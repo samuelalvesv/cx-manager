@@ -33,8 +33,9 @@ applyTo: "src/backend/CxManager/CxManager.Infrastructure/**/*.{cs,sql}"
 - **Persistência de Datas em UTC**: Colunas temporais no SQLite devem ser armazenadas como `TEXT` em formato ISO 8601 UTC (`YYYY-MM-DDTHH:mm:ssZ`).
 - **Integridade Referencial**: Habilitar `PRAGMA foreign_keys = ON;` em toda conexão aberta pela fábrica de conexões e definir `FOREIGN KEY` explícitas no schema.
 - **Índices Documentados**: Criar índices explícitos onde há impacto real de consulta (busca/unicidade de e-mail ativo em contatos, listagem de respostas por contato, filtros de respostas ativas por pesquisa e período `responded_at`), acompanhados de comentário SQL explicando a razão técnica de cada índice.
-- **Importação do Seed (`seed.json`)**:
+- **Importação do Seed (`seed.json`) e Autossuficiência de Dados**:
   - A carga inicial deve ser idempotente, executada automaticamente na inicialização caso o banco esteja vazio, dentro de uma transação única e preservando fielmente todos os campos originais do seed (incluindo `id` e `deletedAt`).
+  - Os conjuntos de dados utilizados para a inicialização e conferência analítica da base devem ser distribuídos como recursos versionados e autossuficientes da camada de persistência, assegurando que o provisionamento do banco e a execução das suítes de testes automatizados ocorram de maneira determinística e independente de caminhos externos ao repositório.
 
 ## Ferramentas Globais
 

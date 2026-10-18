@@ -11,4 +11,7 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\..\data\seed.json" Link="Data\seed.json" LogicalName="CxManager.Infrastructure.Data.seed.json" />
+  </ItemGroup>
 </Project>

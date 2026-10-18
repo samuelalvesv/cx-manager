@@ -1,5 +1,9 @@
-IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
+IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args: args);
 
-builder.AddProject<Projects.CxManager_Api>("cxmanager-api");
+IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.CxManager_Api>(name: "cxmanager-api");
+
+builder.AddNpmApp(name: "frontend", workingDirectory: "../../../frontend", scriptName: "dev")
+    .WithReference(source: api)
+    .WithHttpEndpoint(env: "PORT");
 
 builder.Build().Run();
