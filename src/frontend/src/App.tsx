@@ -15,10 +15,11 @@ import {
   Typography,
 } from '@mui/material'
 import { useState } from 'react'
-import { AppBar } from './components/AppBar.tsx'
+import { AppBar, type ViewType } from './components/AppBar.tsx'
 import { CompanyDialog } from './components/CompanyDialog.tsx'
 import { CompanyProvider } from './context/CompanyContext.tsx'
 import { useCompany } from './context/useCompany.ts'
+import { SurveysPage } from './pages/SurveysPage.tsx'
 import { theme } from './theme/theme.ts'
 
 function DashboardContent() {
@@ -116,14 +117,24 @@ function DashboardContent() {
   )
 }
 
+function MainContent({ currentView }: { readonly currentView: ViewType }) {
+  if (currentView === 'surveys') {
+    return <SurveysPage />
+  }
+
+  return <DashboardContent />
+}
+
 function App() {
+  const [currentView, setCurrentView] = useState<ViewType>('surveys')
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <CompanyProvider>
         <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-          <AppBar />
-          <DashboardContent />
+          <AppBar currentView={currentView} onViewChange={setCurrentView} />
+          <MainContent currentView={currentView} />
         </Box>
       </CompanyProvider>
     </ThemeProvider>

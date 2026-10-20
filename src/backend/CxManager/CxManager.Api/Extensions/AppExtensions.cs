@@ -1,4 +1,5 @@
 using CxManager.Api.Endpoints;
+using CxManager.Api.Filters;
 using CxManager.Infrastructure.Persistence.Schema;
 using CxManager.Infrastructure.Persistence.Seed;
 
@@ -13,10 +14,7 @@ public static class AppExtensions
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.UseSwaggerUI(setupAction: options =>
-            {
-                options.SwaggerEndpoint(url: "/openapi/v1.json", name: "CxManager API v1");
-            });
+            app.UseSwaggerUI(setupAction: options => options.SwaggerEndpoint(url: "/openapi/v1.json", name: "CxManager API v1"));
         }
         else
         {
@@ -32,6 +30,10 @@ public static class AppExtensions
 
         apiGroup.MapGroup(prefix: "/companies")
             .MapCompanyEndpoints();
+
+        apiGroup.MapGroup(prefix: "/surveys")
+            .AddEndpointFilter<RequireCompanyContextFilter>()
+            .MapSurveyEndpoints();
 
         return app;
     }

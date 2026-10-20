@@ -1,4 +1,5 @@
 using CxManager.Domain.Enums;
+using CxManager.Domain.Exceptions;
 using CxManager.Domain.Validation;
 
 namespace CxManager.Domain.Entities;
@@ -32,12 +33,13 @@ public sealed class Survey : Entity
     {
         long validatedCompanyId = ValidateCompanyId(companyId: companyId);
         string validatedName = ValidateName(name: name);
+        SurveyType validatedType = ValidateType(type: type);
 
         return new Survey(
             id: 0,
             companyId: validatedCompanyId,
             name: validatedName,
-            type: type,
+            type: validatedType,
             createdAt: DateTimeOffset.UtcNow,
             deletedAt: null);
     }
@@ -71,4 +73,12 @@ public sealed class Survey : Entity
             fieldName: "nome da pesquisa",
             minLength: MinNameLength,
             maxLength: MaxNameLength);
+
+    private static SurveyType ValidateType(SurveyType type)
+    {
+        if (!Enum.IsDefined(type))
+            throw new ValidationException(message: "O tipo da pesquisa deve ser 'NPS' ou 'CSAT'.");
+
+        return type;
+    }
 }

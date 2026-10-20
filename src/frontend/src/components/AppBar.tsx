@@ -13,6 +13,8 @@ import {
   Select,
   type SelectChangeEvent,
   Skeleton,
+  Tab,
+  Tabs,
   Toolbar,
   Tooltip,
   Typography,
@@ -21,7 +23,14 @@ import { useState } from 'react'
 import { useCompany } from '../context/useCompany.ts'
 import { CompanyDialog } from './CompanyDialog.tsx'
 
-export function AppBar() {
+export type ViewType = 'organization' | 'surveys'
+
+export interface AppBarProps {
+  readonly currentView: ViewType
+  readonly onViewChange: (view: ViewType) => void
+}
+
+export function AppBar({ currentView, onViewChange }: AppBarProps) {
   const { companies, selectedCompany, selectedCompanyId, selectCompany, refreshCompanies, loading } = useCompany()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
@@ -50,17 +59,38 @@ export function AppBar() {
   return (
     <>
       <MuiAppBar position="static" color="inherit">
-        <Toolbar sx={{ justifyContent: 'space-between', gap: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <InsightsIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-            <Box>
-              <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                CxManager
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Gestão de Experiência do Cliente
-              </Typography>
+        <Toolbar sx={{ justifyContent: 'space-between', gap: 2, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <InsightsIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+              <Box>
+                <Typography variant="h6" component="div" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                  CxManager
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Gestão de Experiência do Cliente
+                </Typography>
+              </Box>
             </Box>
+
+            <Tabs
+              value={currentView}
+              onChange={(_, value: ViewType) => onViewChange(value)}
+              textColor="primary"
+              indicatorColor="primary"
+              sx={{ minHeight: 48 }}
+            >
+              <Tab
+                label="Organização"
+                value="organization"
+                sx={{ minHeight: 48, textTransform: 'none', fontWeight: 600 }}
+              />
+              <Tab
+                label="Gestão de Pesquisas"
+                value="surveys"
+                sx={{ minHeight: 48, textTransform: 'none', fontWeight: 600 }}
+              />
+            </Tabs>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 320 }}>
