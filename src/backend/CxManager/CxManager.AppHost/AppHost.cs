@@ -4,6 +4,6 @@ IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.CxManager_Ap
 
 builder.AddNpmApp(name: "frontend", workingDirectory: "../../../frontend", scriptName: "dev")
     .WithReference(source: api)
-    .WithHttpEndpoint(env: "PORT");
+    .WithHttpEndpoint(port: 5173, env: "PORT");
 
 builder.Build().Run();

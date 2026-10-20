@@ -3,7 +3,13 @@ using CxManager.Api.Context;
 using CxManager.Api.ExceptionHandling;
 using CxManager.Api.Serialization;
 using CxManager.Application.Interfaces;
+using CxManager.Application.UseCases.Companies.Commands.CreateCompany;
+using CxManager.Application.UseCases.Companies.Commands.DeleteCompany;
+using CxManager.Application.UseCases.Companies.Commands.UpdateCompany;
 using CxManager.Application.UseCases.Companies.Queries;
+using CxManager.Application.UseCases.Companies.Queries.GetCompanyById;
+using CxManager.Application.Validators.Companies;
+using CxManager.Contract.Requests.Companies;
 using CxManager.Infrastructure;
 using Microsoft.AspNetCore.Http.Json;
 
@@ -39,6 +45,14 @@ public static class BuilderExtensions
 
         // Casos de uso de aplicação
         builder.Services.AddScoped<IGetCompaniesUseCase, GetCompaniesUseCase>();
+        builder.Services.AddScoped<IGetCompanyByIdUseCase, GetCompanyByIdUseCase>();
+        builder.Services.AddScoped<ICreateCompanyUseCase, CreateCompanyUseCase>();
+        builder.Services.AddScoped<IUpdateCompanyUseCase, UpdateCompanyUseCase>();
+        builder.Services.AddScoped<IDeleteCompanyUseCase, DeleteCompanyUseCase>();
+
+        // Validadores
+        builder.Services.AddScoped<FluentValidation.IValidator<CreateCompanyRequest>, CreateCompanyRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<UpdateCompanyRequest>, UpdateCompanyRequestValidator>();
 
         return builder;
     }

@@ -63,6 +63,45 @@ public sealed class CompanyRepository(IDbConnectionFactory connectionFactory) : 
         return id;
     }
 
+    public async Task UpdateAsync(Company company, CancellationToken cancellationToken = default)
+    {
+        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+
+        const string sql = """
+            UPDATE companies
+            SET name = @Name, description = @Description
+            WHERE id = @Id AND deleted_at IS NULL;
+            """;
+
+        await connection.ExecuteAsync(
+            sql: sql,
+            param: new
+            {
+                company.Name,
+                company.Description,
+                company.Id
+            });
+    }
+
+    public async Task DeleteAsync(long id, DateTimeOffset deletedAt, CancellationToken cancellationToken = default)
+    {
+        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+
+        const string sql = """
+            UPDATE companies
+            SET deleted_at = @DeletedAt
+            WHERE id = @Id AND deleted_at IS NULL;
+            """;
+
+        await connection.ExecuteAsync(
+            sql: sql,
+            param: new
+            {
+                Id = id,
+                DeletedAt = deletedAt.ToString(format: "O")
+            });
+    }
+
     public async Task<bool> ExistsActiveAsync(long id, CancellationToken cancellationToken = default)
     {
         using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);

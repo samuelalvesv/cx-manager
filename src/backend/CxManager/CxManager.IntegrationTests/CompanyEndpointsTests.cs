@@ -1,11 +1,10 @@
 using System.Net;
-using CxManager.Api.Endpoints;
 using CxManager.Api.Extensions;
 using CxManager.Api.Filters;
+using CxManager.Api.Serialization;
+using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Responses;
 using CxManager.Contract.Responses.Companies;
-using CxManager.Infrastructure.Persistence.Schema;
-using CxManager.Infrastructure.Persistence.Seed;
 
 namespace CxManager.IntegrationTests;
 
@@ -66,6 +65,233 @@ public sealed class CompanyEndpointsTests : IAsyncDisposable
         Assert.Equal(expected: 1, actual: company.Id);
         Assert.Equal(expected: "Vita Bem-Estar", actual: company.Name);
         Assert.Equal(expected: "Rede de academias com 12 unidades no Nordeste", actual: company.Description);
+    }
+
+    [Fact]
+    public async Task CreateCompany_WithValidData_ShouldReturn201CreatedAndLocationHeader()
+    {
+        CreateCompanyRequest request = new()
+        {
+            Name = "Nova Rede Fitness",
+            Description = "Rede inovadora de academias inteligentes"
+        };
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync(
+            requestUri: "/api/companies",
+            value: request,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateCompanyRequest,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.Created, actual: response.StatusCode);
+        Assert.NotNull(@object: response.Headers.Location);
+
+        CompanyResponse? created = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.CompanyResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: created);
+        Assert.True(condition: created.Id > 0);
+        Assert.Equal(expected: "Nova Rede Fitness", actual: created.Name);
+        Assert.Equal(expected: "Rede inovadora de academias inteligentes", actual: created.Description);
+        Assert.Equal(expected: $"/api/companies/{created.Id}", actual: response.Headers.Location.OriginalString);
+    }
+
+    [Fact]
+    public async Task CreateCompany_WithInvalidName_ShouldReturn400BadRequest()
+    {
+        CreateCompanyRequest request = new()
+        {
+            Name = "",
+            Description = "Descrição válida"
+        };
+
+        HttpResponseMessage response = await _client.PostAsJsonAsync(
+            requestUri: "/api/companies",
+            value: request,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateCompanyRequest,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: error);
+        Assert.False(condition: string.IsNullOrWhiteSpace(value: error.Error));
+    }
+
+    [Fact]
+    public async Task GetCompanyById_WhenExistsAndActive_ShouldReturn200AndCompanyDetails()
+    {
+        HttpResponseMessage response = await _client.GetAsync(
+            requestUri: new Uri(uriString: "/api/companies/1", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        CompanyResponse? company = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.CompanyResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: company);
+        Assert.Equal(expected: 1, actual: company.Id);
+        Assert.Equal(expected: "Vita Bem-Estar", actual: company.Name);
+    }
+
+    [Fact]
+    public async Task GetCompanyById_WhenNotExists_ShouldReturn404NotFound()
+    {
+        HttpResponseMessage response = await _client.GetAsync(
+            requestUri: new Uri(uriString: "/api/companies/999999", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NotFound, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: error);
+        Assert.Equal(expected: "Empresa não encontrada.", actual: error.Error);
+    }
+
+    [Fact]
+    public async Task UpdateCompany_WhenExistsAndValid_ShouldReturn200AndUpdatedCompany()
+    {
+        UpdateCompanyRequest request = new()
+        {
+            Name = "Vita Bem-Estar Premium",
+            Description = "Rede expandida com novas modalidades e pilates"
+        };
+
+        HttpResponseMessage response = await _client.PutAsJsonAsync(
+            requestUri: "/api/companies/1",
+            value: request,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateCompanyRequest,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        CompanyResponse? updated = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.CompanyResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: updated);
+        Assert.Equal(expected: 1, actual: updated.Id);
+        Assert.Equal(expected: "Vita Bem-Estar Premium", actual: updated.Name);
+        Assert.Equal(expected: "Rede expandida com novas modalidades e pilates", actual: updated.Description);
+    }
+
+    [Fact]
+    public async Task UpdateCompany_WhenNotExists_ShouldReturn404NotFound()
+    {
+        UpdateCompanyRequest request = new()
+        {
+            Name = "Empresa Fantasma",
+            Description = "Descrição válida para inexistente"
+        };
+
+        HttpResponseMessage response = await _client.PutAsJsonAsync(
+            requestUri: "/api/companies/999999",
+            value: request,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateCompanyRequest,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NotFound, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: error);
+        Assert.Equal(expected: "Empresa não encontrada.", actual: error.Error);
+    }
+
+    [Fact]
+    public async Task UpdateCompany_WithInvalidName_ShouldReturn400BadRequest()
+    {
+        UpdateCompanyRequest request = new()
+        {
+            Name = "",
+            Description = "Descrição válida"
+        };
+
+        HttpResponseMessage response = await _client.PutAsJsonAsync(
+            requestUri: "/api/companies/1",
+            value: request,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateCompanyRequest,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: error);
+        Assert.False(condition: string.IsNullOrWhiteSpace(value: error.Error));
+    }
+
+    [Fact]
+    public async Task DeleteCompany_WhenExists_ShouldReturn204NoContent_AndSubsequentGetShouldReturn404()
+    {
+        CreateCompanyRequest request = new()
+        {
+            Name = "Empresa Para Excluir",
+            Description = "Empresa temporária para validação de soft delete"
+        };
+
+        HttpResponseMessage createResponse = await _client.PostAsJsonAsync(
+            requestUri: "/api/companies",
+            value: request,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateCompanyRequest,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        CompanyResponse? created = await createResponse.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.CompanyResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: created);
+
+        HttpResponseMessage deleteResponse = await _client.DeleteAsync(
+            requestUri: new Uri(uriString: $"/api/companies/{created.Id}", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NoContent, actual: deleteResponse.StatusCode);
+
+        HttpResponseMessage getResponse = await _client.GetAsync(
+            requestUri: new Uri(uriString: $"/api/companies/{created.Id}", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NotFound, actual: getResponse.StatusCode);
+
+        HttpResponseMessage listResponse = await _client.GetAsync(
+            requestUri: new Uri(uriString: "/api/companies", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        IReadOnlyList<CompanyResponse>? list = await listResponse.Content.ReadFromJsonAsync<IReadOnlyList<CompanyResponse>>(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: list);
+        Assert.DoesNotContain(collection: list, filter: c => c.Id == created.Id);
+    }
+
+    [Fact]
+    public async Task DeleteCompany_WhenNotExists_ShouldReturn404NotFound()
+    {
+        HttpResponseMessage response = await _client.DeleteAsync(
+            requestUri: new Uri(uriString: "/api/companies/999999", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NotFound, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: error);
+        Assert.Equal(expected: "Empresa não encontrada.", actual: error.Error);
     }
 
     [Fact]

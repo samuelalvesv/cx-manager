@@ -8,7 +8,7 @@ export interface CompanyContextValue {
   readonly loading: boolean
   readonly error: string | null
   readonly selectCompany: (id: number) => void
-  readonly refreshCompanies: () => Promise<void>
+  readonly refreshCompanies: (targetCompanyId?: number) => Promise<void>
 }
 
 export const CompanyContext = createContext<CompanyContextValue | null>(null)

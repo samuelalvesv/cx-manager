@@ -10,6 +10,7 @@
     <PackageVersion Include="MessagePack" Version="2.5.305" />
     <!-- ASP.NET Core & OpenAPI -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.3.0" />
     <!-- Data Access (SQLite & Dapper AOT) -->
     <PackageVersion Include="Dapper" Version="2.1.89" />
     <PackageVersion Include="Dapper.AOT" Version="1.1.0" />

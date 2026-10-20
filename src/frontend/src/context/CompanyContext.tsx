@@ -34,14 +34,19 @@ export function CompanyProvider({ children }: CompanyProviderProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refreshCompanies = useCallback(async () => {
+  const refreshCompanies = useCallback(async (targetCompanyId?: number) => {
     setLoading(true)
     setError(null)
     try {
       const data = await getCompanies()
       setCompanies(data)
-      const resolvedId = resolveInitialCompanyId(data)
-      setSelectedCompanyIdState(resolvedId)
+      if (targetCompanyId !== undefined) {
+        setSelectedCompanyId(targetCompanyId)
+        setSelectedCompanyIdState(targetCompanyId)
+      } else {
+        const resolvedId = resolveInitialCompanyId(data)
+        setSelectedCompanyIdState(resolvedId)
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Falha ao carregar as empresas.'
       setError(message)

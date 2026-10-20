@@ -1,4 +1,5 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import {
   Alert,
@@ -13,13 +14,16 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material'
+import { useState } from 'react'
 import { AppBar } from './components/AppBar.tsx'
+import { CompanyDialog } from './components/CompanyDialog.tsx'
 import { CompanyProvider } from './context/CompanyContext.tsx'
 import { useCompany } from './context/useCompany.ts'
 import { theme } from './theme/theme.ts'
 
 function DashboardContent() {
   const { selectedCompany, loading, error, refreshCompanies } = useCompany()
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   if (loading) {
     return (
@@ -76,9 +80,19 @@ function DashboardContent() {
           <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
             {selectedCompany?.name ?? 'Nenhuma empresa selecionada'}
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
             {selectedCompany?.description ?? 'Selecione uma empresa no cabeçalho superior.'}
           </Typography>
+          {selectedCompany !== null && (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<EditOutlinedIcon />}
+              onClick={() => setEditDialogOpen(true)}
+            >
+              Editar Dados da Empresa
+            </Button>
+          )}
         </CardContent>
         <Divider />
         <CardContent sx={{ bgcolor: 'background.default', py: 2 }}>
@@ -88,6 +102,16 @@ function DashboardContent() {
           </Typography>
         </CardContent>
       </Card>
+
+      <CompanyDialog
+        open={editDialogOpen}
+        mode="edit"
+        company={selectedCompany}
+        onClose={() => setEditDialogOpen(false)}
+        onSuccess={(saved) => {
+          void refreshCompanies(saved.id)
+        }}
+      />
     </Container>
   )
 }

@@ -13,9 +13,15 @@ public static class AppExtensions
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+            app.UseSwaggerUI(setupAction: options =>
+            {
+                options.SwaggerEndpoint(url: "/openapi/v1.json", name: "CxManager API v1");
+            });
         }
-
-        app.UseHttpsRedirection();
+        else
+        {
+            app.UseHttpsRedirection();
+        }
 
         return app;
     }

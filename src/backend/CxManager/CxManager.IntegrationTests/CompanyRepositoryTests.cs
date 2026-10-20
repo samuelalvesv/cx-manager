@@ -53,5 +53,50 @@ public sealed class CompanyRepositoryTests : IAsyncDisposable
         Assert.Null(@object: company);
     }
 
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateNameAndDescription()
+    {
+        await _initializer.InitializeAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        var company = Company.Create(name: "Original Name", description: "Original Description");
+        long id = await _repository.CreateAsync(company: company, cancellationToken: TestContext.Current.CancellationToken);
+
+        var toUpdate = Company.Reconstitute(
+            id: id,
+            name: "Updated Name",
+            description: "Updated Description",
+            createdAt: company.CreatedAt,
+            deletedAt: null);
+
+        await _repository.UpdateAsync(company: toUpdate, cancellationToken: TestContext.Current.CancellationToken);
+
+        Company? retrieved = await _repository.GetByIdAsync(id: id, cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: retrieved);
+        Assert.Equal(expected: "Updated Name", actual: retrieved.Name);
+        Assert.Equal(expected: "Updated Description", actual: retrieved.Description);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_ShouldSoftDeleteCompany_AndExcludeFromActiveQueries()
+    {
+        await _initializer.InitializeAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        var company = Company.Create(name: "Para Excluir", description: "Descrição");
+        long id = await _repository.CreateAsync(company: company, cancellationToken: TestContext.Current.CancellationToken);
+
+        DateTimeOffset deletedAt = DateTimeOffset.UtcNow;
+        await _repository.DeleteAsync(id: id, deletedAt: deletedAt, cancellationToken: TestContext.Current.CancellationToken);
+
+        Company? retrieved = await _repository.GetByIdAsync(id: id, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Null(@object: retrieved);
+
+        bool exists = await _repository.ExistsActiveAsync(id: id, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.False(condition: exists);
+
+        IReadOnlyList<Company> allActive = await _repository.GetAllActiveAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.DoesNotContain(collection: allActive, filter: c => c.Id == id);
+    }
+
     public async ValueTask DisposeAsync() => await _keepAliveConnection.DisposeAsync();
 }
