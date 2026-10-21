@@ -14,14 +14,24 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { AppBar, type ViewType } from './components/AppBar.tsx'
 import { CompanyDialog } from './components/CompanyDialog.tsx'
 import { CompanyProvider } from './context/CompanyContext.tsx'
 import { useCompany } from './context/useCompany.ts'
-import { ContactsPage } from './pages/ContactsPage.tsx'
-import { SurveysPage } from './pages/SurveysPage.tsx'
 import { theme } from './theme/theme.ts'
+
+const ContactsPage = lazy(() => import('./pages/ContactsPage.tsx').then((m) => ({ default: m.ContactsPage })))
+const SurveysPage = lazy(() => import('./pages/SurveysPage.tsx').then((m) => ({ default: m.SurveysPage })))
+
+function PageLoadingFallback() {
+  return (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Skeleton variant="rounded" height={60} sx={{ mb: 3 }} />
+      <Skeleton variant="rounded" height={280} />
+    </Container>
+  )
+}
 
 function DashboardContent() {
   const { selectedCompany, loading, error, refreshCompanies } = useCompany()
@@ -66,7 +76,7 @@ function DashboardContent() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Card sx={{ mb: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+      <Card sx={{ mb: 3, border: 1, borderColor: 'divider', boxShadow: 'none' }}>
         <CardContent sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="overline" color="primary.main" sx={{ fontWeight: 700, letterSpacing: 1.2 }}>
@@ -75,7 +85,7 @@ function DashboardContent() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <CheckCircleIcon color="success" fontSize="small" />
               <Typography variant="caption" color="text.secondary">
-                Contexto multi-empresa ativo
+                Organização conectada
               </Typography>
             </Box>
           </Box>
@@ -99,8 +109,8 @@ function DashboardContent() {
         <Divider />
         <CardContent sx={{ bgcolor: 'background.default', py: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            ID de Contexto: <strong>{selectedCompany?.id ?? '—'}</strong> • Todas as operações de contatos, pesquisas e
-            respostas são isoladas para este identificador.
+            Identificador da Empresa: <strong>{selectedCompany?.id ?? '—'}</strong> • Todas as pesquisas e contatos
+            gerenciados pertencem a esta empresa.
           </Typography>
         </CardContent>
       </Card>
@@ -120,11 +130,19 @@ function DashboardContent() {
 
 function MainContent({ currentView }: { readonly currentView: ViewType }) {
   if (currentView === 'surveys') {
-    return <SurveysPage />
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <SurveysPage />
+      </Suspense>
+    )
   }
 
   if (currentView === 'contacts') {
-    return <ContactsPage />
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <ContactsPage />
+      </Suspense>
+    )
   }
 
   return <DashboardContent />

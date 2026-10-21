@@ -62,7 +62,7 @@ export function DeleteSurveyDialog({
           <strong>{survey?.name ?? ''}</strong>?
         </DialogContentText>
         <DialogContentText variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          A pesquisa sofrerá exclusão lógica (soft delete) e deixará imediatamente de receber novas respostas e de constar em listagens ativas.
+          A pesquisa será desativada e deixará imediatamente de receber novas respostas e de constar nas listagens ativas.
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>

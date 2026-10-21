@@ -7,7 +7,6 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import SearchIcon from '@mui/icons-material/Search'
 import {
   Alert,
-  Box,
   Button,
   Card,
   Chip,
@@ -25,11 +24,12 @@ import {
   TableRow,
   TextField,
   Tooltip,
-  Typography,
 } from '@mui/material'
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { ContactDialog } from '../components/ContactDialog.tsx'
 import { DeleteContactDialog } from '../components/DeleteContactDialog.tsx'
+import { EmptyState } from '../components/EmptyState.tsx'
+import { PageHeader } from '../components/PageHeader.tsx'
 import { useCompany } from '../context/useCompany.ts'
 import { getContacts } from '../services/contactService.ts'
 import type { Contact } from '../types/contact.ts'
@@ -51,6 +51,15 @@ export function ContactsPage() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null)
+  const [prevCompanyId, setPrevCompanyId] = useState(selectedCompanyId)
+
+  // Reset pagination and search during render when company changes
+  if (selectedCompanyId !== prevCompanyId) {
+    setPrevCompanyId(selectedCompanyId)
+    setPage(1)
+    setSearchInput('')
+    setDebouncedSearch('')
+  }
 
   // Debounce search input
   useEffect(() => {
@@ -157,7 +166,11 @@ export function ContactsPage() {
   }
 
   const handleDeleteSuccess = () => {
-    void handleRetry()
+    if (contacts.length === 1 && page > 1) {
+      setPage((prev) => prev - 1)
+    } else {
+      void handleRetry()
+    }
   }
 
   if (selectedCompanyId === null) {
@@ -172,38 +185,35 @@ export function ContactsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Cabeçalho */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-            <PeopleAltOutlinedIcon sx={{ color: 'primary.main', fontSize: 28 }} />
-            <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
-              Gestão de Contatos
-            </Typography>
-          </Box>
-          <Typography variant="body2" color="text.secondary">
-            Cadastro e busca rápida de alunos e clientes via SQLite FTS5 Trigram com isolamento multi-empresa.
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenCreate}
-          sx={{ fontWeight: 600 }}
-        >
-          Novo Contato
-        </Button>
-      </Box>
+      {/* Cabeçalho da Página */}
+      <PageHeader
+        title="Gestão de Contatos"
+        subtitle="Cadastro e busca ágil de clientes e alunos da organização."
+        icon={<PeopleAltOutlinedIcon sx={{ color: 'primary.main', fontSize: 28 }} />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenCreate}
+            sx={{ fontWeight: 600 }}
+          >
+            Novo Contato
+          </Button>
+        }
+      />
 
       {/* Barra de Filtros e Busca Textual com Debounce */}
-      <Card sx={{ mb: 3, p: 2, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+      <Card sx={{ mb: 3, p: 2, border: 1, borderColor: 'divider', boxShadow: 'none' }}>
         <TextField
-          placeholder="Buscar contato por nome ou e-mail (FTS5 trigram)..."
+          placeholder="Buscar contato por nome ou e-mail..."
           value={searchInput}
           onChange={handleSearchChange}
           size="small"
           fullWidth
           slotProps={{
+            htmlInput: {
+              'aria-label': 'Buscar contatos por nome ou e-mail',
+            },
             input: {
               startAdornment: (
                 <InputAdornment position="start">
@@ -247,7 +257,7 @@ export function ContactsPage() {
       )}
 
       {/* Tabela de Contatos */}
-      <Card sx={{ border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+      <Card sx={{ border: 1, borderColor: 'divider', boxShadow: 'none' }}>
         <TableContainer>
           <Table aria-label="Tabela de contatos cadastrados">
             <TableHead sx={{ bgcolor: 'background.default' }}>
@@ -272,29 +282,25 @@ export function ContactsPage() {
                 ))
               ) : contacts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} sx={{ py: 6, textAlign: 'center' }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                      <PeopleAltOutlinedIcon sx={{ fontSize: 48, color: 'text.disabled' }} />
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        Nenhum contato encontrado
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {debouncedSearch.length > 0
+                  <TableCell colSpan={5} sx={{ p: 0 }}>
+                    <EmptyState
+                      icon={<PeopleAltOutlinedIcon sx={{ fontSize: 48 }} />}
+                      title="Nenhum contato encontrado"
+                      description={
+                        debouncedSearch.length > 0
                           ? `Nenhum resultado corresponde à busca por "${debouncedSearch}". Ajuste os termos pesquisados.`
-                          : 'Esta organização ainda não possui contatos cadastrados.'}
-                      </Typography>
-                      {debouncedSearch.length === 0 && (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<AddIcon />}
-                          onClick={handleOpenCreate}
-                          sx={{ mt: 1 }}
-                        >
-                          Cadastrar Primeiro Contato
-                        </Button>
-                      )}
-                    </Box>
+                          : 'Esta organização ainda não possui contatos cadastrados.'
+                      }
+                      action={
+                        debouncedSearch.length === 0
+                          ? {
+                              label: 'Cadastrar Primeiro Contato',
+                              icon: <AddIcon />,
+                              onClick: handleOpenCreate,
+                            }
+                          : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -325,7 +331,7 @@ export function ContactsPage() {
                             <EditOutlinedIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Excluir contato (soft delete)">
+                        <Tooltip title="Excluir contato">
                           <IconButton
                             size="small"
                             color="error"

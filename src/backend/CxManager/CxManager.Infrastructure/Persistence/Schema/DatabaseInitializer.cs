@@ -44,6 +44,7 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory) 
 
         -- Índice para busca e paginação de contatos ativos por empresa
         CREATE INDEX IF NOT EXISTS ix_contacts_company_active ON contacts(company_id, deleted_at);
+        CREATE INDEX IF NOT EXISTS ix_contacts_company_name_active ON contacts(company_id, name ASC) WHERE deleted_at IS NULL;
 
         -- Tabela de respostas vinculada à pesquisa e ao contato
         CREATE TABLE IF NOT EXISTS responses (
@@ -80,10 +81,12 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory) 
             DELETE FROM contacts_fts WHERE rowid = old.id;
         END;
 
-        -- Trigger para atualização da tabela virtual FTS5 em edição cadastral
+        -- Trigger para atualização da tabela virtual FTS5 em edição cadastral (limpa contatos com soft delete)
         CREATE TRIGGER IF NOT EXISTS trg_contacts_au AFTER UPDATE ON contacts BEGIN
             DELETE FROM contacts_fts WHERE rowid = old.id;
-            INSERT INTO contacts_fts(rowid, name, email) VALUES (new.id, new.name, new.email);
+            INSERT INTO contacts_fts(rowid, name, email)
+            SELECT new.id, new.name, new.email
+            WHERE new.deleted_at IS NULL;
         END;
         """;
 

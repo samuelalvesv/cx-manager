@@ -185,5 +185,97 @@ public sealed class ContactRepositoryTests : IAsyncDisposable
         Assert.False(condition: existsAfterDelete);
     }
 
+    [Fact]
+    public async Task GetByIdAsync_WhenActive_ShouldReturnContact()
+    {
+        await _initializer.InitializeAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        long companyId = await _companyRepository.CreateAsync(
+            company: Company.Create(name: "Empresa Teste", description: "Desc"),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var contact = Contact.Create(companyId: companyId, name: "Contato Ativo", email: "ativo@exemplo.com", segment: "Fit");
+        long id = await _contactRepository.CreateAsync(contact: contact, cancellationToken: TestContext.Current.CancellationToken);
+
+        Contact? retrieved = await _contactRepository.GetByIdAsync(id: id, companyId: companyId, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(@object: retrieved);
+        Assert.Equal(expected: id, actual: retrieved.Id);
+        Assert.Equal(expected: "Contato Ativo", actual: retrieved.Name);
+        Assert.Equal(expected: "ativo@exemplo.com", actual: retrieved.Email);
+        Assert.Equal(expected: "Fit", actual: retrieved.Segment);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenContactIsSoftDeleted_ShouldReturnNull()
+    {
+        await _initializer.InitializeAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        long companyId = await _companyRepository.CreateAsync(
+            company: Company.Create(name: "Empresa Teste", description: "Desc"),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var contact = Contact.Create(companyId: companyId, name: "Contato Soft Delete", email: "soft@exemplo.com", segment: "Fit");
+        long id = await _contactRepository.CreateAsync(contact: contact, cancellationToken: TestContext.Current.CancellationToken);
+
+        await _contactRepository.DeleteAsync(
+            id: id,
+            companyId: companyId,
+            deletedAt: DateTimeOffset.UtcNow,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Contact? retrieved = await _contactRepository.GetByIdAsync(id: id, companyId: companyId, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Null(@object: retrieved);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenDifferentCompany_ShouldReturnNull()
+    {
+        await _initializer.InitializeAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        long company1Id = await _companyRepository.CreateAsync(
+            company: Company.Create(name: "Empresa 1", description: "Desc 1"),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        long company2Id = await _companyRepository.CreateAsync(
+            company: Company.Create(name: "Empresa 2", description: "Desc 2"),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var contact = Contact.Create(companyId: company1Id, name: "Contato C1", email: "c1@exemplo.com", segment: "Fit");
+        long id = await _contactRepository.CreateAsync(contact: contact, cancellationToken: TestContext.Current.CancellationToken);
+
+        Contact? retrieved = await _contactRepository.GetByIdAsync(id: id, companyId: company2Id, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Null(@object: retrieved);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateFieldsCorrectly()
+    {
+        await _initializer.InitializeAsync(cancellationToken: TestContext.Current.CancellationToken);
+
+        long companyId = await _companyRepository.CreateAsync(
+            company: Company.Create(name: "Empresa Teste", description: "Desc"),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        var contact = Contact.Create(companyId: companyId, name: "Nome Antigo", email: "antigo@exemplo.com", segment: "Fit");
+        long id = await _contactRepository.CreateAsync(contact: contact, cancellationToken: TestContext.Current.CancellationToken);
+
+        var toUpdate = Contact.Reconstitute(
+            id: id,
+            companyId: companyId,
+            name: "Nome Novo",
+            email: "novo@exemplo.com",
+            segment: "Black",
+            createdAt: contact.CreatedAt,
+            deletedAt: null);
+
+        await _contactRepository.UpdateAsync(contact: toUpdate, cancellationToken: TestContext.Current.CancellationToken);
+
+        Contact? retrieved = await _contactRepository.GetByIdAsync(id: id, companyId: companyId, cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(@object: retrieved);
+        Assert.Equal(expected: "Nome Novo", actual: retrieved.Name);
+        Assert.Equal(expected: "novo@exemplo.com", actual: retrieved.Email);
+        Assert.Equal(expected: "Black", actual: retrieved.Segment);
+    }
+
     public async ValueTask DisposeAsync() => await _keepAliveConnection.DisposeAsync();
 }

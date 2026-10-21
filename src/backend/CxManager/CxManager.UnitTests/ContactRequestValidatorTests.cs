@@ -125,7 +125,29 @@ public sealed class ContactRequestValidatorTests
             cancellation: TestContext.Current.CancellationToken);
 
         Assert.False(condition: result.IsValid);
-        Assert.True(condition: result.Errors.Count >= 3);
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(UpdateContactRequest.Name));
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(UpdateContactRequest.Email));
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(UpdateContactRequest.Segment));
+    }
+
+    [Fact]
+    public async Task CreateContact_WithExceededLengths_ShouldFail()
+    {
+        CreateContactRequest request = new()
+        {
+            Name = new string('A', 101),
+            Email = $"{new string('a', 145)}@exemplo.com",
+            Segment = new string('S', 51)
+        };
+
+        ValidationResult result = await _createValidator.ValidateAsync(
+            instance: request,
+            cancellation: TestContext.Current.CancellationToken);
+
+        Assert.False(condition: result.IsValid);
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(CreateContactRequest.Name));
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(CreateContactRequest.Email));
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(CreateContactRequest.Segment));
     }
 
     [Fact]
@@ -231,6 +253,22 @@ public sealed class ContactRequestValidatorTests
 
         Assert.False(condition: result.IsValid);
         Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(GetContactByIdRequest.Id));
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(50)]
+    public async Task DeleteContact_WithValidId_ShouldBeValid(long id)
+    {
+        DeleteContactRequestValidator validator = new();
+        DeleteContactRequest request = new() { Id = id };
+
+        ValidationResult result = await validator.ValidateAsync(
+            instance: request,
+            cancellation: TestContext.Current.CancellationToken);
+
+        Assert.True(condition: result.IsValid);
+        Assert.Empty(collection: result.Errors);
     }
 
     [Theory]

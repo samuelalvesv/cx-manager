@@ -58,7 +58,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
     [Fact]
     public async Task GetContacts_WithValidCompanyHeader_ShouldReturn200AndPagedContacts()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contacts?page=1&pageSize=10");
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts?page=1&pageSize=10");
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -81,7 +83,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
     [Fact]
     public async Task GetContacts_WithFtsSearch_ShouldFilterResults()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contacts?page=1&pageSize=20&search=costa");
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts?page=1&pageSize=20&search=costa");
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -106,7 +110,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
     [Fact]
     public async Task GetContacts_WithoutPage_ShouldReturn400BadRequest()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contacts?pageSize=20");
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts?pageSize=20");
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -114,12 +120,20 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(@object: error);
+        Assert.Equal(expected: "O número da página deve ser maior ou igual a 1.", actual: error.Error);
     }
 
     [Fact]
     public async Task GetContacts_WithoutPageSize_ShouldReturn400BadRequest()
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contacts?page=1");
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts?page=1");
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -127,6 +141,37 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+
+        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+        Assert.NotNull(@object: error);
+        Assert.Equal(expected: "O tamanho da página deve estar entre 1 e 100.", actual: error.Error);
+    }
+
+    [Fact]
+    public async Task GetContactById_WithValidId_ShouldReturn200OkAndContactResponse()
+    {
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts/1");
+        request.Headers.Add("X-Company-Id", "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        ContactResponse? contact = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ContactResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: contact);
+        Assert.Equal(expected: 1, actual: contact.Id);
+        Assert.False(string.IsNullOrWhiteSpace(contact.Name));
+        Assert.False(string.IsNullOrWhiteSpace(contact.Email));
+        Assert.False(string.IsNullOrWhiteSpace(contact.Segment));
     }
 
     [Fact]
@@ -176,7 +221,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Fit"
         };
 
-        using var req1 = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
+        using var req1 = new HttpRequestMessage(
+            method: HttpMethod.Post,
+            requestUri: "/api/contacts")
         {
             Content = JsonContent.Create(
                 inputValue: payload1,
@@ -197,7 +244,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Black"
         };
 
-        using var req2 = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
+        using var req2 = new HttpRequestMessage(
+            method: HttpMethod.Post,
+            requestUri: "/api/contacts")
         {
             Content = JsonContent.Create(
                 inputValue: payload2,
@@ -229,7 +278,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Fit"
         };
 
-        using var createReq = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
+        using var createReq = new HttpRequestMessage(
+            method: HttpMethod.Post,
+            requestUri: "/api/contacts")
         {
             Content = JsonContent.Create(
                 inputValue: payload,
@@ -253,7 +304,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Black"
         };
 
-        using var putReq = new HttpRequestMessage(HttpMethod.Put, $"/api/contacts/{created.Id}")
+        using var putReq = new HttpRequestMessage(
+            method: HttpMethod.Put,
+            requestUri: $"/api/contacts/{created.Id}")
         {
             Content = JsonContent.Create(
                 inputValue: updatePayload,
@@ -286,7 +339,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Fit"
         };
 
-        using var createReq1 = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
+        using var createReq1 = new HttpRequestMessage(
+            method: HttpMethod.Post,
+            requestUri: "/api/contacts")
         {
             Content = JsonContent.Create(
                 inputValue: payload,
@@ -304,7 +359,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
         long contactId = created.Id;
 
         // 2. Delete contact
-        using var deleteReq = new HttpRequestMessage(HttpMethod.Delete, $"/api/contacts/{contactId}");
+        using var deleteReq = new HttpRequestMessage(
+            method: HttpMethod.Delete,
+            requestUri: $"/api/contacts/{contactId}");
         deleteReq.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage deleteResp = await _client.SendAsync(
@@ -313,7 +370,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
         Assert.Equal(expected: HttpStatusCode.NoContent, actual: deleteResp.StatusCode);
 
         // 3. GET should return 404
-        using var getReq = new HttpRequestMessage(HttpMethod.Get, $"/api/contacts/{contactId}");
+        using var getReq = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: $"/api/contacts/{contactId}");
         getReq.Headers.Add("X-Company-Id", "1");
         HttpResponseMessage getResp = await _client.SendAsync(
             request: getReq,
@@ -328,7 +387,9 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Black"
         };
 
-        using var createReq2 = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
+        using var createReq2 = new HttpRequestMessage(
+            method: HttpMethod.Post,
+            requestUri: "/api/contacts")
         {
             Content = JsonContent.Create(
                 inputValue: payloadReuse,

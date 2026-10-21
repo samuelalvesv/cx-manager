@@ -1,6 +1,8 @@
 using CxManager.Contract.Responses;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CxManager.Api.Filters;
 
@@ -8,11 +10,11 @@ public static class ValidationFilterExtensions
 {
     public static RouteHandlerBuilder WithValidation<TRequest>(this RouteHandlerBuilder builder) where TRequest : class
     {
+        builder.Produces<ErrorResponse>(statusCode: StatusCodes.Status400BadRequest);
+
         return builder.AddEndpointFilter(routeHandlerFilter: async (context, next) =>
         {
-            IValidator<TRequest>? validator = context.HttpContext.RequestServices.GetService<IValidator<TRequest>>();
-            if (validator is null)
-                return await next(context: context);
+            IValidator<TRequest> validator = context.HttpContext.RequestServices.GetRequiredService<IValidator<TRequest>>();
 
             for (int i = 0; i < context.Arguments.Count; i++)
             {

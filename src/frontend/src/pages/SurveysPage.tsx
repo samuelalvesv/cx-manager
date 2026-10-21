@@ -22,6 +22,8 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { DeleteSurveyDialog } from '../components/DeleteSurveyDialog.tsx'
+import { EmptyState } from '../components/EmptyState.tsx'
+import { PageHeader } from '../components/PageHeader.tsx'
 import { SurveyDialog } from '../components/SurveyDialog.tsx'
 import { useCompany } from '../context/useCompany.ts'
 import { getSurveys } from '../services/surveyService.ts'
@@ -184,48 +186,47 @@ export function SurveysPage() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-        <Box>
-          <Typography variant="h5" component="h1" sx={{ fontWeight: 700, mb: 0.5 }}>
-            Gestão de Pesquisas
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Questionários de satisfação da organização <strong>{selectedCompany?.name ?? ''}</strong> com escalas analíticas isoladas.
-          </Typography>
-          {surveys.length > 0 && (
-            <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
+      <PageHeader
+        title="Gestão de Pesquisas"
+        subtitle={
+          <>
+            Questionários de satisfação da organização <strong>{selectedCompany?.name ?? ''}</strong> para monitoramento de métricas e relacionamento.
+          </>
+        }
+        badges={
+          surveys.length > 0 ? (
+            <Stack direction="row" spacing={1}>
               <Chip label={`${surveys.length} total`} size="small" variant="outlined" />
               <Chip label={`${npsCount} NPS`} size="small" color="primary" variant="outlined" />
               <Chip label={`${csatCount} CSAT`} size="small" color="secondary" variant="outlined" />
             </Stack>
-          )}
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenCreate}
-        >
-          Nova Pesquisa
-        </Button>
-      </Box>
-
-      {/* Empty State */}
-      {surveys.length === 0 ? (
-        <Card sx={{ p: 6, textAlign: 'center', border: '1px dashed #cbd5e1', bgcolor: 'transparent', boxShadow: 'none' }}>
-          <PollOutlinedIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1.5 }} />
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-            Nenhuma pesquisa cadastrada
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 500, mx: 'auto', mb: 3 }}>
-            Esta organização ainda não possui questionários de satisfação ativos. Cadastre sua primeira pesquisa NPS ou CSAT para iniciar a coleta e mensuração.
-          </Typography>
+          ) : undefined
+        }
+        action={
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenCreate}
+            sx={{ fontWeight: 600 }}
           >
-            Cadastrar Primeira Pesquisa
+            Nova Pesquisa
           </Button>
+        }
+      />
+
+      {/* Empty State */}
+      {surveys.length === 0 ? (
+        <Card sx={{ border: 1, borderColor: 'divider', bgcolor: 'transparent', boxShadow: 'none' }}>
+          <EmptyState
+            icon={<PollOutlinedIcon sx={{ fontSize: 48 }} />}
+            title="Nenhuma pesquisa cadastrada"
+            description="Esta organização ainda não possui questionários de satisfação ativos. Cadastre sua primeira pesquisa NPS ou CSAT para iniciar a coleta e mensuração."
+            action={{
+              label: 'Cadastrar Primeira Pesquisa',
+              icon: <AddIcon />,
+              onClick: handleOpenCreate,
+            }}
+          />
         </Card>
       ) : (
         /* Surveys Grid */
@@ -236,7 +237,7 @@ export function SurveysPage() {
 
             return (
               <Grid key={survey.id} size={{ xs: 12, md: 6, lg: 4 }}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: 1, borderColor: 'divider', boxShadow: 'none' }}>
                   <CardContent sx={{ flexGrow: 1, p: 2.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.5 }}>
                       <Chip

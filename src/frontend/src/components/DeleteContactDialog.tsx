@@ -62,7 +62,7 @@ export function DeleteContactDialog({
           <strong>{contact?.name ?? ''}</strong> ({contact?.email ?? ''})?
         </DialogContentText>
         <DialogContentText variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          O contato sofrerá exclusão lógica (soft delete) e deixará imediatamente de constar em listagens ativas e agregações analíticas. O endereço de e-mail será liberado para novos cadastros.
+          O contato será desativado e deixará imediatamente de constar nas listagens ativas. O endereço de e-mail ficará disponível para novos cadastros futuros.
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>
