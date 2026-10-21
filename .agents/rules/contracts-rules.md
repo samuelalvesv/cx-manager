@@ -13,7 +13,7 @@ applyTo: "src/backend/CxManager/CxManager.Contract/**/*.cs"
   - `[Feature]/`: DTOs de resposta fortemente tipados por funcionalidade.
   - `PagedResponse.cs`: Contrato genérico paginado (`items`, `total`, `page`, `pageSize`).
   - `ErrorResponse.cs`: Envelope padronizado de erro (`{ "error": "mensagem legível" }`).
-- `ContractDefaults.cs`: Constantes de paginação (`DefaultPage = 1`, `DefaultPageSize = 20`, `MaxPageSize = 100`) e limites de transporte.
+- `ContractDefaults.cs`: Limites e constantes de transporte (`MaxPageSize = 100`).
 
 ## Diretrizes e Restrições
 - **Isolamento Total**: Zero dependências de projetos internos (`Domain`, `Application`, `Infrastructure`, `Api`) e zero dependências de banco de dados ou frameworks web.
@@ -27,6 +27,7 @@ applyTo: "src/backend/CxManager/CxManager.Contract/**/*.cs"
   - É proibido expor propriedades de tipos genéricos (`object`, `dynamic`) ou dicionários não tipados.
   - Instantes temporais devem utilizar obrigatoriamente `DateTimeOffset` em UTC para serialização estrita em ISO 8601 (`YYYY-MM-DDTHH:mm:ssZ`).
   - Filtros de data sem componente de hora devem utilizar obrigatoriamente `DateOnly` no formato ISO 8601 (`YYYY-MM-DD`).
+- **Contratos Universais de Requisição**: Todo endpoint da API e seu respectivo caso de uso consomem obrigatoriamente um DTO de Request dedicado declarado em `Requests/[Feature]/` (ou herdado de abstrações como `PagedRequest`). É proibida a utilização de tipos primitivos ou variáveis soltas (`long id`, `int page`, `string search`) como parâmetros nas assinaturas públicas de contratos e casos de uso.
 - **Sincronia Estrita e Simetria de Tipos**: Seguir integralmente a Cadeia Canônica de Simetria de Tipos e Nulabilidade em [.agents/rules/data-integrity-rules.md](data-integrity-rules.md). Qualquer adição ou alteração nos contratos de `CxManager.Contract` deve ser refletida simetricamente nos tipos TypeScript do frontend (`src/frontend/src/types/`), no schema SQLite e registrada no `JsonSerializerContext` da camada `CxManager.Api`.
 
 ## Ferramentas Globais

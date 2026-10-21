@@ -1,4 +1,5 @@
 using CxManager.Application.Mappers;
+using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Responses.Companies;
 using CxManager.Domain.Entities;
 using CxManager.Domain.Exceptions;
@@ -8,10 +9,10 @@ namespace CxManager.Application.UseCases.Companies.Queries.GetCompanyById;
 
 public sealed class GetCompanyByIdUseCase(ICompanyRepository companyRepository) : IGetCompanyByIdUseCase
 {
-    public async Task<CompanyResponse> ExecuteAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<CompanyResponse> ExecuteAsync(GetCompanyByIdRequest request, CancellationToken cancellationToken = default)
     {
         Company? company = await companyRepository.GetByIdAsync(
-            id: id,
+            id: request.Id,
             cancellationToken: cancellationToken);
 
         if (company is null || company.IsDeleted)

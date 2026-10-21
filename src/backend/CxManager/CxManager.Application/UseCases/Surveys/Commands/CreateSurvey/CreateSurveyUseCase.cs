@@ -5,28 +5,17 @@ using CxManager.Domain.Entities;
 using CxManager.Domain.Enums;
 using CxManager.Domain.Exceptions;
 using CxManager.Domain.Interfaces;
-using FluentValidation;
-using FluentValidation.Results;
 using SurveyResponse = CxManager.Contract.Responses.Surveys.SurveyResponse;
-using ValidationException = CxManager.Domain.Exceptions.ValidationException;
 
 namespace CxManager.Application.UseCases.Surveys.Commands.CreateSurvey;
 
 public sealed class CreateSurveyUseCase(
     ISurveyRepository surveyRepository,
     ICompanyRepository companyRepository,
-    ICompanyContext companyContext,
-    IValidator<CreateSurveyRequest> validator) : ICreateSurveyUseCase
+    ICompanyContext companyContext) : ICreateSurveyUseCase
 {
     public async Task<SurveyResponse> ExecuteAsync(CreateSurveyRequest request, CancellationToken cancellationToken = default)
     {
-        ValidationResult validationResult = await validator.ValidateAsync(
-            instance: request,
-            cancellation: cancellationToken);
-
-        if (!validationResult.IsValid)
-            throw new ValidationException(message: validationResult.Errors[0].ErrorMessage);
-
         long companyId = companyContext.CompanyId;
 
         bool companyExists = await companyRepository.ExistsActiveAsync(

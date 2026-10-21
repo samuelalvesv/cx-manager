@@ -1,5 +1,6 @@
 using CxManager.Application.Interfaces;
 using CxManager.Application.Mappers;
+using CxManager.Contract.Requests.Surveys;
 using CxManager.Domain.Entities;
 using CxManager.Domain.Exceptions;
 using CxManager.Domain.Interfaces;
@@ -11,12 +12,12 @@ public sealed class GetSurveyByIdUseCase(
     ISurveyRepository surveyRepository,
     ICompanyContext companyContext) : IGetSurveyByIdUseCase
 {
-    public async Task<SurveyResponse> ExecuteAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<SurveyResponse> ExecuteAsync(GetSurveyByIdRequest request, CancellationToken cancellationToken = default)
     {
         long companyId = companyContext.CompanyId;
 
         Survey? survey = await surveyRepository.GetByIdAsync(
-            id: id,
+            id: request.Id,
             companyId: companyId,
             cancellationToken: cancellationToken);
 

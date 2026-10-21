@@ -23,7 +23,7 @@ import { useState } from 'react'
 import { useCompany } from '../context/useCompany.ts'
 import { CompanyDialog } from './CompanyDialog.tsx'
 
-export type ViewType = 'organization' | 'surveys'
+export type ViewType = 'organization' | 'surveys' | 'contacts'
 
 export interface AppBarProps {
   readonly currentView: ViewType
@@ -83,6 +83,11 @@ export function AppBar({ currentView, onViewChange }: AppBarProps) {
               <Tab
                 label="Organização"
                 value="organization"
+                sx={{ minHeight: 48, textTransform: 'none', fontWeight: 600 }}
+              />
+              <Tab
+                label="Gestão de Contatos"
+                value="contacts"
                 sx={{ minHeight: 48, textTransform: 'none', fontWeight: 600 }}
               />
               <Tab

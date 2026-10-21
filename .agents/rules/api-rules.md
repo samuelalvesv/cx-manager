@@ -21,6 +21,8 @@ applyTo: "src/backend/CxManager/CxManager.Api/**/*.cs"
 - **Fidelidade Estrita ao Contrato REST**:
   - Respeitar rigorosamente as rotas, verbos HTTP, query params, status codes (`200 OK`, `201 Created` com header `Location`, `204 NoContent`, `400 BadRequest`, `404 NotFound`, `409 Conflict`) e formatos de payload JSON especificados no contrato da API.
   - No endpoint de exportação CSV, retornar `text/csv; charset=utf-8` com escaping RFC 4180 para campos contendo vírgulas, quebras de linha ou aspas duplas.
+- **Vinculação de Parâmetros de Rota e Consulta**: Parâmetros de rota (`/{id:long}`) e de query string (`?page=&pageSize=&search=`) devem ser vinculados diretamente ao DTO de Request da operação utilizando o atributo nativo `[AsParameters]`.
+- **Validação Fail-Fast na Borda HTTP**: A validação sintática e de limites da requisição ocorre obrigatoriamente no pipeline de entrada das Minimal APIs via filtro de endpoint (`IEndpointFilter`), interrompendo requisições inválidas com status `400 BadRequest` antes da execução do caso de uso.
 - **Compatibilidade Integral com Native AOT**:
   - Configurar `ConfigureHttpJsonOptions` registrando `AppJsonSerializerContext.Default` no `TypeInfoResolverChain`, com `PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase`.
   - Todos os DTOs de Request e Response expostos nos endpoints devem estar declarados com `[JsonSerializable(typeof(...))]` em `AppJsonSerializerContext`.

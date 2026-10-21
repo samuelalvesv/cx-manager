@@ -5,5 +5,5 @@ namespace CxManager.Application.UseCases.Surveys.Commands.UpdateSurvey;
 
 public interface IUpdateSurveyUseCase
 {
-    Task<SurveyResponse> ExecuteAsync(long id, UpdateSurveyRequest request, CancellationToken cancellationToken = default);
+    Task<SurveyResponse> ExecuteAsync(UpdateSurveyRequest request, CancellationToken cancellationToken = default);
 }

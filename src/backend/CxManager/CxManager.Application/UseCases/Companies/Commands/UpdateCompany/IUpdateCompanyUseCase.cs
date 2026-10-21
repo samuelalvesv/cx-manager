@@ -5,5 +5,5 @@ namespace CxManager.Application.UseCases.Companies.Commands.UpdateCompany;
 
 public interface IUpdateCompanyUseCase
 {
-    Task<CompanyResponse> ExecuteAsync(long id, UpdateCompanyRequest request, CancellationToken cancellationToken = default);
+    Task<CompanyResponse> ExecuteAsync(UpdateCompanyRequest request, CancellationToken cancellationToken = default);
 }

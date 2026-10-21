@@ -1,4 +1,5 @@
 using CxManager.Application.Interfaces;
+using CxManager.Contract.Requests.Surveys;
 using CxManager.Domain.Entities;
 using CxManager.Domain.Exceptions;
 using CxManager.Domain.Interfaces;
@@ -9,12 +10,12 @@ public sealed class DeleteSurveyUseCase(
     ISurveyRepository surveyRepository,
     ICompanyContext companyContext) : IDeleteSurveyUseCase
 {
-    public async Task ExecuteAsync(long id, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(DeleteSurveyRequest request, CancellationToken cancellationToken = default)
     {
         long companyId = companyContext.CompanyId;
 
         Survey? survey = await surveyRepository.GetByIdAsync(
-            id: id,
+            id: request.Id,
             companyId: companyId,
             cancellationToken: cancellationToken);
 

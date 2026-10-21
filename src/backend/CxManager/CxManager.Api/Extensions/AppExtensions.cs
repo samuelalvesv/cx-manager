@@ -35,6 +35,10 @@ public static class AppExtensions
             .AddEndpointFilter<RequireCompanyContextFilter>()
             .MapSurveyEndpoints();
 
+        apiGroup.MapGroup(prefix: "/contacts")
+            .AddEndpointFilter<RequireCompanyContextFilter>()
+            .MapContactEndpoints();
+
         return app;
     }
 

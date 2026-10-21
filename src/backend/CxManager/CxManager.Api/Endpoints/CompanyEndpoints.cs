@@ -1,3 +1,4 @@
+using CxManager.Api.Filters;
 using CxManager.Application.UseCases.Companies.Commands.CreateCompany;
 using CxManager.Application.UseCases.Companies.Commands.DeleteCompany;
 using CxManager.Application.UseCases.Companies.Commands.UpdateCompany;
@@ -28,18 +29,19 @@ public static class CompanyEndpoints
         group.MapGet(
             pattern: "/{id:long}",
             handler: async Task<Ok<CompanyResponse>> (
-                long id,
+                [AsParameters] GetCompanyByIdRequest request,
                 IGetCompanyByIdUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
                 CompanyResponse company = await useCase.ExecuteAsync(
-                    id: id,
+                    request: request,
                     cancellationToken: cancellationToken);
 
                 return TypedResults.Ok(value: company);
             })
             .WithName("GetCompanyById")
-            .WithSummary("Retorna os detalhes de uma empresa ativa.");
+            .WithSummary("Retorna os detalhes de uma empresa ativa.")
+            .WithValidation<GetCompanyByIdRequest>();
 
         group.MapPost(
             pattern: "/",
@@ -57,41 +59,45 @@ public static class CompanyEndpoints
                     value: company);
             })
             .WithName("CreateCompany")
-            .WithSummary("Cadastra uma nova empresa.");
+            .WithSummary("Cadastra uma nova empresa.")
+            .WithValidation<CreateCompanyRequest>();
 
         group.MapPut(
             pattern: "/{id:long}",
             handler: async Task<Ok<CompanyResponse>> (
-                long id,
+                [AsParameters] GetCompanyByIdRequest route,
                 UpdateCompanyRequest request,
                 IUpdateCompanyUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
+                UpdateCompanyRequest command = request with { Id = route.Id };
                 CompanyResponse company = await useCase.ExecuteAsync(
-                    id: id,
-                    request: request,
+                    request: command,
                     cancellationToken: cancellationToken);
 
                 return TypedResults.Ok(value: company);
             })
             .WithName("UpdateCompany")
-            .WithSummary("Atualiza uma empresa ativa.");
+            .WithSummary("Atualiza uma empresa ativa.")
+            .WithValidation<GetCompanyByIdRequest>()
+            .WithValidation<UpdateCompanyRequest>();
 
         group.MapDelete(
             pattern: "/{id:long}",
             handler: async Task<NoContent> (
-                long id,
+                [AsParameters] DeleteCompanyRequest request,
                 IDeleteCompanyUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
                 await useCase.ExecuteAsync(
-                    id: id,
+                    request: request,
                     cancellationToken: cancellationToken);
 
                 return TypedResults.NoContent();
             })
             .WithName("DeleteCompany")
-            .WithSummary("Desativa/exclui logicamente uma empresa.");
+            .WithSummary("Desativa/exclui logicamente uma empresa.")
+            .WithValidation<DeleteCompanyRequest>();
 
         return group;
     }

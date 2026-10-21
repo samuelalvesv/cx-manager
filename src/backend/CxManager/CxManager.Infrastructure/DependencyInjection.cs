@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddSingleton<ISeedImporter, SeedImporter>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ISurveyRepository, SurveyRepository>();
+        services.AddScoped<IContactRepository, ContactRepository>();
 
         return services;
     }

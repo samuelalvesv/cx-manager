@@ -1,3 +1,4 @@
+using CxManager.Api.Filters;
 using CxManager.Application.UseCases.Surveys.Commands.CreateSurvey;
 using CxManager.Application.UseCases.Surveys.Commands.DeleteSurvey;
 using CxManager.Application.UseCases.Surveys.Commands.UpdateSurvey;
@@ -28,18 +29,19 @@ public static class SurveyEndpoints
         group.MapGet(
             pattern: "/{id:long}",
             handler: async Task<Ok<SurveyResponse>> (
-                long id,
+                [AsParameters] GetSurveyByIdRequest request,
                 IGetSurveyByIdUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
                 SurveyResponse survey = await useCase.ExecuteAsync(
-                    id: id,
+                    request: request,
                     cancellationToken: cancellationToken);
 
                 return TypedResults.Ok(value: survey);
             })
             .WithName("GetSurveyById")
-            .WithSummary("Retorna os detalhes de uma pesquisa ativa da empresa.");
+            .WithSummary("Retorna os detalhes de uma pesquisa ativa da empresa.")
+            .WithValidation<GetSurveyByIdRequest>();
 
         group.MapPost(
             pattern: "/",
@@ -57,41 +59,45 @@ public static class SurveyEndpoints
                     value: survey);
             })
             .WithName("CreateSurvey")
-            .WithSummary("Cadastra uma nova pesquisa para a empresa ativa.");
+            .WithSummary("Cadastra uma nova pesquisa para a empresa ativa.")
+            .WithValidation<CreateSurveyRequest>();
 
         group.MapPut(
             pattern: "/{id:long}",
             handler: async Task<Ok<SurveyResponse>> (
-                long id,
+                [AsParameters] GetSurveyByIdRequest route,
                 UpdateSurveyRequest request,
                 IUpdateSurveyUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
+                UpdateSurveyRequest command = request with { Id = route.Id };
                 SurveyResponse survey = await useCase.ExecuteAsync(
-                    id: id,
-                    request: request,
+                    request: command,
                     cancellationToken: cancellationToken);
 
                 return TypedResults.Ok(value: survey);
             })
             .WithName("UpdateSurvey")
-            .WithSummary("Atualiza uma pesquisa ativa da empresa.");
+            .WithSummary("Atualiza uma pesquisa ativa da empresa.")
+            .WithValidation<GetSurveyByIdRequest>()
+            .WithValidation<UpdateSurveyRequest>();
 
         group.MapDelete(
             pattern: "/{id:long}",
             handler: async Task<NoContent> (
-                long id,
+                [AsParameters] DeleteSurveyRequest request,
                 IDeleteSurveyUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
                 await useCase.ExecuteAsync(
-                    id: id,
+                    request: request,
                     cancellationToken: cancellationToken);
 
                 return TypedResults.NoContent();
             })
             .WithName("DeleteSurvey")
-            .WithSummary("Desativa/exclui logicamente uma pesquisa da empresa.");
+            .WithSummary("Desativa/exclui logicamente uma pesquisa da empresa.")
+            .WithValidation<DeleteSurveyRequest>();
 
         return group;
     }

@@ -1,3 +1,4 @@
+using CxManager.Contract.Requests.Companies;
 using CxManager.Domain.Entities;
 using CxManager.Domain.Exceptions;
 using CxManager.Domain.Interfaces;
@@ -6,10 +7,10 @@ namespace CxManager.Application.UseCases.Companies.Commands.DeleteCompany;
 
 public sealed class DeleteCompanyUseCase(ICompanyRepository companyRepository) : IDeleteCompanyUseCase
 {
-    public async Task ExecuteAsync(long id, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(DeleteCompanyRequest request, CancellationToken cancellationToken = default)
     {
         Company? company = await companyRepository.GetByIdAsync(
-            id: id,
+            id: request.Id,
             cancellationToken: cancellationToken);
 
         if (company is null || company.IsDeleted)

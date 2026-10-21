@@ -1,6 +1,8 @@
+using CxManager.Contract.Requests.Surveys;
+
 namespace CxManager.Application.UseCases.Surveys.Commands.DeleteSurvey;
 
 public interface IDeleteSurveyUseCase
 {
-    Task ExecuteAsync(long id, CancellationToken cancellationToken = default);
+    Task ExecuteAsync(DeleteSurveyRequest request, CancellationToken cancellationToken = default);
 }

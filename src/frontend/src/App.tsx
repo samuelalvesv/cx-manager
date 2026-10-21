@@ -19,6 +19,7 @@ import { AppBar, type ViewType } from './components/AppBar.tsx'
 import { CompanyDialog } from './components/CompanyDialog.tsx'
 import { CompanyProvider } from './context/CompanyContext.tsx'
 import { useCompany } from './context/useCompany.ts'
+import { ContactsPage } from './pages/ContactsPage.tsx'
 import { SurveysPage } from './pages/SurveysPage.tsx'
 import { theme } from './theme/theme.ts'
 
@@ -120,6 +121,10 @@ function DashboardContent() {
 function MainContent({ currentView }: { readonly currentView: ViewType }) {
   if (currentView === 'surveys') {
     return <SurveysPage />
+  }
+
+  if (currentView === 'contacts') {
+    return <ContactsPage />
   }
 
   return <DashboardContent />
