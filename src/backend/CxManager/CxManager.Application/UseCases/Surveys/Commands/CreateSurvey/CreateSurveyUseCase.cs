@@ -12,6 +12,7 @@ namespace CxManager.Application.UseCases.Surveys.Commands.CreateSurvey;
 public sealed class CreateSurveyUseCase(
     ISurveyRepository surveyRepository,
     ICompanyRepository companyRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : ICreateSurveyUseCase
 {
     public async Task<SurveyResponse> ExecuteAsync(CreateSurveyRequest request, CancellationToken cancellationToken = default)
@@ -40,6 +41,8 @@ public sealed class CreateSurveyUseCase(
         long id = await surveyRepository.CreateAsync(
             survey: survey,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
 
         var createdSurvey = Survey.Reconstitute(
             id: id,

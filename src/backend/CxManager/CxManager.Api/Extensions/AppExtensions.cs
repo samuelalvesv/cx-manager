@@ -43,6 +43,10 @@ public static class AppExtensions
             .AddEndpointFilter<RequireCompanyContextFilter>()
             .MapFeedbackEndpoints();
 
+        apiGroup.MapGroup(prefix: "/analytics")
+            .AddEndpointFilter<RequireCompanyContextFilter>()
+            .MapAnalyticsEndpoints();
+
         return app;
     }
 

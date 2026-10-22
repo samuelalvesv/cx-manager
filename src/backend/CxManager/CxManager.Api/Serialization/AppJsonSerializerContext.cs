@@ -1,9 +1,11 @@
 using System.Text.Json.Serialization;
+using CxManager.Contract.Requests.Analytics;
 using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Requests.Contacts;
 using CxManager.Contract.Requests.Feedbacks;
 using CxManager.Contract.Requests.Surveys;
 using CxManager.Contract.Responses;
+using CxManager.Contract.Responses.Analytics;
 using CxManager.Contract.Responses.Companies;
 using CxManager.Contract.Responses.Contacts;
 using CxManager.Contract.Responses.Feedbacks;
@@ -42,6 +44,14 @@ namespace CxManager.Api.Serialization;
 [JsonSerializable(typeof(GetFeedbackByIdRequest))]
 [JsonSerializable(typeof(GetContactFeedbacksRequest))]
 [JsonSerializable(typeof(DeleteFeedbackRequest))]
+[JsonSerializable(typeof(GetAnalyticsSummaryRequest))]
+[JsonSerializable(typeof(GetNpsByMonthRequest))]
+[JsonSerializable(typeof(GetNpsBySegmentRequest))]
+[JsonSerializable(typeof(AnalyticsSummaryResponse))]
+[JsonSerializable(typeof(MonthlyNpsResponse))]
+[JsonSerializable(typeof(IReadOnlyList<MonthlyNpsResponse>))]
+[JsonSerializable(typeof(SegmentNpsResponse))]
+[JsonSerializable(typeof(IReadOnlyList<SegmentNpsResponse>))]
 public sealed partial class AppJsonSerializerContext : JsonSerializerContext
 {
 }

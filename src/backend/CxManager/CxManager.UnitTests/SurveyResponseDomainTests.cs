@@ -88,9 +88,7 @@ public sealed class FeedbackDomainTests
     [InlineData(5)]
     [InlineData(10)]
     public void ValidateScoreForSurveyType_Nps_ValidScores_ShouldNotThrow(int validScore)
-    {
-        Feedback.ValidateScoreForSurveyType(score: validScore, type: SurveyType.Nps);
-    }
+        => Feedback.ValidateScoreForSurveyType(score: validScore, type: SurveyType.Nps);
 
     [Theory]
     [InlineData(-1)]
@@ -98,7 +96,7 @@ public sealed class FeedbackDomainTests
     [InlineData(100)]
     public void ValidateScoreForSurveyType_Nps_InvalidScores_ShouldThrowValidationException(int invalidScore)
     {
-        var ex = Assert.Throws<ValidationException>(testCode: () =>
+        ValidationException ex = Assert.Throws<ValidationException>(testCode: () =>
             Feedback.ValidateScoreForSurveyType(score: invalidScore, type: SurveyType.Nps));
 
         Assert.Equal(expected: "A nota para pesquisas NPS deve estar entre 0 e 10.", actual: ex.Message);
@@ -109,9 +107,7 @@ public sealed class FeedbackDomainTests
     [InlineData(3)]
     [InlineData(5)]
     public void ValidateScoreForSurveyType_Csat_ValidScores_ShouldNotThrow(int validScore)
-    {
-        Feedback.ValidateScoreForSurveyType(score: validScore, type: SurveyType.Csat);
-    }
+        => Feedback.ValidateScoreForSurveyType(score: validScore, type: SurveyType.Csat);
 
     [Theory]
     [InlineData(0)]
@@ -119,8 +115,8 @@ public sealed class FeedbackDomainTests
     [InlineData(-1)]
     public void ValidateScoreForSurveyType_Csat_InvalidScores_ShouldThrowValidationException(int invalidScore)
     {
-        var ex = Assert.Throws<ValidationException>(testCode: () =>
-            Feedback.ValidateScoreForSurveyType(score: invalidScore, type: SurveyType.Csat));
+        ValidationException ex = Assert.Throws<ValidationException>(testCode: ()
+            => Feedback.ValidateScoreForSurveyType(score: invalidScore, type: SurveyType.Csat));
 
         Assert.Equal(expected: "A nota para pesquisas CSAT deve estar entre 1 e 5.", actual: ex.Message);
     }

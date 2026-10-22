@@ -10,6 +10,7 @@ namespace CxManager.Application.UseCases.Surveys.Commands.UpdateSurvey;
 
 public sealed class UpdateSurveyUseCase(
     ISurveyRepository surveyRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : IUpdateSurveyUseCase
 {
     public async Task<SurveyResponse> ExecuteAsync(
@@ -31,6 +32,8 @@ public sealed class UpdateSurveyUseCase(
         await surveyRepository.UpdateAsync(
             survey: survey,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
 
         return SurveyMapper.ToResponse(survey: survey);
     }

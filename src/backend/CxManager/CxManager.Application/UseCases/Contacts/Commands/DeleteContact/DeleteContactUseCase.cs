@@ -8,6 +8,7 @@ namespace CxManager.Application.UseCases.Contacts.Commands.DeleteContact;
 
 public sealed class DeleteContactUseCase(
     IContactRepository contactRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : IDeleteContactUseCase
 {
     public async Task ExecuteAsync(DeleteContactRequest request, CancellationToken cancellationToken = default)
@@ -29,5 +30,7 @@ public sealed class DeleteContactUseCase(
             companyId: companyId,
             deletedAt: contact.DeletedAt!.Value,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
     }
 }

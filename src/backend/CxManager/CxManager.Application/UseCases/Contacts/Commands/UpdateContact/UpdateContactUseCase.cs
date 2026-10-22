@@ -10,6 +10,7 @@ namespace CxManager.Application.UseCases.Contacts.Commands.UpdateContact;
 
 public sealed class UpdateContactUseCase(
     IContactRepository contactRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : IUpdateContactUseCase
 {
     public async Task<ContactResponse> ExecuteAsync(
@@ -43,6 +44,8 @@ public sealed class UpdateContactUseCase(
         await contactRepository.UpdateAsync(
             contact: contact,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
 
         return ContactMapper.ToResponse(contact: contact);
     }

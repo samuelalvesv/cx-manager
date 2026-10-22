@@ -321,7 +321,5 @@ public sealed class FeedbackRepositoryTests : IAsyncDisposable
     }
 
     public async ValueTask DisposeAsync()
-    {
-        await _keepAliveConnection.DisposeAsync();
-    }
+        => await _keepAliveConnection.DisposeAsync();
 }

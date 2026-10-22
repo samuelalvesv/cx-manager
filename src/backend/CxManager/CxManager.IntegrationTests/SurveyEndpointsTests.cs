@@ -2,7 +2,6 @@ using System.Net;
 using CxManager.Api.Extensions;
 using CxManager.Api.Serialization;
 using CxManager.Contract.Requests.Surveys;
-using CxManager.Contract.Responses;
 using CxManager.Contract.Responses.Surveys;
 
 namespace CxManager.IntegrationTests;

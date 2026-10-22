@@ -13,6 +13,7 @@ public sealed class UpdateFeedbackUseCase(
     IFeedbackRepository feedbackRepository,
     ISurveyRepository surveyRepository,
     IFeedbackQueryService feedbackQueryService,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : IUpdateFeedbackUseCase
 {
     public async Task<FeedbackResponse> ExecuteAsync(UpdateFeedbackRequest request, CancellationToken cancellationToken = default)
@@ -40,6 +41,8 @@ public sealed class UpdateFeedbackUseCase(
         await feedbackRepository.UpdateAsync(
             feedback: feedback,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
 
         FeedbackReadModel? detail = await feedbackQueryService.GetDetailByIdAsync(
             id: request.Id,

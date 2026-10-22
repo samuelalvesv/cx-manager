@@ -7,6 +7,7 @@ namespace CxManager.Application.UseCases.Feedbacks.Commands.DeleteFeedback;
 
 public sealed class DeleteFeedbackUseCase(
     IFeedbackRepository feedbackRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : IDeleteFeedbackUseCase
 {
     public async Task ExecuteAsync(DeleteFeedbackRequest request, CancellationToken cancellationToken = default)
@@ -26,5 +27,7 @@ public sealed class DeleteFeedbackUseCase(
             companyId: companyId,
             deletedAt: DateTimeOffset.UtcNow,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
     }
 }

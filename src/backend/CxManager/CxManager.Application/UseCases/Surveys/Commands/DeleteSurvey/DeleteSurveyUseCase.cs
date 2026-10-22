@@ -8,6 +8,7 @@ namespace CxManager.Application.UseCases.Surveys.Commands.DeleteSurvey;
 
 public sealed class DeleteSurveyUseCase(
     ISurveyRepository surveyRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : IDeleteSurveyUseCase
 {
     public async Task ExecuteAsync(DeleteSurveyRequest request, CancellationToken cancellationToken = default)
@@ -29,5 +30,7 @@ public sealed class DeleteSurveyUseCase(
             companyId: companyId,
             deletedAt: survey.DeletedAt!.Value,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
     }
 }

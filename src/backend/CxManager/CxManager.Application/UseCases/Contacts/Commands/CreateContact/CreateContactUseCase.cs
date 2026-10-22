@@ -11,6 +11,7 @@ namespace CxManager.Application.UseCases.Contacts.Commands.CreateContact;
 public sealed class CreateContactUseCase(
     IContactRepository contactRepository,
     ICompanyRepository companyRepository,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : ICreateContactUseCase
 {
     public async Task<ContactResponse> ExecuteAsync(CreateContactRequest request, CancellationToken cancellationToken = default)
@@ -41,6 +42,8 @@ public sealed class CreateContactUseCase(
         long id = await contactRepository.CreateAsync(
             contact: contact,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
 
         var createdContact = Contact.Reconstitute(
             id: id,

@@ -14,6 +14,7 @@ public sealed class CreateFeedbackUseCase(
     ISurveyRepository surveyRepository,
     IContactRepository contactRepository,
     IFeedbackQueryService feedbackQueryService,
+    IAnalyticsCache analyticsCache,
     ICompanyContext companyContext) : ICreateFeedbackUseCase
 {
     public async Task<FeedbackResponse> ExecuteAsync(CreateFeedbackRequest request, CancellationToken cancellationToken = default)
@@ -48,6 +49,8 @@ public sealed class CreateFeedbackUseCase(
         long id = await feedbackRepository.CreateAsync(
             feedback: feedback,
             cancellationToken: cancellationToken);
+
+        analyticsCache.InvalidateCompany(companyId: companyId);
 
         FeedbackReadModel? detail = await feedbackQueryService.GetDetailByIdAsync(
             id: id,

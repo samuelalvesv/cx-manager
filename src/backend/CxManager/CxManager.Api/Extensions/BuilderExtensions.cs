@@ -3,6 +3,9 @@ using CxManager.Api.Context;
 using CxManager.Api.ExceptionHandling;
 using CxManager.Api.Serialization;
 using CxManager.Application.Interfaces;
+using CxManager.Application.UseCases.Analytics.Queries.GetAnalyticsSummary;
+using CxManager.Application.UseCases.Analytics.Queries.GetNpsByMonth;
+using CxManager.Application.UseCases.Analytics.Queries.GetNpsBySegment;
 using CxManager.Application.UseCases.Companies.Commands.CreateCompany;
 using CxManager.Application.UseCases.Companies.Commands.DeleteCompany;
 using CxManager.Application.UseCases.Companies.Commands.UpdateCompany;
@@ -23,10 +26,12 @@ using CxManager.Application.UseCases.Surveys.Commands.DeleteSurvey;
 using CxManager.Application.UseCases.Surveys.Commands.UpdateSurvey;
 using CxManager.Application.UseCases.Surveys.Queries;
 using CxManager.Application.UseCases.Surveys.Queries.GetSurveyById;
+using CxManager.Application.Validators.Analytics;
 using CxManager.Application.Validators.Companies;
 using CxManager.Application.Validators.Contacts;
 using CxManager.Application.Validators.Feedbacks;
 using CxManager.Application.Validators.Surveys;
+using CxManager.Contract.Requests.Analytics;
 using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Requests.Contacts;
 using CxManager.Contract.Requests.Feedbacks;
@@ -92,6 +97,11 @@ public static class BuilderExtensions
         builder.Services.AddScoped<IGetFeedbackByIdUseCase, GetFeedbackByIdUseCase>();
         builder.Services.AddScoped<IGetContactFeedbacksUseCase, GetContactFeedbacksUseCase>();
 
+        // Casos de uso de aplicação - Analytics
+        builder.Services.AddScoped<IGetAnalyticsSummaryUseCase, GetAnalyticsSummaryUseCase>();
+        builder.Services.AddScoped<IGetNpsByMonthUseCase, GetNpsByMonthUseCase>();
+        builder.Services.AddScoped<IGetNpsBySegmentUseCase, GetNpsBySegmentUseCase>();
+
         // Validadores
         builder.Services.AddScoped<FluentValidation.IValidator<CreateCompanyRequest>, CreateCompanyRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<UpdateCompanyRequest>, UpdateCompanyRequestValidator>();
@@ -111,6 +121,9 @@ public static class BuilderExtensions
         builder.Services.AddScoped<FluentValidation.IValidator<GetFeedbackByIdRequest>, GetFeedbackByIdRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<GetContactFeedbacksRequest>, GetContactFeedbacksRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<DeleteFeedbackRequest>, DeleteFeedbackRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<GetAnalyticsSummaryRequest>, GetAnalyticsSummaryRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<GetNpsByMonthRequest>, GetNpsByMonthRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<GetNpsBySegmentRequest>, GetNpsBySegmentRequestValidator>();
 
         return builder;
     }
