@@ -1,12 +1,21 @@
+using CxManager.Domain.Enums;
+using CxManager.Domain.Exceptions;
 using CxManager.Domain.Validation;
 
 namespace CxManager.Domain.Entities;
 
-public sealed class SurveyResponse : Entity
+public sealed class Feedback : Entity
 {
     private const int MinChannelLength = 2;
     private const int MaxChannelLength = 30;
     private const int MaxCommentLength = 1000;
+
+    private static readonly HashSet<string> AllowedChannels =
+    [
+        "whatsapp",
+        "email",
+        "link"
+    ];
 
     public long SurveyId { get; private set; }
     public long ContactId { get; private set; }
@@ -16,7 +25,7 @@ public sealed class SurveyResponse : Entity
 
     public DateTimeOffset RespondedAt => CreatedAt;
 
-    private SurveyResponse(
+    private Feedback(
         long id,
         long surveyId,
         long contactId,
@@ -33,7 +42,7 @@ public sealed class SurveyResponse : Entity
         Channel = channel;
     }
 
-    public static SurveyResponse Create(
+    public static Feedback Create(
         long surveyId,
         long contactId,
         int score,
@@ -46,7 +55,7 @@ public sealed class SurveyResponse : Entity
         string validatedChannel = ValidateChannel(channel: channel);
         string? validatedComment = ValidateComment(comment: comment);
 
-        return new SurveyResponse(
+        return new Feedback(
             id: 0,
             surveyId: validatedSurveyId,
             contactId: validatedContactId,
@@ -57,7 +66,7 @@ public sealed class SurveyResponse : Entity
             deletedAt: null);
     }
 
-    public static SurveyResponse Reconstitute(
+    public static Feedback Reconstitute(
         long id,
         long surveyId,
         long contactId,
@@ -67,7 +76,7 @@ public sealed class SurveyResponse : Entity
         DateTimeOffset respondedAt,
         DateTimeOffset? deletedAt)
     {
-        return new SurveyResponse(
+        return new Feedback(
             id: id,
             surveyId: surveyId,
             contactId: contactId,
@@ -78,8 +87,26 @@ public sealed class SurveyResponse : Entity
             deletedAt: deletedAt);
     }
 
+    public void Update(int score, string? comment, SurveyType surveyType)
+    {
+        ValidateScoreForSurveyType(score: score, type: surveyType);
+        Score = score;
+        Comment = ValidateComment(comment: comment);
+    }
+
     public void UpdateComment(string? comment)
         => Comment = ValidateComment(comment: comment);
+
+    public static void ValidateScoreForSurveyType(int score, SurveyType type)
+    {
+        switch (type)
+        {
+            case SurveyType.Nps when score is < 0 or > 10:
+                throw new ValidationException(message: "A nota para pesquisas NPS deve estar entre 0 e 10.");
+            case SurveyType.Csat when score is < 1 or > 5:
+                throw new ValidationException(message: "A nota para pesquisas CSAT deve estar entre 1 e 5.");
+        }
+    }
 
     private static string ValidateChannel(string channel)
     {
@@ -87,9 +114,12 @@ public sealed class SurveyResponse : Entity
             value: channel,
             fieldName: "canal",
             minLength: MinChannelLength,
-            maxLength: MaxChannelLength);
+            maxLength: MaxChannelLength).ToLowerInvariant();
 
-        return validated.ToLowerInvariant();
+        if (!AllowedChannels.Contains(item: validated))
+            throw new ValidationException(message: "O canal deve ser 'whatsapp', 'email' ou 'link'.");
+
+        return validated;
     }
 
     private static string? ValidateComment(string? comment) =>

@@ -1,17 +1,19 @@
 using System.Text.Json.Serialization;
 using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Requests.Contacts;
+using CxManager.Contract.Requests.Feedbacks;
 using CxManager.Contract.Requests.Surveys;
 using CxManager.Contract.Responses;
 using CxManager.Contract.Responses.Companies;
 using CxManager.Contract.Responses.Contacts;
+using CxManager.Contract.Responses.Feedbacks;
 using CxManager.Contract.Responses.Surveys;
 
 namespace CxManager.Api.Serialization;
 
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+    DefaultIgnoreCondition = JsonIgnoreCondition.Never)]
 [JsonSerializable(typeof(ErrorResponse))]
 [JsonSerializable(typeof(CompanyResponse))]
 [JsonSerializable(typeof(IReadOnlyList<CompanyResponse>))]
@@ -33,6 +35,13 @@ namespace CxManager.Api.Serialization;
 [JsonSerializable(typeof(GetContactsRequest))]
 [JsonSerializable(typeof(GetContactByIdRequest))]
 [JsonSerializable(typeof(DeleteContactRequest))]
+[JsonSerializable(typeof(FeedbackResponse))]
+[JsonSerializable(typeof(IReadOnlyList<FeedbackResponse>))]
+[JsonSerializable(typeof(CreateFeedbackRequest))]
+[JsonSerializable(typeof(UpdateFeedbackRequest))]
+[JsonSerializable(typeof(GetFeedbackByIdRequest))]
+[JsonSerializable(typeof(GetContactFeedbacksRequest))]
+[JsonSerializable(typeof(DeleteFeedbackRequest))]
 public sealed partial class AppJsonSerializerContext : JsonSerializerContext
 {
 }

@@ -1,5 +1,7 @@
+using CxManager.Application.Interfaces;
 using CxManager.Domain.Interfaces;
 using CxManager.Infrastructure.Persistence;
+using CxManager.Infrastructure.Persistence.Queries;
 using CxManager.Infrastructure.Persistence.Repositories;
 using CxManager.Infrastructure.Persistence.Schema;
 using CxManager.Infrastructure.Persistence.Seed;
@@ -17,6 +19,8 @@ public static class DependencyInjection
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ISurveyRepository, SurveyRepository>();
         services.AddScoped<IContactRepository, ContactRepository>();
+        services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+        services.AddScoped<IFeedbackQueryService, FeedbackQueryService>();
 
         return services;
     }

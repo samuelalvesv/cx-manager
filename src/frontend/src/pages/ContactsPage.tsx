@@ -3,6 +3,7 @@ import ClearIcon from '@mui/icons-material/Clear'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined'
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import SearchIcon from '@mui/icons-material/Search'
 import {
@@ -27,6 +28,7 @@ import {
 } from '@mui/material'
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { ContactDialog } from '../components/ContactDialog.tsx'
+import { ContactFeedbacksDrawer } from '../components/ContactFeedbacksDrawer.tsx'
 import { DeleteContactDialog } from '../components/DeleteContactDialog.tsx'
 import { EmptyState } from '../components/EmptyState.tsx'
 import { PageHeader } from '../components/PageHeader.tsx'
@@ -51,6 +53,8 @@ export function ContactsPage() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [contactToDelete, setContactToDelete] = useState<Contact | null>(null)
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false)
+  const [contactForHistory, setContactForHistory] = useState<Contact | null>(null)
   const [prevCompanyId, setPrevCompanyId] = useState(selectedCompanyId)
 
   // Reset pagination and search during render when company changes
@@ -171,6 +175,11 @@ export function ContactsPage() {
     } else {
       void handleRetry()
     }
+  }
+
+  const handleOpenHistory = (contact: Contact) => {
+    setContactForHistory(contact)
+    setHistoryDrawerOpen(true)
   }
 
   if (selectedCompanyId === null) {
@@ -305,7 +314,12 @@ export function ContactsPage() {
                 </TableRow>
               ) : (
                 contacts.map((contact) => (
-                  <TableRow key={contact.id} hover>
+                  <TableRow
+                    key={contact.id}
+                    hover
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => { handleOpenHistory(contact) }}
+                  >
                     <TableCell sx={{ fontWeight: 600 }}>{contact.name}</TableCell>
                     <TableCell sx={{ color: 'text.secondary' }}>{contact.email}</TableCell>
                     <TableCell>
@@ -319,13 +333,23 @@ export function ContactsPage() {
                     <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                       {new Date(contact.createdAt).toLocaleDateString('pt-BR')}
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" onClick={(e) => { e.stopPropagation() }}>
                       <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
+                        <Tooltip title="Histórico de avaliações">
+                          <IconButton
+                            size="small"
+                            color="info"
+                            onClick={() => { handleOpenHistory(contact) }}
+                            aria-label={`Histórico de avaliações de ${contact.name}`}
+                          >
+                            <RateReviewOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         <Tooltip title="Editar contato">
                           <IconButton
                             size="small"
                             color="primary"
-                            onClick={() => handleOpenEdit(contact)}
+                            onClick={() => { handleOpenEdit(contact) }}
                             aria-label={`Editar ${contact.name}`}
                           >
                             <EditOutlinedIcon fontSize="small" />
@@ -335,7 +359,7 @@ export function ContactsPage() {
                           <IconButton
                             size="small"
                             color="error"
-                            onClick={() => handleOpenDelete(contact)}
+                            onClick={() => { handleOpenDelete(contact) }}
                             aria-label={`Excluir ${contact.name}`}
                           >
                             <DeleteOutlinedIcon fontSize="small" />
@@ -368,15 +392,21 @@ export function ContactsPage() {
         open={dialogOpen}
         mode={dialogMode}
         contact={selectedContact}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => { setDialogOpen(false) }}
         onSuccess={handleDialogSuccess}
       />
 
       <DeleteContactDialog
         open={deleteDialogOpen}
         contact={contactToDelete}
-        onClose={() => setDeleteDialogOpen(false)}
+        onClose={() => { setDeleteDialogOpen(false) }}
         onSuccess={handleDeleteSuccess}
+      />
+
+      <ContactFeedbacksDrawer
+        open={historyDrawerOpen}
+        contact={contactForHistory}
+        onClose={() => { setHistoryDrawerOpen(false) }}
       />
     </Container>
   )

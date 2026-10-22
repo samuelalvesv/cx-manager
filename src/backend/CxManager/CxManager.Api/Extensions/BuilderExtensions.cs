@@ -13,6 +13,11 @@ using CxManager.Application.UseCases.Contacts.Commands.DeleteContact;
 using CxManager.Application.UseCases.Contacts.Commands.UpdateContact;
 using CxManager.Application.UseCases.Contacts.Queries;
 using CxManager.Application.UseCases.Contacts.Queries.GetContactById;
+using CxManager.Application.UseCases.Feedbacks.Commands.CreateFeedback;
+using CxManager.Application.UseCases.Feedbacks.Commands.DeleteFeedback;
+using CxManager.Application.UseCases.Feedbacks.Commands.UpdateFeedback;
+using CxManager.Application.UseCases.Feedbacks.Queries.GetContactFeedbacks;
+using CxManager.Application.UseCases.Feedbacks.Queries.GetFeedbackById;
 using CxManager.Application.UseCases.Surveys.Commands.CreateSurvey;
 using CxManager.Application.UseCases.Surveys.Commands.DeleteSurvey;
 using CxManager.Application.UseCases.Surveys.Commands.UpdateSurvey;
@@ -20,9 +25,11 @@ using CxManager.Application.UseCases.Surveys.Queries;
 using CxManager.Application.UseCases.Surveys.Queries.GetSurveyById;
 using CxManager.Application.Validators.Companies;
 using CxManager.Application.Validators.Contacts;
+using CxManager.Application.Validators.Feedbacks;
 using CxManager.Application.Validators.Surveys;
 using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Requests.Contacts;
+using CxManager.Contract.Requests.Feedbacks;
 using CxManager.Contract.Requests.Surveys;
 using CxManager.Infrastructure;
 using Microsoft.AspNetCore.Http.Json;
@@ -47,7 +54,7 @@ public static class BuilderExtensions
         {
             options.SerializerOptions.TypeInfoResolverChain.Insert(index: 0, item: AppJsonSerializerContext.Default);
             options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-            options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
         });
 
         builder.Services.AddHttpContextAccessor();
@@ -78,6 +85,13 @@ public static class BuilderExtensions
         builder.Services.AddScoped<IUpdateContactUseCase, UpdateContactUseCase>();
         builder.Services.AddScoped<IDeleteContactUseCase, DeleteContactUseCase>();
 
+        // Casos de uso de aplicação - Feedbacks
+        builder.Services.AddScoped<ICreateFeedbackUseCase, CreateFeedbackUseCase>();
+        builder.Services.AddScoped<IUpdateFeedbackUseCase, UpdateFeedbackUseCase>();
+        builder.Services.AddScoped<IDeleteFeedbackUseCase, DeleteFeedbackUseCase>();
+        builder.Services.AddScoped<IGetFeedbackByIdUseCase, GetFeedbackByIdUseCase>();
+        builder.Services.AddScoped<IGetContactFeedbacksUseCase, GetContactFeedbacksUseCase>();
+
         // Validadores
         builder.Services.AddScoped<FluentValidation.IValidator<CreateCompanyRequest>, CreateCompanyRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<UpdateCompanyRequest>, UpdateCompanyRequestValidator>();
@@ -92,6 +106,11 @@ public static class BuilderExtensions
         builder.Services.AddScoped<FluentValidation.IValidator<GetContactsRequest>, GetContactsRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<GetContactByIdRequest>, GetContactByIdRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<DeleteContactRequest>, DeleteContactRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<CreateFeedbackRequest>, CreateFeedbackRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<UpdateFeedbackRequest>, UpdateFeedbackRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<GetFeedbackByIdRequest>, GetFeedbackByIdRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<GetContactFeedbacksRequest>, GetContactFeedbacksRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<DeleteFeedbackRequest>, DeleteFeedbackRequestValidator>();
 
         return builder;
     }

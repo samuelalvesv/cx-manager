@@ -4,9 +4,12 @@ using CxManager.Application.UseCases.Contacts.Commands.DeleteContact;
 using CxManager.Application.UseCases.Contacts.Commands.UpdateContact;
 using CxManager.Application.UseCases.Contacts.Queries;
 using CxManager.Application.UseCases.Contacts.Queries.GetContactById;
+using CxManager.Application.UseCases.Feedbacks.Queries.GetContactFeedbacks;
 using CxManager.Contract.Requests.Contacts;
+using CxManager.Contract.Requests.Feedbacks;
 using CxManager.Contract.Responses;
 using CxManager.Contract.Responses.Contacts;
+using CxManager.Contract.Responses.Feedbacks;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace CxManager.Api.Endpoints;
@@ -48,6 +51,23 @@ public static class ContactEndpoints
             .WithName("GetContactById")
             .WithSummary("Retorna os detalhes de um contato ativo da empresa.")
             .WithValidation<GetContactByIdRequest>();
+
+        group.MapGet(
+            pattern: "/{id:long}/responses",
+            handler: async Task<Ok<IReadOnlyList<FeedbackResponse>>> (
+                [AsParameters] GetContactFeedbacksRequest request,
+                IGetContactFeedbacksUseCase useCase,
+                CancellationToken cancellationToken) =>
+            {
+                IReadOnlyList<FeedbackResponse> responses = await useCase.ExecuteAsync(
+                    request: request,
+                    cancellationToken: cancellationToken);
+
+                return TypedResults.Ok(value: responses);
+            })
+            .WithName("GetContactResponses")
+            .WithSummary("Retorna o histórico cronológico de avaliações ativas de um contato.")
+            .WithValidation<GetContactFeedbacksRequest>();
 
         group.MapPost(
             pattern: "/",

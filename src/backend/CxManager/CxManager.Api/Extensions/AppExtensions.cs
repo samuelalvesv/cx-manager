@@ -39,6 +39,10 @@ public static class AppExtensions
             .AddEndpointFilter<RequireCompanyContextFilter>()
             .MapContactEndpoints();
 
+        apiGroup.MapGroup(prefix: "/responses")
+            .AddEndpointFilter<RequireCompanyContextFilter>()
+            .MapFeedbackEndpoints();
+
         return app;
     }
 

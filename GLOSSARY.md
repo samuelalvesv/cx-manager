@@ -12,9 +12,9 @@ _Avoid_: Aluno, Estudante, Cliente, Usuário, Account
 Instrumento de avaliação de satisfação com métrica e escala pré-definidas (NPS na escala 0–10 ou CSAT na escala 1–5).
 _Avoid_: Questionário, Formulário, Avaliação, Teste
 
-**Response**:
+**Feedback**:
 Registro individual de nota e comentário emitido por um contato para uma pesquisa em um canal específico.
-_Avoid_: Answer, Feedback, Voto, Opinião
+_Avoid_: Answer, Response, Voto, Opinião
 
 **Segment**:
 Classificação comercial ou modalidade de plano atribuída ao contato na academia (ex.: "Plano Black", "Plano Fit", "Corporativo").
