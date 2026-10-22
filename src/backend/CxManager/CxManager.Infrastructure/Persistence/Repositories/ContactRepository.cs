@@ -256,7 +256,7 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
         public long CompanyId { get; init; }
         public string Name { get; init; } = string.Empty;
         public string Email { get; init; } = string.Empty;
-        public string Segment { get; init; } = string.Empty;
+        public string? Segment { get; init; }
         public string CreatedAt { get; init; } = string.Empty;
         public string? DeletedAt { get; init; }
 

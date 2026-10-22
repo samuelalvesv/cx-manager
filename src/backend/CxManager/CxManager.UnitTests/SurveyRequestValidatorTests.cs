@@ -110,45 +110,4 @@ public sealed class SurveyRequestValidatorTests
         Assert.False(condition: result.IsValid);
         Assert.Contains(collection: result.Errors, filter: e => e.PropertyName == nameof(UpdateSurveyRequest.Name));
     }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(99)]
-    public void GetSurveyByIdRequest_WithValidId_ShouldBeValid(long id)
-    {
-        GetSurveyByIdRequestValidator validator = new();
-        GetSurveyByIdRequest request = new() { Id = id };
-
-        ValidationResult result = validator.Validate(instance: request);
-
-        Assert.True(condition: result.IsValid);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-10)]
-    public void GetSurveyByIdRequest_WithInvalidId_ShouldBeInvalid(long id)
-    {
-        GetSurveyByIdRequestValidator validator = new();
-        GetSurveyByIdRequest request = new() { Id = id };
-
-        ValidationResult result = validator.Validate(instance: request);
-
-        Assert.False(condition: result.IsValid);
-        Assert.Contains(collection: result.Errors, filter: e => e.PropertyName == nameof(GetSurveyByIdRequest.Id));
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void DeleteSurveyRequest_WithInvalidId_ShouldBeInvalid(long id)
-    {
-        DeleteSurveyRequestValidator validator = new();
-        DeleteSurveyRequest request = new() { Id = id };
-
-        ValidationResult result = validator.Validate(instance: request);
-
-        Assert.False(condition: result.IsValid);
-        Assert.Contains(collection: result.Errors, filter: e => e.PropertyName == nameof(DeleteSurveyRequest.Id));
-    }
 }

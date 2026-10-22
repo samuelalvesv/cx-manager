@@ -35,19 +35,15 @@ public sealed class CompanyContextTests
     }
 
     [Fact]
-    public void CompanyId_WhenBothHeaderAndQueryAbsent_ShouldThrowMissingCompanyContextException()
+    public void CompanyId_WhenBothHeaderAndQueryAbsent_ShouldResolveToDefaultCompanyId()
     {
         DefaultHttpContext httpContext = new();
         HttpContextAccessor accessor = new() { HttpContext = httpContext };
         HttpCompanyContext context = new(httpContextAccessor: accessor);
 
-        Assert.False(condition: context.HasCompanyId);
-        Assert.Null(@object: context.TryGetCompanyId());
-
-        MissingCompanyContextException ex = Assert.Throws<MissingCompanyContextException>(
-            testCode: () => _ = context.CompanyId);
-
-        Assert.Equal(expected: "O identificador da empresa é obrigatório.", actual: ex.Message);
+        Assert.True(condition: context.HasCompanyId);
+        Assert.Equal(expected: HttpCompanyContext.DefaultCompanyId, actual: context.CompanyId);
+        Assert.Equal(expected: HttpCompanyContext.DefaultCompanyId, actual: context.TryGetCompanyId());
     }
 
     [Theory]

@@ -40,20 +40,32 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task GetContactResponses_WithoutCompanyHeader_ShouldReturn400BadRequest()
+    public async Task GetContactResponses_WithoutCompanyHeader_ShouldFallbackToDefaultCompanyAndReturn200()
     {
         HttpResponseMessage response = await _client.GetAsync(
             requestUri: new Uri(uriString: "/api/contacts/1/responses", uriKind: UriKind.Relative),
             cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
 
-        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
-            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+        IReadOnlyList<FeedbackResponse>? list = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.IReadOnlyListFeedbackResponse,
             cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.NotNull(@object: error);
-        Assert.Equal(expected: "O identificador da empresa é obrigatório.", actual: error.Error);
+        Assert.NotNull(@object: list);
+    }
+
+    [Fact]
+    public async Task GetContactResponses_WithInvalidCompanyHeader_ShouldReturn400BadRequest()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contacts/1/responses");
+        request.Headers.Add("X-Company-Id", "invalido");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
     }
 
     [Fact]

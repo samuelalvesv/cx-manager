@@ -17,7 +17,7 @@ public sealed class CreateContactRequestValidator : AbstractValidator<CreateCont
             .EmailAddress().WithMessage(errorMessage: "O e-mail informado possui formato inválido.");
 
         RuleFor(expression: static x => x.Segment)
-            .NotEmpty().WithMessage(errorMessage: "O segmento é obrigatório.")
-            .Length(min: 2, max: 50).WithMessage(errorMessage: "O segmento deve ter entre 2 e 50 caracteres.");
+            .Length(min: 2, max: 50).WithMessage(errorMessage: "O segmento deve ter entre 2 e 50 caracteres.")
+            .When(predicate: static x => !string.IsNullOrEmpty(x.Segment));
     }
 }

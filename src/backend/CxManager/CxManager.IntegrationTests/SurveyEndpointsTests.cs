@@ -39,20 +39,33 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task GetSurveys_WithoutCompanyHeader_ShouldReturn400BadRequest()
+    public async Task GetSurveys_WithoutCompanyHeader_ShouldFallbackToDefaultCompanyAndReturn200()
     {
         HttpResponseMessage response = await _client.GetAsync(
             requestUri: new Uri(uriString: "/api/surveys", uriKind: UriKind.Relative),
             cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
 
-        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
-            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
+        IReadOnlyList<SurveyResponse>? surveys = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.IReadOnlyListSurveyResponse,
             cancellationToken: TestContext.Current.CancellationToken);
 
-        Assert.NotNull(@object: error);
-        Assert.Equal(expected: "O identificador da empresa é obrigatório.", actual: error.Error);
+        Assert.NotNull(@object: surveys);
+        Assert.Equal(expected: 3, actual: surveys.Count);
+    }
+
+    [Fact]
+    public async Task GetSurveys_WithInvalidCompanyHeader_ShouldReturn400BadRequest()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/surveys");
+        request.Headers.Add("X-Company-Id", "invalido");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
     }
 
     [Fact]

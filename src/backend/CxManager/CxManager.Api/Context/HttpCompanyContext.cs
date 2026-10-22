@@ -8,6 +8,11 @@ namespace CxManager.Api.Context;
 
 public sealed class HttpCompanyContext(IHttpContextAccessor httpContextAccessor) : ICompanyContext
 {
+    // Toggle para habilitar/desabilitar fallback transparente de empresa.
+    // Para desativar o fallback e exigir estritamente o header X-Company-Id ou ?companyId=, altere para false.
+    private const bool EnableDefaultCompanyFallback = true;
+    public const long DefaultCompanyId = 1L; // empresa 1 Vita Bem-Estar por padrão
+
     private long? _cachedCompanyId;
     private bool _resolved;
 
@@ -57,20 +62,26 @@ public sealed class HttpCompanyContext(IHttpContextAccessor httpContextAccessor)
         if (httpContext.Request.Headers.TryGetValue(key: "X-Company-Id", value: out StringValues headerValue))
         {
             string headerStr = headerValue.ToString();
+
             if (long.TryParse(s: headerStr, provider: CultureInfo.InvariantCulture, result: out long headerId) && headerId > 0)
-            {
                 _cachedCompanyId = headerId;
-                return;
-            }
+
+            return;
         }
 
         // 2. Inspeciona parâmetro de query companyId
-        if (!httpContext.Request.Query.TryGetValue(key: "companyId", value: out StringValues queryValue))
+        if (httpContext.Request.Query.TryGetValue(key: "companyId", value: out StringValues queryValue))
+        {
+            string queryStr = queryValue.ToString();
+
+            if (long.TryParse(s: queryStr, provider: CultureInfo.InvariantCulture, result: out long queryId) && queryId > 0)
+                _cachedCompanyId = queryId;
+
             return;
+        }
 
-        string queryStr = queryValue.ToString();
-
-        if (long.TryParse(s: queryStr, provider: CultureInfo.InvariantCulture, result: out long queryId) && queryId > 0)
-            _cachedCompanyId = queryId;
+        // 3. Fallback transparente para compatibilidade com chamadas padrão do desafio
+        if (!_cachedCompanyId.HasValue && EnableDefaultCompanyFallback)
+            _cachedCompanyId = DefaultCompanyId; // empresa 1 Vita Bem-Estar por padrão
     }
 }

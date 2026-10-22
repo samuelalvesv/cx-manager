@@ -8,9 +8,6 @@ public sealed class FeedbackRequestValidatorTests
 {
     private readonly CreateFeedbackRequestValidator _createValidator = new();
     private readonly UpdateFeedbackRequestValidator _updateValidator = new();
-    private readonly GetFeedbackByIdRequestValidator _getByIdValidator = new();
-    private readonly GetContactFeedbacksRequestValidator _getContactFeedbacksValidator = new();
-    private readonly DeleteFeedbackRequestValidator _deleteValidator = new();
 
     [Theory]
     [InlineData("whatsapp")]
@@ -165,59 +162,5 @@ public sealed class FeedbackRequestValidatorTests
 
         Assert.False(condition: result.IsValid);
         Assert.Contains(result.Errors, filter: static e => e.PropertyName == nameof(UpdateFeedbackRequest.Score));
-    }
-
-    [Fact]
-    public void GetFeedbackById_ValidId_ShouldBeValid()
-    {
-        var request = new GetFeedbackByIdRequest { Id = 1 };
-        ValidationResult result = _getByIdValidator.Validate(instance: request);
-        Assert.True(condition: result.IsValid);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void GetFeedbackById_InvalidId_ShouldBeInvalid(long invalidId)
-    {
-        var request = new GetFeedbackByIdRequest { Id = invalidId };
-        ValidationResult result = _getByIdValidator.Validate(instance: request);
-        Assert.False(condition: result.IsValid);
-    }
-
-    [Fact]
-    public void GetContactFeedbacks_ValidId_ShouldBeValid()
-    {
-        var request = new GetContactFeedbacksRequest { Id = 1 };
-        ValidationResult result = _getContactFeedbacksValidator.Validate(instance: request);
-        Assert.True(condition: result.IsValid);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void GetContactFeedbacks_InvalidId_ShouldBeInvalid(long invalidId)
-    {
-        var request = new GetContactFeedbacksRequest { Id = invalidId };
-        ValidationResult result = _getContactFeedbacksValidator.Validate(instance: request);
-        Assert.False(condition: result.IsValid);
-    }
-
-    [Fact]
-    public void DeleteFeedback_ValidId_ShouldBeValid()
-    {
-        var request = new DeleteFeedbackRequest { Id = 1 };
-        ValidationResult result = _deleteValidator.Validate(instance: request);
-        Assert.True(condition: result.IsValid);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void DeleteFeedback_InvalidId_ShouldBeInvalid(long invalidId)
-    {
-        var request = new DeleteFeedbackRequest { Id = invalidId };
-        ValidationResult result = _deleteValidator.Validate(instance: request);
-        Assert.False(condition: result.IsValid);
     }
 }

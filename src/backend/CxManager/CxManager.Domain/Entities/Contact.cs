@@ -14,14 +14,14 @@ public sealed class Contact : Entity
     public long CompanyId { get; private set; }
     public string Name { get; private set; }
     public string Email { get; private set; }
-    public string Segment { get; private set; }
+    public string? Segment { get; private set; }
 
     private Contact(
         long id,
         long companyId,
         string name,
         string email,
-        string segment,
+        string? segment,
         DateTimeOffset createdAt,
         DateTimeOffset? deletedAt) : base(id: id, createdAt: createdAt, deletedAt: deletedAt)
     {
@@ -35,12 +35,12 @@ public sealed class Contact : Entity
         long companyId,
         string name,
         string email,
-        string segment)
+        string? segment)
     {
         long validatedCompanyId = ValidateCompanyId(companyId: companyId);
         string validatedName = ValidateName(name: name);
         string validatedEmail = ValidateEmail(email: email);
-        string validatedSegment = ValidateSegment(segment: segment);
+        string? validatedSegment = ValidateSegment(segment: segment);
 
         return new Contact(
             id: 0,
@@ -57,7 +57,7 @@ public sealed class Contact : Entity
         long companyId,
         string name,
         string email,
-        string segment,
+        string? segment,
         DateTimeOffset createdAt,
         DateTimeOffset? deletedAt)
     {
@@ -71,7 +71,7 @@ public sealed class Contact : Entity
             deletedAt: deletedAt);
     }
 
-    public void Update(string name, string email, string segment)
+    public void Update(string name, string email, string? segment)
     {
         Name = ValidateName(name: name);
         Email = ValidateEmail(email: email);
@@ -98,8 +98,8 @@ public sealed class Contact : Entity
         return validated.ToLowerInvariant();
     }
 
-    private static string ValidateSegment(string segment) =>
-        DomainValidation.ValidateRequiredString(
+    private static string? ValidateSegment(string? segment) =>
+        DomainValidation.ValidateOptionalString(
             value: segment,
             fieldName: "segmento",
             minLength: MinSegmentLength,

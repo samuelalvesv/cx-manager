@@ -25,6 +25,7 @@ import {
   TableRow,
   TextField,
   Tooltip,
+  Typography,
 } from '@mui/material'
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { ContactDialog } from '../components/ContactDialog.tsx'
@@ -323,12 +324,18 @@ export function ContactsPage() {
                     <TableCell sx={{ fontWeight: 600 }}>{contact.name}</TableCell>
                     <TableCell sx={{ color: 'text.secondary' }}>{contact.email}</TableCell>
                     <TableCell>
-                      <Chip
-                        label={contact.segment}
-                        size="small"
-                        color={contact.segment.toLowerCase().includes('black') ? 'primary' : 'default'}
-                        variant="outlined"
-                      />
+                      {contact.segment !== null && contact.segment.length > 0 ? (
+                        <Chip
+                          label={contact.segment}
+                          size="small"
+                          color={contact.segment.toLowerCase().includes('black') ? 'primary' : 'default'}
+                          variant="outlined"
+                        />
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          —
+                        </Typography>
+                      )}
                     </TableCell>
                     <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                       {new Date(contact.createdAt).toLocaleDateString('pt-BR')}

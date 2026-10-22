@@ -295,10 +295,25 @@ public sealed class CompanyEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task TenantEndpoint_WithoutCompanyId_ShouldReturn400BadRequest()
+    public async Task TenantEndpoint_WithoutCompanyId_ShouldFallbackToDefaultCompanyAndReturn204NoContent()
     {
         HttpResponseMessage response = await _client.GetAsync(
             requestUri: new Uri(uriString: "/api/tenant-test", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NoContent, actual: response.StatusCode);
+    }
+
+    [Fact]
+    public async Task TenantEndpoint_WithInvalidXCompanyIdHeader_ShouldReturn400BadRequest()
+    {
+        using HttpRequestMessage request = new(
+            method: HttpMethod.Get,
+            requestUri: new Uri(uriString: "/api/tenant-test", uriKind: UriKind.Relative));
+        request.Headers.Add(name: "X-Company-Id", value: "invalido");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
             cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);

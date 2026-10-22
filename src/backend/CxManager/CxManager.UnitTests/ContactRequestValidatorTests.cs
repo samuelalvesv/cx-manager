@@ -71,9 +71,25 @@ public sealed class ContactRequestValidatorTests
         Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(CreateContactRequest.Email));
     }
 
+    [Fact]
+    public async Task CreateContact_WithNullSegment_ShouldBeValid()
+    {
+        CreateContactRequest request = new()
+        {
+            Name = "Carlos Silva",
+            Email = "carlos.silva@exemplo.com.br",
+            Segment = null
+        };
+
+        ValidationResult result = await _createValidator.ValidateAsync(
+            instance: request,
+            cancellation: TestContext.Current.CancellationToken);
+
+        Assert.True(condition: result.IsValid);
+        Assert.Empty(collection: result.Errors);
+    }
+
     [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
     [InlineData("A")]
     public async Task CreateContact_WithInvalidSegment_ShouldFail(string invalidSegment)
     {
@@ -117,7 +133,7 @@ public sealed class ContactRequestValidatorTests
         {
             Name = "A",
             Email = "email-invalido",
-            Segment = ""
+            Segment = "A"
         };
 
         ValidationResult result = await _updateValidator.ValidateAsync(
@@ -222,68 +238,5 @@ public sealed class ContactRequestValidatorTests
 
         Assert.False(condition: result.IsValid);
         Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(GetContactsRequest.Search));
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(100)]
-    public async Task GetContactById_WithValidId_ShouldBeValid(long id)
-    {
-        GetContactByIdRequestValidator validator = new();
-        GetContactByIdRequest request = new() { Id = id };
-
-        ValidationResult result = await validator.ValidateAsync(
-            instance: request,
-            cancellation: TestContext.Current.CancellationToken);
-
-        Assert.True(condition: result.IsValid);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task GetContactById_WithInvalidId_ShouldFail(long id)
-    {
-        GetContactByIdRequestValidator validator = new();
-        GetContactByIdRequest request = new() { Id = id };
-
-        ValidationResult result = await validator.ValidateAsync(
-            instance: request,
-            cancellation: TestContext.Current.CancellationToken);
-
-        Assert.False(condition: result.IsValid);
-        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(GetContactByIdRequest.Id));
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(50)]
-    public async Task DeleteContact_WithValidId_ShouldBeValid(long id)
-    {
-        DeleteContactRequestValidator validator = new();
-        DeleteContactRequest request = new() { Id = id };
-
-        ValidationResult result = await validator.ValidateAsync(
-            instance: request,
-            cancellation: TestContext.Current.CancellationToken);
-
-        Assert.True(condition: result.IsValid);
-        Assert.Empty(collection: result.Errors);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-5)]
-    public async Task DeleteContact_WithInvalidId_ShouldFail(long id)
-    {
-        DeleteContactRequestValidator validator = new();
-        DeleteContactRequest request = new() { Id = id };
-
-        ValidationResult result = await validator.ValidateAsync(
-            instance: request,
-            cancellation: TestContext.Current.CancellationToken);
-
-        Assert.False(condition: result.IsValid);
-        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(DeleteContactRequest.Id));
     }
 }

@@ -39,20 +39,33 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task GetContacts_WithoutCompanyHeader_ShouldReturn400BadRequest()
+    public async Task GetContacts_WithoutCompanyHeader_ShouldFallbackToDefaultCompanyAndReturn200()
     {
         HttpResponseMessage response = await _client.GetAsync(
-            requestUri: new Uri(uriString: "/api/contacts", uriKind: UriKind.Relative),
+            requestUri: new Uri(uriString: "/api/contacts?page=1&pageSize=10", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        PagedResponse<ContactResponse>? paged = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.PagedResponseContactResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: paged);
+        Assert.Equal(expected: 320, actual: paged.Total);
+    }
+
+    [Fact]
+    public async Task GetContacts_WithInvalidCompanyHeader_ShouldReturn400BadRequest()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/contacts?page=1&pageSize=10");
+        request.Headers.Add("X-Company-Id", "invalido");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
             cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
-
-        ErrorResponse? error = await response.Content.ReadFromJsonAsync(
-            jsonTypeInfo: AppJsonSerializerContext.Default.ErrorResponse,
-            cancellationToken: TestContext.Current.CancellationToken);
-
-        Assert.NotNull(@object: error);
-        Assert.Equal(expected: "O identificador da empresa é obrigatório.", actual: error.Error);
     }
 
     [Fact]
@@ -209,6 +222,38 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
         Assert.Equal(expected: "novo.contato.teste@exemplo.com.br", actual: created.Email);
         Assert.Equal(expected: "Plano Black", actual: created.Segment);
         Assert.Equal(expected: $"/api/contacts/{created.Id}", actual: response.Headers.Location.OriginalString);
+    }
+
+    [Fact]
+    public async Task CreateContact_WithNullSegment_ShouldReturn201CreatedAndNullSegment()
+    {
+        CreateContactRequest payload = new()
+        {
+            Name = "Contato Sem Segmento",
+            Email = "sem.segmento@exemplo.com.br",
+            Segment = null
+        };
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
+        {
+            Content = JsonContent.Create(
+                inputValue: payload,
+                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
+        };
+        request.Headers.Add("X-Company-Id", "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.Created, actual: response.StatusCode);
+
+        ContactResponse? created = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.ContactResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: created);
+        Assert.Null(@object: created.Segment);
     }
 
     [Fact]

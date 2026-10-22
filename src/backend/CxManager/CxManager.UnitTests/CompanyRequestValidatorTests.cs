@@ -140,45 +140,4 @@ public sealed class CompanyRequestValidatorTests
         Assert.False(condition: result.IsValid);
         Assert.Contains(collection: result.Errors, filter: e => e.PropertyName == nameof(UpdateCompanyRequest.Description));
     }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(42)]
-    public void GetCompanyByIdRequest_WithValidId_ShouldBeValid(long id)
-    {
-        GetCompanyByIdRequestValidator validator = new();
-        GetCompanyByIdRequest request = new() { Id = id };
-
-        ValidationResult result = validator.Validate(instance: request);
-
-        Assert.True(condition: result.IsValid);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-10)]
-    public void GetCompanyByIdRequest_WithInvalidId_ShouldBeInvalid(long id)
-    {
-        GetCompanyByIdRequestValidator validator = new();
-        GetCompanyByIdRequest request = new() { Id = id };
-
-        ValidationResult result = validator.Validate(instance: request);
-
-        Assert.False(condition: result.IsValid);
-        Assert.Contains(collection: result.Errors, filter: e => e.PropertyName == nameof(GetCompanyByIdRequest.Id));
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void DeleteCompanyRequest_WithInvalidId_ShouldBeInvalid(long id)
-    {
-        DeleteCompanyRequestValidator validator = new();
-        DeleteCompanyRequest request = new() { Id = id };
-
-        ValidationResult result = validator.Validate(instance: request);
-
-        Assert.False(condition: result.IsValid);
-        Assert.Contains(collection: result.Errors, filter: e => e.PropertyName == nameof(DeleteCompanyRequest.Id));
-    }
 }

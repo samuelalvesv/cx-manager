@@ -34,7 +34,7 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory) 
             company_id INTEGER NOT NULL REFERENCES companies(id),
             name TEXT NOT NULL,
             email TEXT NOT NULL,
-            segment TEXT NOT NULL,
+            segment TEXT,
             created_at TEXT NOT NULL,
             deleted_at TEXT
         );

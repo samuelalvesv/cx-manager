@@ -38,13 +38,13 @@ function validateEmailFormat(email: string): boolean {
 function ContactForm({ mode, contact, onClose, onSuccess }: ContactFormProps) {
   const [name, setName] = useState(() => (mode === 'edit' && contact !== null ? contact.name : ''))
   const [email, setEmail] = useState(() => (mode === 'edit' && contact !== null ? contact.email : ''))
-  const [segment, setSegment] = useState(() => (mode === 'edit' && contact !== null ? contact.segment : ''))
+  const [segment, setSegment] = useState(() => (mode === 'edit' && contact !== null ? (contact.segment ?? '') : ''))
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const isNameValid = name.trim().length >= 2 && name.trim().length <= 100
   const isEmailValid = email.trim().length >= 5 && email.trim().length <= 150 && validateEmailFormat(email)
-  const isSegmentValid = segment.trim().length >= 2 && segment.trim().length <= 50
+  const isSegmentValid = segment.trim().length === 0 || (segment.trim().length >= 2 && segment.trim().length <= 50)
   const isFormValid = isNameValid && isEmailValid && isSegmentValid
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +67,7 @@ function ContactForm({ mode, contact, onClose, onSuccess }: ContactFormProps) {
     try {
       const trimmedName = name.trim()
       const trimmedEmail = email.trim().toLowerCase()
-      const trimmedSegment = segment.trim()
+      const trimmedSegment = segment.trim().length > 0 ? segment.trim() : null
 
       if (mode === 'create') {
         const created = await createContact({
@@ -155,13 +155,12 @@ function ContactForm({ mode, contact, onClose, onSuccess }: ContactFormProps) {
               <TextField
                 {...params}
                 label="Plano / Segmento"
-                required
                 size="small"
                 error={segment.length > 0 && !isSegmentValid}
                 helperText={
                   segment.length > 0 && !isSegmentValid
                     ? 'O segmento deve ter entre 2 e 50 caracteres.'
-                    : 'Classificação do aluno ou cliente (ex: Plano Black, Plano Fit, Corporativo).'
+                    : 'Opcional. Classificação do aluno ou cliente (ex: Plano Black, Plano Fit, Corporativo).'
                 }
               />
             )}

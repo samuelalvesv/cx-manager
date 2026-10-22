@@ -229,7 +229,7 @@ export function ContactFeedbacksDrawer({
           <Typography variant="caption" color="text.secondary">
             {contact?.email}
           </Typography>
-          {contact?.segment !== undefined && (
+          {contact?.segment !== null && contact?.segment !== undefined && (
             <Chip
               label={contact.segment}
               size="small"
