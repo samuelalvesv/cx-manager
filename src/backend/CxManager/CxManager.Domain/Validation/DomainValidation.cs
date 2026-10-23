@@ -62,9 +62,7 @@ public static class DomainValidation
 
         if (!MailAddress.TryCreate(address: trimmed, result: out MailAddress? mailAddress) ||
             mailAddress.Address != trimmed)
-        {
             throw new ValidationException(message: "O e-mail informado possui formato inválido.");
-        }
 
         return trimmed;
     }

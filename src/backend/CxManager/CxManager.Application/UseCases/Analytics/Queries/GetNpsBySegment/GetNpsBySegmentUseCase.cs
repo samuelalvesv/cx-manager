@@ -11,7 +11,7 @@ public sealed class GetNpsBySegmentUseCase(
     IAnalyticsCache cache,
     ICompanyContext companyContext) : IGetNpsBySegmentUseCase
 {
-    public async Task<IReadOnlyList<SegmentNpsResponse>> ExecuteAsync(GetNpsBySegmentRequest request, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<SegmentNpsResponse>> ExecuteAsync(AnalyticsFilterRequest request, CancellationToken cancellationToken = default)
     {
         long companyId = companyContext.CompanyId;
         string cacheKey = $"segment:{request.From:yyyy-MM-dd}:{request.To:yyyy-MM-dd}:{request.SurveyId}";

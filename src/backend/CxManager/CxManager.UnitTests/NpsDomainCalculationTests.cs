@@ -30,11 +30,6 @@ public sealed class NpsDomainCalculationTests
     [Fact]
     public void CalculateScore_ShouldUseAwayFromZeroRounding()
     {
-        // Diferença crua = 50.0% - 26.5% = 23.5% -> deve arredondar para 24
-        _ = NpsCalculator.CalculateScore(
-            promotersCount: 50,
-            detractorsCount: 265, // 265 / 1000 = 26.5%, 500 / 1000 = 50.0% -> 23.5%
-            totalNpsResponses: 1000);
         // promoters: 500/1000 = 50%, detractors: 265/1000 = 26.5% -> diff = 23.5 -> 24
         int scoreWith500 = NpsCalculator.CalculateScore(
             promotersCount: 500,
@@ -70,21 +65,21 @@ public sealed class NpsDomainCalculationTests
     }
 
     [Fact]
-    public void CalculateCsatAverage_WithZeroResponses_ShouldReturnNull()
+    public void RoundCsatAverage_WithNull_ShouldReturnNull()
     {
-        double? csatAvg = NpsCalculator.CalculateCsatAverage(rawSum: 0, csatResponsesCount: 0);
+        double? csatAvg = NpsCalculator.RoundCsatAverage(rawAverage: null);
         Assert.Null(@object: csatAvg);
     }
 
     [Fact]
-    public void CalculateCsatAverage_WithValues_ShouldRoundToTwoDecimalsAwayFromZero()
+    public void RoundCsatAverage_WithValues_ShouldRoundToTwoDecimalsAwayFromZero()
     {
         // 3.914 -> 3.91
-        double? csatAvg1 = NpsCalculator.CalculateCsatAverage(rawSum: 391.4, csatResponsesCount: 100);
+        double? csatAvg1 = NpsCalculator.RoundCsatAverage(rawAverage: 3.914);
         Assert.Equal(expected: 3.91, actual: csatAvg1);
 
         // 3.915 -> 3.92 (AwayFromZero)
-        double? csatAvg2 = NpsCalculator.CalculateCsatAverage(rawSum: 391.5, csatResponsesCount: 100);
+        double? csatAvg2 = NpsCalculator.RoundCsatAverage(rawAverage: 3.915);
         Assert.Equal(expected: 3.92, actual: csatAvg2);
     }
 }

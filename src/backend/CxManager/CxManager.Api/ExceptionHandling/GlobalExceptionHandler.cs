@@ -14,6 +14,7 @@ public sealed partial class GlobalExceptionHandler(ILogger<GlobalExceptionHandle
     {
         (int statusCode, string errorMessage) = exception switch
         {
+            BadHttpRequestException => (StatusCodes.Status400BadRequest, "Parâmetro de requisição inválido ou mal formatado."),
             MissingCompanyContextException ex => (StatusCodes.Status400BadRequest, ex.Message),
             ValidationException ex => (StatusCodes.Status400BadRequest, ex.Message),
             EntityNotFoundException ex => (StatusCodes.Status404NotFound, ex.Message),

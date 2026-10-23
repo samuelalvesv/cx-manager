@@ -1,6 +1,6 @@
 namespace CxManager.Contract.Requests.Analytics;
 
-public sealed record GetAnalyticsSummaryRequest
+public sealed record AnalyticsFilterRequest
 {
     public DateOnly? From { get; init; }
     public DateOnly? To { get; init; }

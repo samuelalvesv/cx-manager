@@ -5,5 +5,5 @@ namespace CxManager.Application.UseCases.Analytics.Queries.GetNpsByMonth;
 
 public interface IGetNpsByMonthUseCase
 {
-    Task<IReadOnlyList<MonthlyNpsResponse>> ExecuteAsync(GetNpsByMonthRequest request, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<MonthlyNpsResponse>> ExecuteAsync(AnalyticsFilterRequest request, CancellationToken cancellationToken = default);
 }

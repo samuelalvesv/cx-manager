@@ -133,12 +133,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Type = "NPS"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -168,12 +166,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Type = "CSAT"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -202,12 +198,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Type = invalidType
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -226,12 +220,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Type = "NPS"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/surveys");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -249,12 +241,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Name = "NPS Pós-Treino Atualizado"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/surveys/1")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.UpdateSurveyRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/surveys/1");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateSurveyRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -280,12 +270,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Name = "Nome Atualizado"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/surveys/999")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.UpdateSurveyRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/surveys/999");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateSurveyRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -305,12 +293,10 @@ public sealed class SurveyEndpointsTests : IAsyncDisposable
             Type = "NPS"
         };
 
-        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/surveys")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest)
-        };
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/surveys");
+        createRequest.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateSurveyRequest);
         createRequest.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage createResponse = await _client.SendAsync(

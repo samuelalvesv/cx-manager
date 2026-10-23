@@ -197,12 +197,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = "Plano Black"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/contacts");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -234,12 +232,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
             Segment = null
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/contacts");
+        request.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -268,12 +264,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
 
         using var req1 = new HttpRequestMessage(
             method: HttpMethod.Post,
-            requestUri: "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload1,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+            requestUri: "/api/contacts");
+        req1.Content = JsonContent.Create(
+            inputValue: payload1,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         req1.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage resp1 = await _client.SendAsync(
@@ -291,12 +285,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
 
         using var req2 = new HttpRequestMessage(
             method: HttpMethod.Post,
-            requestUri: "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload2,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+            requestUri: "/api/contacts");
+        req2.Content = JsonContent.Create(
+            inputValue: payload2,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         req2.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage resp2 = await _client.SendAsync(
@@ -325,12 +317,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
 
         using var createReq = new HttpRequestMessage(
             method: HttpMethod.Post,
-            requestUri: "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+            requestUri: "/api/contacts");
+        createReq.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         createReq.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage createResp = await _client.SendAsync(
@@ -351,12 +341,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
 
         using var putReq = new HttpRequestMessage(
             method: HttpMethod.Put,
-            requestUri: $"/api/contacts/{created.Id}")
-        {
-            Content = JsonContent.Create(
-                inputValue: updatePayload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.UpdateContactRequest)
-        };
+            requestUri: $"/api/contacts/{created.Id}");
+        putReq.Content = JsonContent.Create(
+            inputValue: updatePayload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateContactRequest);
         putReq.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage putResp = await _client.SendAsync(
@@ -386,12 +374,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
 
         using var createReq1 = new HttpRequestMessage(
             method: HttpMethod.Post,
-            requestUri: "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payload,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+            requestUri: "/api/contacts");
+        createReq1.Content = JsonContent.Create(
+            inputValue: payload,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         createReq1.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage createResp1 = await _client.SendAsync(
@@ -434,12 +420,10 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
 
         using var createReq2 = new HttpRequestMessage(
             method: HttpMethod.Post,
-            requestUri: "/api/contacts")
-        {
-            Content = JsonContent.Create(
-                inputValue: payloadReuse,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest)
-        };
+            requestUri: "/api/contacts");
+        createReq2.Content = JsonContent.Create(
+            inputValue: payloadReuse,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateContactRequest);
         createReq2.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage createResp2 = await _client.SendAsync(

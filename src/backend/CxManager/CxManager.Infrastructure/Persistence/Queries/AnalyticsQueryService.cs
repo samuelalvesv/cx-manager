@@ -40,18 +40,18 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
               AND (@To IS NULL OR r.responded_at < @To);
             """;
 
-        string? fromParam = from?.ToString(format: "yyyy-MM-ddT00:00:00Z", provider: CultureInfo.InvariantCulture);
-        string? toParam = to?.AddDays(value: 1).ToString(format: "yyyy-MM-ddT00:00:00Z", provider: CultureInfo.InvariantCulture);
+        object queryParams = BuildQueryParams(
+            companyId: companyId,
+            from: from,
+            to: to,
+            surveyId: surveyId);
 
-        AnalyticsSummaryDbRow row = await connection.QuerySingleAsync<AnalyticsSummaryDbRow>(
-            sql: sql,
-            param: new
-            {
-                CompanyId = companyId,
-                SurveyId = surveyId,
-                From = fromParam,
-                To = toParam
-            });
+        CommandDefinition command = new(
+            commandText: sql,
+            parameters: queryParams,
+            cancellationToken: cancellationToken);
+
+        AnalyticsSummaryDbRow row = await connection.QuerySingleAsync<AnalyticsSummaryDbRow>(command: command);
 
         int npsScore = NpsCalculator.CalculateScore(
             promotersCount: row.PromotersCount,
@@ -70,9 +70,7 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
             count: row.DetractorsCount,
             totalNpsResponses: row.NpsResponses);
 
-        double? csatAvg = row.CsatAvg.HasValue
-            ? Math.Round(value: row.CsatAvg.Value, digits: 2, mode: MidpointRounding.AwayFromZero)
-            : null;
+        double? csatAvg = NpsCalculator.RoundCsatAverage(rawAverage: row.CsatAvg);
 
         return new AnalyticsSummaryModel
         {
@@ -123,18 +121,18 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
             ORDER BY Month ASC;
             """;
 
-        string? fromParam = from?.ToString(format: "yyyy-MM-ddT00:00:00Z", provider: CultureInfo.InvariantCulture);
-        string? toParam = to?.AddDays(value: 1).ToString(format: "yyyy-MM-ddT00:00:00Z", provider: CultureInfo.InvariantCulture);
+        object queryParams = BuildQueryParams(
+            companyId: companyId,
+            from: from,
+            to: to,
+            surveyId: surveyId);
 
-        IEnumerable<MonthlyNpsDbRow> rows = await connection.QueryAsync<MonthlyNpsDbRow>(
-            sql: sql,
-            param: new
-            {
-                CompanyId = companyId,
-                SurveyId = surveyId,
-                From = fromParam,
-                To = toParam
-            });
+        CommandDefinition command = new(
+            commandText: sql,
+            parameters: queryParams,
+            cancellationToken: cancellationToken);
+
+        IEnumerable<MonthlyNpsDbRow> rows = await connection.QueryAsync<MonthlyNpsDbRow>(command: command);
 
         return [.. rows.Select(selector: static r =>
         {
@@ -183,18 +181,18 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
             HAVING ResponsesCount > 0;
             """;
 
-        string? fromParam = from?.ToString(format: "yyyy-MM-ddT00:00:00Z", provider: CultureInfo.InvariantCulture);
-        string? toParam = to?.AddDays(value: 1).ToString(format: "yyyy-MM-ddT00:00:00Z", provider: CultureInfo.InvariantCulture);
+        object queryParams = BuildQueryParams(
+            companyId: companyId,
+            from: from,
+            to: to,
+            surveyId: surveyId);
 
-        IEnumerable<SegmentNpsDbRow> rows = await connection.QueryAsync<SegmentNpsDbRow>(
-            sql: sql,
-            param: new
-            {
-                CompanyId = companyId,
-                SurveyId = surveyId,
-                From = fromParam,
-                To = toParam
-            });
+        CommandDefinition command = new(
+            commandText: sql,
+            parameters: queryParams,
+            cancellationToken: cancellationToken);
+
+        IEnumerable<SegmentNpsDbRow> rows = await connection.QueryAsync<SegmentNpsDbRow>(command: command);
 
         return [.. rows.Select(selector: static r =>
         {
@@ -214,6 +212,20 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
             };
         }).OrderByDescending(keySelector: static x => x.NpsScore)
           .ThenBy(keySelector: static x => x.Segment)];
+    }
+
+    private static object BuildQueryParams(long companyId, DateOnly? from, DateOnly? to, long? surveyId)
+    {
+        string? fromParam = from?.ToString(format: "yyyy-MM-ddT00:00:00.0000000+00:00", provider: CultureInfo.InvariantCulture);
+        string? toParam = to?.AddDays(value: 1).ToString(format: "yyyy-MM-ddT00:00:00.0000000+00:00", provider: CultureInfo.InvariantCulture);
+
+        return new
+        {
+            CompanyId = companyId,
+            SurveyId = surveyId,
+            From = fromParam,
+            To = toParam
+        };
     }
 
     private sealed class AnalyticsSummaryDbRow

@@ -5,5 +5,5 @@ namespace CxManager.Application.UseCases.Analytics.Queries.GetNpsBySegment;
 
 public interface IGetNpsBySegmentUseCase
 {
-    Task<IReadOnlyList<SegmentNpsResponse>> ExecuteAsync(GetNpsBySegmentRequest request, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<SegmentNpsResponse>> ExecuteAsync(AnalyticsFilterRequest request, CancellationToken cancellationToken = default);
 }

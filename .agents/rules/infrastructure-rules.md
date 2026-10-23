@@ -27,6 +27,7 @@ applyTo: "src/backend/CxManager/CxManager.Infrastructure/**/*.{cs,sql}"
   - Seguir integralmente [.agents/rules/data-integrity-rules.md](data-integrity-rules.md).
   - O schema DDL do SQLite e as queries devem respeitar estritamente a Cadeia Canônica de Simetria de Tipos e Nulabilidade definida em `data-integrity-rules.md`, sendo mandatório o uso de `NOT NULL` em colunas correspondentes a propriedades obrigatórias de domínio.
   - Toda query sobre contatos ou respostas deve filtrar explicitamente `deleted_at IS NULL`.
+- **Simetria de Precisão em Filtros Temporais Lexicais**: Em bancos relacionais onde colunas de data e hora são armazenadas e indexadas como representações textuais (ISO 8601), os parâmetros fornecidos para cláusulas de comparação e intervalo (`>=`, `<=`, `<`, `>`) devem adotar estritamente a mesma precisão de frações de segundo e a mesma notação de deslocamento de fuso horário utilizadas na persistência dos registros, prevenindo o descarte indevido de registros situados nos limites dos intervalos filtrados.
 
 ## Convenções de Modelagem e Escrita SQL (SQLite)
 - **Palavras-chave SQL**: Escrever sempre em `MAIÚSCULAS` (`SELECT`, `FROM`, `INNER JOIN`, `WHERE`, `GROUP BY`, `ORDER BY`, `CASE WHEN`, `LIMIT`, `OFFSET`).

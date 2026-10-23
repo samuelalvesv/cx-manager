@@ -1,36 +1,32 @@
+export interface AnalyticsClassItem {
+  readonly count: number
+  readonly pct: number
+}
+
 export interface AnalyticsSummary {
-  readonly responsesCount: number
-  readonly npsResponses: number
-  readonly promotersCount: number
-  readonly promotersPercent: number
-  readonly neutralsCount: number
-  readonly neutralsPercent: number
-  readonly detractorsCount: number
-  readonly detractorsPercent: number
   readonly npsScore: number
+  readonly npsResponses: number
+  readonly promoters: AnalyticsClassItem
+  readonly neutrals: AnalyticsClassItem
+  readonly detractors: AnalyticsClassItem
+  readonly responsesCount: number
   readonly csatAvg: number | null
 }
 
 export interface MonthlyNps {
   readonly month: string
-  readonly responsesCount: number
-  readonly promotersCount: number
-  readonly neutralsCount: number
-  readonly detractorsCount: number
+  readonly responses: number
   readonly npsScore: number
 }
 
 export interface SegmentNps {
   readonly segment: string
-  readonly responsesCount: number
-  readonly promotersCount: number
-  readonly neutralsCount: number
-  readonly detractorsCount: number
+  readonly responses: number
   readonly npsScore: number
 }
 
 export interface AnalyticsFilter {
-  readonly from?: string
-  readonly to?: string
-  readonly surveyId?: number
+  readonly from?: string | undefined
+  readonly to?: string | undefined
+  readonly surveyId?: number | undefined
 }

@@ -11,7 +11,7 @@ public sealed class GetAnalyticsSummaryUseCase(
     IAnalyticsCache cache,
     ICompanyContext companyContext) : IGetAnalyticsSummaryUseCase
 {
-    public async Task<AnalyticsSummaryResponse> ExecuteAsync(GetAnalyticsSummaryRequest request, CancellationToken cancellationToken = default)
+    public async Task<AnalyticsSummaryResponse> ExecuteAsync(AnalyticsFilterRequest request, CancellationToken cancellationToken = default)
     {
         long companyId = companyContext.CompanyId;
         string cacheKey = $"summary:{request.From:yyyy-MM-dd}:{request.To:yyyy-MM-dd}:{request.SurveyId}";

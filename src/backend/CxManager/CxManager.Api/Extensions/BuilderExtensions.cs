@@ -121,9 +121,7 @@ public static class BuilderExtensions
         builder.Services.AddScoped<FluentValidation.IValidator<GetFeedbackByIdRequest>, GetFeedbackByIdRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<GetContactFeedbacksRequest>, GetContactFeedbacksRequestValidator>();
         builder.Services.AddScoped<FluentValidation.IValidator<DeleteFeedbackRequest>, DeleteFeedbackRequestValidator>();
-        builder.Services.AddScoped<FluentValidation.IValidator<GetAnalyticsSummaryRequest>, GetAnalyticsSummaryRequestValidator>();
-        builder.Services.AddScoped<FluentValidation.IValidator<GetNpsByMonthRequest>, GetNpsByMonthRequestValidator>();
-        builder.Services.AddScoped<FluentValidation.IValidator<GetNpsBySegmentRequest>, GetNpsBySegmentRequestValidator>();
+        builder.Services.AddScoped<FluentValidation.IValidator<AnalyticsFilterRequest>, AnalyticsFilterRequestValidator>();
 
         return builder;
     }

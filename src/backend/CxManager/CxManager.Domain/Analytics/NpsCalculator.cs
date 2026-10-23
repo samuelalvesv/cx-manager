@@ -23,12 +23,11 @@ public static class NpsCalculator
         return Math.Round(value: rawPct, digits: 1, mode: MidpointRounding.AwayFromZero);
     }
 
-    public static double? CalculateCsatAverage(double rawSum, int csatResponsesCount)
+    public static double? RoundCsatAverage(double? rawAverage)
     {
-        if (csatResponsesCount <= 0)
+        if (!rawAverage.HasValue)
             return null;
 
-        double rawAvg = rawSum / csatResponsesCount;
-        return Math.Round(value: rawAvg, digits: 2, mode: MidpointRounding.AwayFromZero);
+        return Math.Round(value: rawAverage.Value, digits: 2, mode: MidpointRounding.AwayFromZero);
     }
 }

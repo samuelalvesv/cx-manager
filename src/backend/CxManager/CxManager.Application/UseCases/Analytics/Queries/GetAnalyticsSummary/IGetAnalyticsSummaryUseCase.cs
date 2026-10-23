@@ -5,5 +5,5 @@ namespace CxManager.Application.UseCases.Analytics.Queries.GetAnalyticsSummary;
 
 public interface IGetAnalyticsSummaryUseCase
 {
-    Task<AnalyticsSummaryResponse> ExecuteAsync(GetAnalyticsSummaryRequest request, CancellationToken cancellationToken = default);
+    Task<AnalyticsSummaryResponse> ExecuteAsync(AnalyticsFilterRequest request, CancellationToken cancellationToken = default);
 }

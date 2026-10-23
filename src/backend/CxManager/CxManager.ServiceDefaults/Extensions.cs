@@ -56,9 +56,9 @@ public static class Extensions
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation())
             .WithTracing(tracing => tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation(tracing =>
+                    .AddAspNetCoreInstrumentation(traceInstrumentationOptions =>
                         // Exclude health check requests from tracing
-                        tracing.Filter = context =>
+                        traceInstrumentationOptions.Filter = context =>
                             !context.Request.Path.StartsWithSegments(HealthEndpointPath, StringComparison.OrdinalIgnoreCase)
                             && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath, StringComparison.OrdinalIgnoreCase)
                     )
@@ -71,7 +71,7 @@ public static class Extensions
         return builder;
     }
 
-    private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
+    private static void AddOpenTelemetryExporters<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         bool useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
@@ -84,8 +84,6 @@ public static class Extensions
         //    builder.Services.AddOpenTelemetry()
         //       .UseAzureMonitor();
         //}
-
-        return builder;
     }
 
     public static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder

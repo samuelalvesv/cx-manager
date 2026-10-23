@@ -87,9 +87,7 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
         Assert.NotEmpty(collection: items);
 
         for (int i = 0; i < items.Count - 1; i++)
-        {
             Assert.True(condition: items[i].RespondedAt >= items[i + 1].RespondedAt);
-        }
 
         FeedbackResponse first = items[0];
         Assert.False(condition: string.IsNullOrWhiteSpace(value: first.SurveyName));
@@ -157,12 +155,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = "Instrutores fantásticos!"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -197,12 +193,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = null
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -224,12 +218,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = "Onboarding tranquilo"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -261,12 +253,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = null
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -295,12 +285,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = null
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -329,12 +317,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = null
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -356,12 +342,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = null
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        request.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -380,12 +364,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = "Comentário editado com sucesso"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/responses/1")
-        {
-            Content = JsonContent.Create(
-                inputValue: updateRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.UpdateFeedbackRequest)
-        };
+        using var request = new HttpRequestMessage(HttpMethod.Put, "/api/responses/1");
+        request.Content = JsonContent.Create(
+            inputValue: updateRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateFeedbackRequest);
         request.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage response = await _client.SendAsync(
@@ -416,12 +398,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = "Inicial CSAT"
         };
 
-        using var createMsg = new HttpRequestMessage(HttpMethod.Post, "/api/responses")
-        {
-            Content = JsonContent.Create(
-                inputValue: createRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest)
-        };
+        using var createMsg = new HttpRequestMessage(HttpMethod.Post, "/api/responses");
+        createMsg.Content = JsonContent.Create(
+            inputValue: createRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.CreateFeedbackRequest);
         createMsg.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage createRes = await _client.SendAsync(
@@ -441,12 +421,10 @@ public sealed class ResponseEndpointsTests : IAsyncDisposable
             Comment = "Inválido para CSAT"
         };
 
-        using var updateMsg = new HttpRequestMessage(HttpMethod.Put, $"/api/responses/{created.Id}")
-        {
-            Content = JsonContent.Create(
-                inputValue: updateRequest,
-                jsonTypeInfo: AppJsonSerializerContext.Default.UpdateFeedbackRequest)
-        };
+        using var updateMsg = new HttpRequestMessage(HttpMethod.Put, $"/api/responses/{created.Id}");
+        updateMsg.Content = JsonContent.Create(
+            inputValue: updateRequest,
+            jsonTypeInfo: AppJsonSerializerContext.Default.UpdateFeedbackRequest);
         updateMsg.Headers.Add("X-Company-Id", "1");
 
         HttpResponseMessage updateRes = await _client.SendAsync(

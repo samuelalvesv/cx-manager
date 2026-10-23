@@ -29,6 +29,7 @@ applyTo: "src/backend/CxManager/CxManager.Api/**/*.cs"
   - Utilizar assinaturas de retorno fortemente tipadas (`Task<Results<...>>`) em vez de `IResult` genérico, garantindo geração estática de metadados OpenAPI em tempo de compilação.
 - **Tratamento Global de Exceções (`IExceptionHandler`)**:
   - Mapear exceções da camada de domínio e aplicação para códigos de status HTTP (`400`, `404`, `409`) e envelope `ErrorResponse` em português (`pt-BR`) exclusivamente através de correspondência de padrões (*pattern matching*) por tipo de exceção.
+  - Exceções decorrentes de falhas na conversão ou desserialização de parâmetros de rota, cabeçalhos ou query strings fornecidos pelo cliente devem ser interceptadas pelo manipulador global de erros e traduzidas invariavelmente para status HTTP 400 (Bad Request). Em nenhuma hipótese erros de sintaxe ou inconsistências de formatação originados na entrada do cliente podem ser convertidos no status padrão HTTP 500 (Internal Server Error).
 - **Injeção de Dependências**: Os métodos de extensão em `Extensions/` acionados pelo `Program.cs` compõem o contêiner de DI de forma explícita e livre de escaneamento reflexivo de assemblies.
 
 ## Ferramentas Globais

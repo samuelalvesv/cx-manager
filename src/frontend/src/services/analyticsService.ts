@@ -1,5 +1,14 @@
-import type { AnalyticsFilter, AnalyticsSummary, MonthlyNps, SegmentNps } from '../types/analytics.ts'
+import type { AnalyticsClassItem, AnalyticsFilter, AnalyticsSummary, MonthlyNps, SegmentNps } from '../types/analytics.ts'
 import { apiFetch } from './apiClient.ts'
+
+function isAnalyticsClassItem(value: unknown): value is AnalyticsClassItem {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const candidate = value as { readonly count?: unknown; readonly pct?: unknown }
+  return typeof candidate.count === 'number' && typeof candidate.pct === 'number'
+}
 
 export function isAnalyticsSummary(value: unknown): value is AnalyticsSummary {
   if (typeof value !== 'object' || value === null) {
@@ -9,15 +18,12 @@ export function isAnalyticsSummary(value: unknown): value is AnalyticsSummary {
   const candidate = value as { readonly [K in keyof AnalyticsSummary]?: unknown }
 
   return (
-    typeof candidate.responsesCount === 'number' &&
-    typeof candidate.npsResponses === 'number' &&
-    typeof candidate.promotersCount === 'number' &&
-    typeof candidate.promotersPercent === 'number' &&
-    typeof candidate.neutralsCount === 'number' &&
-    typeof candidate.neutralsPercent === 'number' &&
-    typeof candidate.detractorsCount === 'number' &&
-    typeof candidate.detractorsPercent === 'number' &&
     typeof candidate.npsScore === 'number' &&
+    typeof candidate.npsResponses === 'number' &&
+    isAnalyticsClassItem(candidate.promoters) &&
+    isAnalyticsClassItem(candidate.neutrals) &&
+    isAnalyticsClassItem(candidate.detractors) &&
+    typeof candidate.responsesCount === 'number' &&
     (candidate.csatAvg === null || typeof candidate.csatAvg === 'number')
   )
 }
@@ -31,10 +37,7 @@ export function isMonthlyNps(value: unknown): value is MonthlyNps {
 
   return (
     typeof candidate.month === 'string' &&
-    typeof candidate.responsesCount === 'number' &&
-    typeof candidate.promotersCount === 'number' &&
-    typeof candidate.neutralsCount === 'number' &&
-    typeof candidate.detractorsCount === 'number' &&
+    typeof candidate.responses === 'number' &&
     typeof candidate.npsScore === 'number'
   )
 }
@@ -52,10 +55,7 @@ export function isSegmentNps(value: unknown): value is SegmentNps {
 
   return (
     typeof candidate.segment === 'string' &&
-    typeof candidate.responsesCount === 'number' &&
-    typeof candidate.promotersCount === 'number' &&
-    typeof candidate.neutralsCount === 'number' &&
-    typeof candidate.detractorsCount === 'number' &&
+    typeof candidate.responses === 'number' &&
     typeof candidate.npsScore === 'number'
   )
 }

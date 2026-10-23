@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace CxManager.Application.Validators.Analytics;
 
-public sealed class GetAnalyticsSummaryRequestValidator : AbstractValidator<GetAnalyticsSummaryRequest>
+public sealed class AnalyticsFilterRequestValidator : AbstractValidator<AnalyticsFilterRequest>
 {
-    public GetAnalyticsSummaryRequestValidator()
+    public AnalyticsFilterRequestValidator()
     {
         RuleFor(expression: static x => x.SurveyId)
             .GreaterThan(valueToCompare: 0)

@@ -106,9 +106,7 @@ public sealed class Feedback : Entity
             case SurveyType.Csat when score is < 1 or > 5:
                 throw new ValidationException(message: "A nota para pesquisas CSAT deve estar entre 1 e 5.");
             case SurveyType.Nps:
-                break;
             case SurveyType.Csat:
-                break;
             default:
                 break;
         }

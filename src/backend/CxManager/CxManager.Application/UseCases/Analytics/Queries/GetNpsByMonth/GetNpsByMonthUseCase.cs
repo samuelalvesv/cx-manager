@@ -11,10 +11,10 @@ public sealed class GetNpsByMonthUseCase(
     IAnalyticsCache cache,
     ICompanyContext companyContext) : IGetNpsByMonthUseCase
 {
-    public async Task<IReadOnlyList<MonthlyNpsResponse>> ExecuteAsync(GetNpsByMonthRequest request, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<MonthlyNpsResponse>> ExecuteAsync(AnalyticsFilterRequest request, CancellationToken cancellationToken = default)
     {
         long companyId = companyContext.CompanyId;
-        string cacheKey = $"month:{request.From:yyyy-MM-dd}:{request.To:yyyy-MM-dd}:{request.SurveyId}";
+        string cacheKey = $"monthly:{request.From:yyyy-MM-dd}:{request.To:yyyy-MM-dd}:{request.SurveyId}";
 
         IReadOnlyList<MonthlyNpsResponse>? cached = cache.Get<IReadOnlyList<MonthlyNpsResponse>>(companyId: companyId, key: cacheKey);
 

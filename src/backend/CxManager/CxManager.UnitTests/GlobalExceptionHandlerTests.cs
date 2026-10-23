@@ -39,6 +39,33 @@ public sealed class GlobalExceptionHandlerTests
     }
 
     [Fact]
+    public async Task TryHandleAsync_WhenBadHttpRequestException_ShouldReturn400WithErrorResponse()
+    {
+        DefaultHttpContext context = new();
+        MemoryStream responseBodyStream = new();
+        context.Response.Body = responseBodyStream;
+
+        BadHttpRequestException exception = new(message: "Parâmetro inválido.");
+
+        bool handled = await _handler.TryHandleAsync(
+            httpContext: context,
+            exception: exception,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.True(condition: handled);
+        Assert.Equal(expected: StatusCodes.Status400BadRequest, actual: context.Response.StatusCode);
+
+        responseBodyStream.Seek(offset: 0, loc: SeekOrigin.Begin);
+        ErrorResponse? errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
+            utf8Json: responseBodyStream,
+            options: new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase },
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: errorResponse);
+        Assert.Equal(expected: "Parâmetro de requisição inválido ou mal formatado.", actual: errorResponse.Error);
+    }
+
+    [Fact]
     public async Task TryHandleAsync_WhenEntityNotFoundException_ShouldReturn404()
     {
         DefaultHttpContext context = new();

@@ -15,7 +15,7 @@ public static class AnalyticsEndpoints
         group.MapGet(
             pattern: "/summary",
             handler: async Task<Ok<AnalyticsSummaryResponse>> (
-                [AsParameters] GetAnalyticsSummaryRequest request,
+                [AsParameters] AnalyticsFilterRequest request,
                 IGetAnalyticsSummaryUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
@@ -27,12 +27,12 @@ public static class AnalyticsEndpoints
             })
             .WithName("GetAnalyticsSummary")
             .WithSummary("Calcula e retorna o resumo analítico de satisfação (NPS e CSAT).")
-            .WithValidation<GetAnalyticsSummaryRequest>();
+            .WithValidation<AnalyticsFilterRequest>();
 
         group.MapGet(
             pattern: "/nps-by-month",
             handler: async Task<Ok<IReadOnlyList<MonthlyNpsResponse>>> (
-                [AsParameters] GetNpsByMonthRequest request,
+                [AsParameters] AnalyticsFilterRequest request,
                 IGetNpsByMonthUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
@@ -44,12 +44,12 @@ public static class AnalyticsEndpoints
             })
             .WithName("GetNpsByMonth")
             .WithSummary("Agrupa e retorna a série temporal mensal de NPS.")
-            .WithValidation<GetNpsByMonthRequest>();
+            .WithValidation<AnalyticsFilterRequest>();
 
         group.MapGet(
             pattern: "/nps-by-segment",
             handler: async Task<Ok<IReadOnlyList<SegmentNpsResponse>>> (
-                [AsParameters] GetNpsBySegmentRequest request,
+                [AsParameters] AnalyticsFilterRequest request,
                 IGetNpsBySegmentUseCase useCase,
                 CancellationToken cancellationToken) =>
             {
@@ -61,7 +61,7 @@ public static class AnalyticsEndpoints
             })
             .WithName("GetNpsBySegment")
             .WithSummary("Agrupa e retorna os indicadores de NPS por segmento de contato.")
-            .WithValidation<GetNpsBySegmentRequest>();
+            .WithValidation<AnalyticsFilterRequest>();
 
         return group;
     }

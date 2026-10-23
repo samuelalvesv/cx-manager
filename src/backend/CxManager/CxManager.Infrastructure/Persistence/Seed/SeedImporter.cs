@@ -10,17 +10,16 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
 
     public async Task ImportAsync(CancellationToken cancellationToken = default)
     {
-        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+        await using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
 
         int count = await connection.ExecuteScalarAsync<int>(sql: "SELECT COUNT(1) FROM companies;");
+
         if (count > 0)
-        {
             return;
-        }
 
-        using Stream? stream = InfrastructureMarker.Assembly.GetManifestResourceStream(name: SeedResourceName) ?? throw new InvalidOperationException(message: $"O recurso embutido '{SeedResourceName}' não foi encontrado no assembly de infraestrutura.");
+        await using Stream stream = InfrastructureMarker.Assembly.GetManifestResourceStream(name: SeedResourceName) ?? throw new InvalidOperationException(message: $"O recurso embutido '{SeedResourceName}' não foi encontrado no assembly de infraestrutura.");
 
-        SeedData? seedData = await JsonSerializer.DeserializeAsync(
+        SeedData seedData = await JsonSerializer.DeserializeAsync(
             utf8Json: stream,
             jsonTypeInfo: SeedJsonSerializerContext.Default.SeedData,
             cancellationToken: cancellationToken) ?? throw new InvalidOperationException(message: "Falha ao desserializar os dados do arquivo de seed.");
@@ -55,7 +54,6 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
                 """;
 
             foreach (SeedSurvey survey in seedData.Surveys)
-            {
                 await connection.ExecuteAsync(
                     sql: insertSurveySql,
                     param: new
@@ -67,7 +65,6 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
                         CreatedAt = survey.CreatedAt.ToString(format: "O")
                     },
                     transaction: transaction);
-            }
 
             // 3. Inserir contatos vinculados à empresa
             const string insertContactSql = """
@@ -76,8 +73,8 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
                 """;
 
             string contactCreatedAt = DateTimeOffset.UtcNow.ToString(format: "O");
+
             foreach (SeedContact contact in seedData.Contacts)
-            {
                 await connection.ExecuteAsync(
                     sql: insertContactSql,
                     param: new
@@ -90,7 +87,6 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
                         CreatedAt = contactCreatedAt
                     },
                     transaction: transaction);
-            }
 
             // 4. Inserir respostas das pesquisas
             const string insertResponseSql = """
@@ -99,7 +95,6 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
                 """;
 
             foreach (SeedResponse response in seedData.Responses)
-            {
                 await connection.ExecuteAsync(
                     sql: insertResponseSql,
                     param: new
@@ -114,7 +109,6 @@ public sealed class SeedImporter(IDbConnectionFactory connectionFactory) : ISeed
                         DeletedAt = response.DeletedAt?.ToString(format: "O")
                     },
                     transaction: transaction);
-            }
 
             await transaction.CommitAsync(cancellationToken: cancellationToken);
         }

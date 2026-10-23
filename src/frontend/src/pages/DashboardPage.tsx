@@ -81,6 +81,7 @@ export function DashboardPage() {
   const [segmentNps, setSegmentNps] = useState<readonly SegmentNps[]>([])
   const [analyticsLoading, setAnalyticsLoading] = useState(true)
   const [analyticsError, setAnalyticsError] = useState<string | null>(null)
+  const [retryTrigger, setRetryTrigger] = useState(0)
 
   // Carrega lista de pesquisas ativas para o filtro
   useEffect(() => {
@@ -117,8 +118,10 @@ export function DashboardPage() {
   useEffect(() => {
     let active = true
     const controller = new AbortController()
+    const currentRetry = retryTrigger
 
     async function fetchAnalytics() {
+      if (currentRetry < 0) return
       if (selectedCompanyId === null) {
         if (active) {
           setSummary(null)
@@ -133,9 +136,9 @@ export function DashboardPage() {
       setAnalyticsError(null)
 
       const filter: AnalyticsFilter = {
-        ...(fromDate.length > 0 ? { from: fromDate } : {}),
-        ...(toDate.length > 0 ? { to: toDate } : {}),
-        ...(selectedSurveyId > 0 ? { surveyId: selectedSurveyId } : {}),
+        from: fromDate.length > 0 ? fromDate : undefined,
+        to: toDate.length > 0 ? toDate : undefined,
+        surveyId: selectedSurveyId > 0 ? selectedSurveyId : undefined,
       }
 
       try {
@@ -165,7 +168,7 @@ export function DashboardPage() {
       active = false
       controller.abort()
     }
-  }, [selectedCompanyId, fromDate, toDate, selectedSurveyId])
+  }, [selectedCompanyId, fromDate, toDate, selectedSurveyId, retryTrigger])
 
   const handleSurveyChange = (event: SelectChangeEvent<number>) => {
     const value = event.target.value
@@ -178,34 +181,8 @@ export function DashboardPage() {
     setSelectedSurveyId(0)
   }
 
-  const handleRetry = async () => {
-    if (selectedCompanyId === null) return
-
-    setAnalyticsLoading(true)
-    setAnalyticsError(null)
-
-    const filter: AnalyticsFilter = {
-      ...(fromDate.length > 0 ? { from: fromDate } : {}),
-      ...(toDate.length > 0 ? { to: toDate } : {}),
-      ...(selectedSurveyId > 0 ? { surveyId: selectedSurveyId } : {}),
-    }
-
-    try {
-      const [summaryData, monthlyData, segmentData] = await Promise.all([
-        getAnalyticsSummary(filter),
-        getNpsByMonth(filter),
-        getNpsBySegment(filter),
-      ])
-
-      setSummary(summaryData)
-      setMonthlyNps(monthlyData)
-      setSegmentNps(segmentData)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Falha ao carregar indicadores analíticos.'
-      setAnalyticsError(message)
-    } finally {
-      setAnalyticsLoading(false)
-    }
+  const handleRetry = () => {
+    setRetryTrigger((prev) => prev + 1)
   }
 
   if (companyLoading) {
@@ -249,6 +226,16 @@ export function DashboardPage() {
           sx={{ mb: 3 }}
         >
           {companyError}
+        </Alert>
+      </Container>
+    )
+  }
+
+  if (selectedCompanyId === null) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Alert severity="info">
+          Selecione uma empresa no cabeçalho superior para visualizar os indicadores de satisfação.
         </Alert>
       </Container>
     )
@@ -371,7 +358,7 @@ export function DashboardPage() {
               size="small"
               startIcon={<RefreshIcon />}
               onClick={() => {
-                void handleRetry()
+                handleRetry()
               }}
             >
               Tentar novamente
@@ -438,14 +425,20 @@ export function DashboardPage() {
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, mb: 1 }}>
                         <Typography variant="h3" component="div" sx={{ fontWeight: 800 }}>
-                          {summary.npsScore > 0 ? `+${summary.npsScore}` : summary.npsScore}
+                          {summary.npsResponses > 0
+                            ? summary.npsScore > 0
+                              ? `+${summary.npsScore}`
+                              : summary.npsScore
+                            : '—'}
                         </Typography>
-                        <Chip
-                          label={getNpsZoneLabel(summary.npsScore)}
-                          color={getNpsScoreColor(summary.npsScore)}
-                          size="small"
-                          sx={{ fontWeight: 600 }}
-                        />
+                        {summary.npsResponses > 0 && (
+                          <Chip
+                            label={getNpsZoneLabel(summary.npsScore)}
+                            color={getNpsScoreColor(summary.npsScore)}
+                            size="small"
+                            sx={{ fontWeight: 600 }}
+                          />
+                        )}
                       </Box>
                       <Typography variant="caption" color="text.secondary">
                         Baseado em <strong>{summary.npsResponses}</strong> respostas de pesquisas NPS.
@@ -522,6 +515,7 @@ export function DashboardPage() {
 
                     {/* Barra de Proporção Empilhada */}
                     <Box
+                      aria-hidden="true"
                       sx={{
                         display: 'flex',
                         height: 20,
@@ -533,21 +527,21 @@ export function DashboardPage() {
                     >
                       <Box
                         sx={{
-                          width: `${summary.promotersPercent}%`,
+                          width: `${summary.promoters.pct}%`,
                           bgcolor: 'success.main',
                           transition: 'width 0.4s ease',
                         }}
                       />
                       <Box
                         sx={{
-                          width: `${summary.neutralsPercent}%`,
+                          width: `${summary.neutrals.pct}%`,
                           bgcolor: 'warning.main',
                           transition: 'width 0.4s ease',
                         }}
                       />
                       <Box
                         sx={{
-                          width: `${summary.detractorsPercent}%`,
+                          width: `${summary.detractors.pct}%`,
                           bgcolor: 'error.main',
                           transition: 'width 0.4s ease',
                         }}
@@ -563,7 +557,7 @@ export function DashboardPage() {
                             Promotores (9–10):
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            <strong>{summary.promotersCount}</strong> ({summary.promotersPercent.toFixed(1)}%)
+                            <strong>{summary.promoters.count}</strong> ({summary.promoters.pct.toFixed(1)}%)
                           </Typography>
                         </Box>
                       </Grid>
@@ -574,7 +568,7 @@ export function DashboardPage() {
                             Neutros (7–8):
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            <strong>{summary.neutralsCount}</strong> ({summary.neutralsPercent.toFixed(1)}%)
+                            <strong>{summary.neutrals.count}</strong> ({summary.neutrals.pct.toFixed(1)}%)
                           </Typography>
                         </Box>
                       </Grid>
@@ -585,7 +579,7 @@ export function DashboardPage() {
                             Detratores (0–6):
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            <strong>{summary.detractorsCount}</strong> ({summary.detractorsPercent.toFixed(1)}%)
+                            <strong>{summary.detractors.count}</strong> ({summary.detractors.pct.toFixed(1)}%)
                           </Typography>
                         </Box>
                       </Grid>
@@ -612,12 +606,11 @@ export function DashboardPage() {
                         </Typography>
                       ) : (
                         <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
-                          <Table size="small">
+                          <Table size="small" aria-label="Evolução Mensal do NPS">
                             <TableHead sx={{ bgcolor: 'background.default' }}>
                               <TableRow>
                                 <TableCell sx={{ fontWeight: 700 }}>Mês</TableCell>
                                 <TableCell align="right" sx={{ fontWeight: 700 }}>Respostas</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 700 }}>P / N / D</TableCell>
                                 <TableCell align="right" sx={{ fontWeight: 700 }}>NPS</TableCell>
                               </TableRow>
                             </TableHead>
@@ -625,20 +618,7 @@ export function DashboardPage() {
                               {monthlyNps.map((row) => (
                                 <TableRow key={row.month} hover>
                                   <TableCell sx={{ fontWeight: 600 }}>{row.month}</TableCell>
-                                  <TableCell align="right">{row.responsesCount}</TableCell>
-                                  <TableCell align="right">
-                                    <Typography variant="caption" sx={{ color: 'success.main', fontWeight: 600 }}>
-                                      {row.promotersCount}
-                                    </Typography>{' '}
-                                    /{' '}
-                                    <Typography variant="caption" sx={{ color: 'warning.main', fontWeight: 600 }}>
-                                      {row.neutralsCount}
-                                    </Typography>{' '}
-                                    /{' '}
-                                    <Typography variant="caption" sx={{ color: 'error.main', fontWeight: 600 }}>
-                                      {row.detractorsCount}
-                                    </Typography>
-                                  </TableCell>
+                                  <TableCell align="right">{row.responses}</TableCell>
                                   <TableCell align="right">
                                     <Chip
                                       label={row.npsScore > 0 ? `+${row.npsScore}` : row.npsScore}
@@ -673,7 +653,7 @@ export function DashboardPage() {
                         </Typography>
                       ) : (
                         <TableContainer component={Paper} elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
-                          <Table size="small">
+                          <Table size="small" aria-label="Ranking de NPS por Segmento">
                             <TableHead sx={{ bgcolor: 'background.default' }}>
                               <TableRow>
                                 <TableCell sx={{ fontWeight: 700 }}>Segmento</TableCell>
@@ -685,7 +665,7 @@ export function DashboardPage() {
                               {segmentNps.map((row) => (
                                 <TableRow key={row.segment} hover>
                                   <TableCell sx={{ fontWeight: 600 }}>{row.segment}</TableCell>
-                                  <TableCell align="right">{row.responsesCount}</TableCell>
+                                  <TableCell align="right">{row.responses}</TableCell>
                                   <TableCell align="right">
                                     <Chip
                                       label={row.npsScore > 0 ? `+${row.npsScore}` : row.npsScore}
