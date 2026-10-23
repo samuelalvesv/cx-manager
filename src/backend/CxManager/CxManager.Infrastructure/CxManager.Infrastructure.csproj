@@ -17,6 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\..\..\..\data\seed.json" Link="Data\seed.json" LogicalName="CxManager.Infrastructure.Data.seed.json" />
+    <EmbeddedResource Include="Data\seed.json" LogicalName="CxManager.Infrastructure.Data.seed.json" />
   </ItemGroup>
 </Project>
