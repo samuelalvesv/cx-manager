@@ -1,9 +1,40 @@
 using CxManager.Domain.Analytics;
+using CxManager.Domain.Enums;
+using CxManager.Domain.Exceptions;
 
 namespace CxManager.UnitTests;
 
 public sealed class NpsDomainCalculationTests
 {
+    [Theory]
+    [InlineData(0, NpsCategory.Detractor)]
+    [InlineData(1, NpsCategory.Detractor)]
+    [InlineData(3, NpsCategory.Detractor)]
+    [InlineData(5, NpsCategory.Detractor)]
+    [InlineData(6, NpsCategory.Detractor)]
+    [InlineData(7, NpsCategory.Neutral)]
+    [InlineData(8, NpsCategory.Neutral)]
+    [InlineData(9, NpsCategory.Promoter)]
+    [InlineData(10, NpsCategory.Promoter)]
+    public void Classify_WithValidScore_ShouldReturnCorrectNpsCategory(int score, NpsCategory expectedCategory)
+    {
+        NpsCategory category = NpsCalculator.Classify(score: score);
+        Assert.Equal(expected: expectedCategory, actual: category);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(-10)]
+    [InlineData(11)]
+    [InlineData(100)]
+    public void Classify_WithOutOfRangeScore_ShouldThrowValidationException(int invalidScore)
+    {
+        ValidationException exception = Assert.Throws<ValidationException>(testCode: () =>
+            NpsCalculator.Classify(score: invalidScore));
+
+        Assert.Equal(expected: "A nota de classificação NPS deve estar entre 0 e 10.", actual: exception.Message);
+    }
+
     [Fact]
     public void CalculateScore_WithSeedDataCounts_ShouldReturnExactExpectedScore()
     {

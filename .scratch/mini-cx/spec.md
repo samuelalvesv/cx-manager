@@ -1,7 +1,7 @@
 # Especificação: Plataforma de Experiência do Cliente (Mini CX)
 
 ## Status
-ready-for-agent
+completed
 
 ## Declaração do Problema
 

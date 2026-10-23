@@ -1,7 +1,21 @@
+using CxManager.Domain.Enums;
+using CxManager.Domain.Exceptions;
+
 namespace CxManager.Domain.Analytics;
 
 public static class NpsCalculator
 {
+    public static NpsCategory Classify(int score)
+    {
+        return score switch
+        {
+            >= 0 and <= 6 => NpsCategory.Detractor,
+            >= 7 and <= 8 => NpsCategory.Neutral,
+            >= 9 and <= 10 => NpsCategory.Promoter,
+            _ => throw new ValidationException(message: "A nota de classificação NPS deve estar entre 0 e 10.")
+        };
+    }
+
     public static int CalculateScore(int promotersCount, int detractorsCount, int totalNpsResponses)
     {
         if (totalNpsResponses <= 0)

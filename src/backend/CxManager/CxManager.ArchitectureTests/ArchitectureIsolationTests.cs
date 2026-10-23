@@ -1,10 +1,14 @@
 using System.Reflection;
+using CxManager.Api.ExceptionHandling;
+using CxManager.Domain.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using NetArchTest.Rules;
 using TestResult = NetArchTest.Rules.TestResult;
 
 namespace CxManager.ArchitectureTests;
 
-public sealed class LayersTests
+public sealed class ArchitectureIsolationTests
 {
     private const string DomainNamespace = "CxManager.Domain";
     private const string ContractNamespace = "CxManager.Contract";
@@ -16,6 +20,7 @@ public sealed class LayersTests
     private static readonly Assembly ContractAssembly = Assembly.Load(assemblyString: ContractNamespace);
     private static readonly Assembly ApplicationAssembly = Assembly.Load(assemblyString: ApplicationNamespace);
     private static readonly Assembly InfrastructureAssembly = Assembly.Load(assemblyString: InfrastructureNamespace);
+    private static readonly Assembly ApiAssembly = Assembly.Load(assemblyString: ApiNamespace);
 
     [Fact]
     public void Domain_ShouldNotHaveDependencyOnOtherLayers()
@@ -81,5 +86,89 @@ public sealed class LayersTests
             .GetResult();
 
         Assert.True(condition: result.IsSuccessful, userMessage: "A camada Infrastructure não deve depender de Contract ou Api.");
+    }
+
+    [Fact]
+    public void Interfaces_InAllLayers_ShouldStartWithPrefixI()
+    {
+        TestResult result = Types.InAssemblies(assemblies: [DomainAssembly, ApplicationAssembly, InfrastructureAssembly])
+            .That()
+            .AreInterfaces()
+            .Should()
+            .HaveNameStartingWith("I")
+            .GetResult();
+
+        Assert.True(condition: result.IsSuccessful, userMessage: "Todas as interfaces devem começar com o prefixo 'I'.");
+    }
+
+    [Fact]
+    public void ConcreteClasses_InAllLayers_ShouldBeSealed()
+    {
+        TestResult result = Types.InAssemblies(assemblies: [DomainAssembly, ContractAssembly, ApplicationAssembly, InfrastructureAssembly])
+            .That()
+            .AreClasses()
+            .And()
+            .AreNotAbstract()
+            .And()
+            .AreNotStatic()
+            .Should()
+            .BeSealed()
+            .GetResult();
+
+        Assert.True(condition: result.IsSuccessful, userMessage: "Todas as classes concretas devem ser marcadas como sealed.");
+    }
+
+    [Fact]
+    public void Contract_Dtos_ShouldBeRecords()
+    {
+        var contractTypes = ContractAssembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && !(t.IsAbstract && t.IsSealed))
+            .ToList();
+
+        Assert.NotEmpty(collection: contractTypes);
+
+        foreach (Type type in contractTypes)
+        {
+            PropertyInfo? equalityContract = type.GetProperty(
+                name: "EqualityContract",
+                bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+
+            Assert.True(
+                condition: equalityContract is not null,
+                userMessage: $"O tipo de contrato '{type.Name}' deve ser um record imutável (sealed record).");
+        }
+    }
+
+    [Fact]
+    public async Task GlobalExceptionHandler_ShouldExplicitlyHandleAllDomainExceptions()
+    {
+        GlobalExceptionHandler handler = new(logger: NullLogger<GlobalExceptionHandler>.Instance);
+
+        var domainExceptionTypes = DomainAssembly.GetTypes()
+            .Where(t => typeof(DomainException).IsAssignableFrom(t) && !t.IsAbstract)
+            .ToList();
+
+        Assert.NotEmpty(collection: domainExceptionTypes);
+
+        foreach (Type exceptionType in domainExceptionTypes)
+        {
+            var exception = (DomainException)Activator.CreateInstance(
+                type: exceptionType,
+                args: ["Mensagem de teste de arquitetura"])!;
+
+            DefaultHttpContext httpContext = new();
+            MemoryStream stream = new();
+            httpContext.Response.Body = stream;
+
+            bool handled = await handler.TryHandleAsync(
+                httpContext: httpContext,
+                exception: exception,
+                cancellationToken: TestContext.Current.CancellationToken);
+
+            Assert.True(condition: handled, userMessage: $"O handler não tratou a exceção {exceptionType.Name}.");
+            Assert.NotEqual(
+                expected: StatusCodes.Status500InternalServerError,
+                actual: httpContext.Response.StatusCode);
+        }
     }
 }

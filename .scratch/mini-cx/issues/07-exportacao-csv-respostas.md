@@ -5,7 +5,7 @@ Endpoint `GET /api/responses/export` com streaming de respostas ativas em CSV (`
 
 **Bloqueado por:** 06: Painel Analítico de Satisfação (NPS e CSAT) com Cache Reativo
 
-**Status:** ready-for-agent
+**Status:** completed
 
 **Ferramentas recomendadas:**
 - Skills: `audit-api`, `web-design-guidelines`
