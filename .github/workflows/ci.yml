@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    name: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Install .NET Aspire Workload
+      run: dotnet workload install aspire
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version: '26.12.x'
+        cache: 'npm'
+        cache-dependency-path: 'src/frontend/package-lock.json'
+
+    - name: Restore Backend Dependencies
+      run: dotnet restore src/backend/CxManager/CxManager.slnx
+
+    - name: Build Backend Solution
+      run: dotnet build src/backend/CxManager/CxManager.slnx --configuration Release --no-restore
+
+    - name: Run Backend Tests
+      run: dotnet test --solution src/backend/CxManager/CxManager.slnx --configuration Release --no-build
+
+    - name: Install Frontend Dependencies
+      run: npm --prefix src/frontend ci
+
+    - name: Frontend Lint (Oxlint)
+      run: npm --prefix src/frontend run lint
+
+    - name: Frontend Typecheck (TypeScript 7)
+      run: npm --prefix src/frontend run typecheck
+
+    - name: Frontend Tests (Vitest)
+      run: npm --prefix src/frontend run test
+
+    - name: Frontend Build (Vite)
+      run: npm --prefix src/frontend run build

@@ -1,0 +1,25 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "frontend-lint",
+         "command": "npm",
+         "args": [ "--prefix", "src/frontend", "run", "lint" ]
+      },
+      {
+         "name": "frontend-typecheck",
+         "command": "npm",
+         "args": [ "--prefix", "src/frontend", "run", "typecheck" ]
+      },
+      {
+         "name": "frontend-test",
+         "command": "npm",
+         "args": [ "--prefix", "src/frontend", "run", "test" ]
+      },
+      {
+         "name": "backend-test",
+         "command": "dotnet",
+         "args": [ "test", "--solution", "src/backend/CxManager/CxManager.slnx" ]
+      }
+   ]
+}
