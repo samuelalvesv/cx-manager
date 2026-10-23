@@ -19,6 +19,7 @@ using CxManager.Application.UseCases.Contacts.Queries.GetContactById;
 using CxManager.Application.UseCases.Feedbacks.Commands.CreateFeedback;
 using CxManager.Application.UseCases.Feedbacks.Commands.DeleteFeedback;
 using CxManager.Application.UseCases.Feedbacks.Commands.UpdateFeedback;
+using CxManager.Application.UseCases.Feedbacks.Queries.ExportFeedbacks;
 using CxManager.Application.UseCases.Feedbacks.Queries.GetContactFeedbacks;
 using CxManager.Application.UseCases.Feedbacks.Queries.GetFeedbackById;
 using CxManager.Application.UseCases.Surveys.Commands.CreateSurvey;
@@ -96,6 +97,7 @@ public static class BuilderExtensions
         builder.Services.AddScoped<IDeleteFeedbackUseCase, DeleteFeedbackUseCase>();
         builder.Services.AddScoped<IGetFeedbackByIdUseCase, GetFeedbackByIdUseCase>();
         builder.Services.AddScoped<IGetContactFeedbacksUseCase, GetContactFeedbacksUseCase>();
+        builder.Services.AddScoped<IExportFeedbacksUseCase, ExportFeedbacksUseCase>();
 
         // Casos de uso de aplicação - Analytics
         builder.Services.AddScoped<IGetAnalyticsSummaryUseCase, GetAnalyticsSummaryUseCase>();

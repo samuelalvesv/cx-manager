@@ -2,7 +2,9 @@ using CxManager.Api.Filters;
 using CxManager.Application.UseCases.Feedbacks.Commands.CreateFeedback;
 using CxManager.Application.UseCases.Feedbacks.Commands.DeleteFeedback;
 using CxManager.Application.UseCases.Feedbacks.Commands.UpdateFeedback;
+using CxManager.Application.UseCases.Feedbacks.Queries.ExportFeedbacks;
 using CxManager.Application.UseCases.Feedbacks.Queries.GetFeedbackById;
+using CxManager.Contract.Requests.Analytics;
 using CxManager.Contract.Requests.Feedbacks;
 using CxManager.Contract.Responses.Feedbacks;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -31,6 +33,26 @@ public static class FeedbackEndpoints
             .WithName("CreateFeedback")
             .WithSummary("Registra uma nova resposta de pesquisa para um contato.")
             .WithValidation<CreateFeedbackRequest>();
+
+        group.MapGet(
+            pattern: "/export",
+            handler: async Task<FileContentHttpResult> (
+                [AsParameters] AnalyticsFilterRequest request,
+                IExportFeedbacksUseCase useCase,
+                CancellationToken cancellationToken) =>
+            {
+                byte[] bytes = await useCase.ExecuteAsync(
+                    request: request,
+                    cancellationToken: cancellationToken);
+
+                return TypedResults.File(
+                    fileContents: bytes,
+                    contentType: "text/csv; charset=utf-8",
+                    fileDownloadName: "respostas.csv");
+            })
+            .WithName("ExportFeedbacks")
+            .WithSummary("Exporta as respostas ativas em CSV compatível com RFC 4180.")
+            .WithValidation<AnalyticsFilterRequest>();
 
         group.MapGet(
             pattern: "/{id:long}",

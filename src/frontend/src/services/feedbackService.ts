@@ -1,5 +1,5 @@
 import type { CreateFeedbackRequest, FeedbackResponse, UpdateFeedbackRequest } from '../types/feedback.ts'
-import { apiFetch } from './apiClient.ts'
+import { apiFetch, apiFetchBlob } from './apiClient.ts'
 
 export function isFeedbackResponse(value: unknown): value is FeedbackResponse {
   if (typeof value !== 'object' || value === null) {
@@ -77,4 +77,43 @@ export async function deleteFeedback(id: number, signal?: AbortSignal): Promise<
     ...(signal !== undefined ? { signal } : {}),
   }
   return await apiFetch<void>(`/api/responses/${id}`, isVoid, options)
+}
+
+export interface ExportResponsesFilter {
+  readonly from?: string | undefined
+  readonly to?: string | undefined
+  readonly surveyId?: number | undefined
+}
+
+export async function exportResponsesCsv(
+  filter: ExportResponsesFilter = {},
+  signal?: AbortSignal,
+): Promise<Blob> {
+  const query = new URLSearchParams()
+  if (filter.from !== undefined && filter.from.length > 0) {
+    query.set('from', filter.from)
+  }
+  if (filter.to !== undefined && filter.to.length > 0) {
+    query.set('to', filter.to)
+  }
+  if (filter.surveyId !== undefined && filter.surveyId > 0) {
+    query.set('surveyId', String(filter.surveyId))
+  }
+
+  const queryString = query.toString()
+  const endpoint = queryString.length > 0 ? `/api/responses/export?${queryString}` : '/api/responses/export'
+
+  const options = signal !== undefined ? { signal } : {}
+  return await apiFetchBlob(endpoint, options)
+}
+
+export function downloadBlob(blob: Blob, filename = 'respostas.csv'): void {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }

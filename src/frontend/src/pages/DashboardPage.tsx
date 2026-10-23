@@ -1,6 +1,7 @@
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ClearIcon from '@mui/icons-material/Clear'
+import DownloadIcon from '@mui/icons-material/Download'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import InsightsIcon from '@mui/icons-material/Insights'
@@ -16,6 +17,7 @@ import {
   Card,
   CardContent,
   Chip,
+  CircularProgress,
   Container,
   Divider,
   FormControl,
@@ -44,6 +46,7 @@ import {
   getNpsByMonth,
   getNpsBySegment,
 } from '../services/analyticsService.ts'
+import { downloadBlob, exportResponsesCsv } from '../services/feedbackService.ts'
 import { getSurveys } from '../services/surveyService.ts'
 import type {
   AnalyticsFilter,
@@ -82,6 +85,8 @@ export function DashboardPage() {
   const [analyticsLoading, setAnalyticsLoading] = useState(true)
   const [analyticsError, setAnalyticsError] = useState<string | null>(null)
   const [retryTrigger, setRetryTrigger] = useState(0)
+  const [exportLoading, setExportLoading] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
 
   // Carrega lista de pesquisas ativas para o filtro
   useEffect(() => {
@@ -185,6 +190,26 @@ export function DashboardPage() {
     setRetryTrigger((prev) => prev + 1)
   }
 
+  const handleExportCsv = async () => {
+    if (exportLoading || selectedCompanyId === null) return
+    setExportLoading(true)
+    setExportError(null)
+
+    try {
+      const blob = await exportResponsesCsv({
+        from: fromDate.length > 0 ? fromDate : undefined,
+        to: toDate.length > 0 ? toDate : undefined,
+        surveyId: selectedSurveyId > 0 ? selectedSurveyId : undefined,
+      })
+      downloadBlob(blob, 'respostas.csv')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Falha ao exportar respostas em CSV.'
+      setExportError(message)
+    } finally {
+      setExportLoading(false)
+    }
+  }
+
   if (companyLoading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -286,12 +311,49 @@ export function DashboardPage() {
 
       {/* Barra de Filtros */}
       <Paper sx={{ p: 2.5, mb: 3, border: 1, borderColor: 'divider', boxShadow: 'none' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <FilterListIcon color="primary" fontSize="small" />
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-            Filtros do Painel Analítico
-          </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 2,
+            flexWrap: 'wrap',
+            gap: 1.5,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FilterListIcon color="primary" fontSize="small" />
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              Filtros do Painel Analítico
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            disabled={exportLoading}
+            startIcon={
+              exportLoading ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <DownloadIcon fontSize="small" />
+              )
+            }
+            onClick={() => {
+              void handleExportCsv()
+            }}
+            sx={{ fontWeight: 600 }}
+          >
+            {exportLoading ? 'Exportando CSV...' : 'Exportar CSV'}
+          </Button>
         </Box>
+
+        {exportError !== null && (
+          <Alert severity="error" onClose={() => setExportError(null)} sx={{ mb: 2 }}>
+            {exportError}
+          </Alert>
+        )}
+
         <Grid container spacing={2} sx={{ alignItems: 'center' }}>
           <Grid size={{ xs: 12, sm: 4, md: 3 }}>
             <TextField

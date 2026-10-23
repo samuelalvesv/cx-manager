@@ -90,3 +90,37 @@ export async function apiFetch<T>(
 
   throw new Error('Resposta da API em formato inesperado.')
 }
+
+export async function apiFetchBlob(
+  endpoint: string,
+  options: RequestOptions = {},
+): Promise<Blob> {
+  const { skipCompanyId = false, headers, ...rest } = options
+
+  const requestHeaders = new Headers(headers)
+
+  if (!skipCompanyId && currentCompanyId !== null) {
+    requestHeaders.set('X-Company-Id', String(currentCompanyId))
+  }
+
+  const response = await fetch(endpoint, {
+    ...rest,
+    headers: requestHeaders,
+  })
+
+  if (!response.ok) {
+    let errorMessage = `Erro HTTP ${response.status}: ${response.statusText}`
+    try {
+      const errorJson: unknown = await response.json()
+      const parsedMessage = parseApiErrorMessage(errorJson)
+      if (parsedMessage !== null) {
+        errorMessage = parsedMessage
+      }
+    } catch {
+      // Falha ao parsear corpo de erro JSON
+    }
+    throw new Error(errorMessage)
+  }
+
+  return await response.blob()
+}

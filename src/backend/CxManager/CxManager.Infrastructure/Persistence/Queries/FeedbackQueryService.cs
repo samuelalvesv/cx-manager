@@ -73,6 +73,85 @@ public sealed class FeedbackQueryService(IDbConnectionFactory connectionFactory)
         return [.. rows.Select(selector: static r => r.ToModel())];
     }
 
+    public async Task<IReadOnlyList<FeedbackExportModel>> GetForExportAsync(
+        long companyId,
+        DateOnly? from,
+        DateOnly? to,
+        long? surveyId,
+        CancellationToken cancellationToken = default)
+    {
+        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+
+        const string sql = """
+            SELECT
+                r.id AS Id,
+                s.name AS Survey,
+                c.name AS Contact,
+                r.score AS Score,
+                r.comment AS Comment,
+                r.channel AS Channel,
+                r.responded_at AS RespondedAt
+            FROM responses r
+            INNER JOIN surveys s ON s.id = r.survey_id AND s.company_id = @CompanyId AND s.deleted_at IS NULL
+            INNER JOIN contacts c ON c.id = r.contact_id AND c.company_id = @CompanyId AND c.deleted_at IS NULL
+            WHERE r.deleted_at IS NULL
+              AND (@SurveyId IS NULL OR r.survey_id = @SurveyId)
+              AND (@From IS NULL OR r.responded_at >= @From)
+              AND (@To IS NULL OR r.responded_at < @To)
+            ORDER BY r.responded_at DESC, r.id DESC;
+            """;
+
+        string? fromParam = from?.ToString(format: "yyyy-MM-ddT00:00:00.0000000+00:00", provider: CultureInfo.InvariantCulture);
+        string? toParam = to?.AddDays(value: 1).ToString(format: "yyyy-MM-ddT00:00:00.0000000+00:00", provider: CultureInfo.InvariantCulture);
+
+        var parameters = new
+        {
+            CompanyId = companyId,
+            SurveyId = surveyId,
+            From = fromParam,
+            To = toParam
+        };
+
+        CommandDefinition command = new(
+            commandText: sql,
+            parameters: parameters,
+            cancellationToken: cancellationToken);
+
+        IEnumerable<FeedbackExportDbModel> rows = await connection.QueryAsync<FeedbackExportDbModel>(command: command);
+
+        return [.. rows.Select(selector: static r => r.ToModel())];
+    }
+
+    private sealed class FeedbackExportDbModel
+    {
+        public long Id { get; init; }
+        public string Survey { get; init; } = string.Empty;
+        public string Contact { get; init; } = string.Empty;
+        public int Score { get; init; }
+        public string? Comment { get; init; }
+        public string Channel { get; init; } = string.Empty;
+        public string RespondedAt { get; init; } = string.Empty;
+
+        public FeedbackExportModel ToModel()
+        {
+            var respondedAt = DateTimeOffset.Parse(
+                input: RespondedAt,
+                formatProvider: CultureInfo.InvariantCulture,
+                styles: DateTimeStyles.RoundtripKind);
+
+            return new FeedbackExportModel
+            {
+                Id = Id,
+                Survey = Survey,
+                Contact = Contact,
+                Score = Score,
+                Comment = Comment,
+                Channel = Channel,
+                RespondedAt = respondedAt
+            };
+        }
+    }
+
     private sealed class FeedbackReadDbModel
     {
         public long Id { get; init; }

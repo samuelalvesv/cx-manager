@@ -1,5 +1,4 @@
 using CxManager.Api.Extensions;
-using CxManager.ServiceDefaults;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args: args);
 
