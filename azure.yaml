@@ -1,0 +1,6 @@
+name: cx-manager
+services:
+  app:
+    language: dotnet
+    project: src/backend/CxManager/CxManager.AppHost/CxManager.AppHost.csproj
+    host: containerapp
