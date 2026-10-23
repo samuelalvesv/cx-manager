@@ -1,5 +1,5 @@
 using System.Reflection;
-using CxManager.Api.ExceptionHandling;
+using CxManager.Api.Middleware;
 using CxManager.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -20,7 +20,6 @@ public sealed class ArchitectureIsolationTests
     private static readonly Assembly ContractAssembly = Assembly.Load(assemblyString: ContractNamespace);
     private static readonly Assembly ApplicationAssembly = Assembly.Load(assemblyString: ApplicationNamespace);
     private static readonly Assembly InfrastructureAssembly = Assembly.Load(assemblyString: InfrastructureNamespace);
-    private static readonly Assembly ApiAssembly = Assembly.Load(assemblyString: ApiNamespace);
 
     [Fact]
     public void Domain_ShouldNotHaveDependencyOnOtherLayers()

@@ -1,5 +1,5 @@
 using System.Text.Json;
-using CxManager.Api.ExceptionHandling;
+using CxManager.Api.Middleware;
 using CxManager.Contract.Responses;
 using CxManager.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;

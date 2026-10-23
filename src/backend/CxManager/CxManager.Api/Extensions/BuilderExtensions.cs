@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using CxManager.Api.Context;
-using CxManager.Api.ExceptionHandling;
+using CxManager.Api.Middleware;
 using CxManager.Api.Serialization;
 using CxManager.Application.Interfaces;
 using CxManager.Application.UseCases.Analytics.Queries.GetAnalyticsSummary;

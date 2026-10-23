@@ -3,7 +3,7 @@ using CxManager.Contract.Responses;
 using CxManager.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace CxManager.Api.ExceptionHandling;
+namespace CxManager.Api.Middleware;
 
 public sealed partial class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {

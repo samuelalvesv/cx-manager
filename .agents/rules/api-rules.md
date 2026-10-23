@@ -9,7 +9,7 @@ applyTo: "src/backend/CxManager/CxManager.Api/**/*.cs"
 ## Estrutura de Pastas
 - `Endpoints/`: Mapeamento de grupos de rotas Minimal API organizados por recurso.
 - `Serialization/`: Contexto de serialização AOT (`AppJsonSerializerContext : JsonSerializerContext`).
-- `ExceptionHandling/`: Implementação de `IExceptionHandler` global para tradução de exceções em respostas padronizadas.
+- `Middleware/`: Implementação de `IExceptionHandler` global (`GlobalExceptionHandler.cs`) para tradução de exceções em respostas padronizadas e middlewares HTTP.
 - `Extensions/`: Métodos de extensão para configuração do contêiner de injeção de dependência, JSON AOT, CORS e OpenAPI.
 - `Program.cs`: Composição raiz e pipeline HTTP do projeto.
 
