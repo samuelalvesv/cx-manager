@@ -29,7 +29,7 @@ interface ContactFormProps {
   readonly onSuccess: (savedContact: Contact) => void
 }
 
-const COMMON_SEGMENTS = ['Plano Black', 'Plano Fit', 'Corporativo', 'Personal']
+const COMMON_SEGMENTS = ['Plano Black', 'Plano Fit', 'Corporativo', 'Acompanhamento Individual']
 
 function validateEmailFormat(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
@@ -100,7 +100,7 @@ function ContactForm({ mode, contact, onClose, onSuccess }: ContactFormProps) {
     <form onSubmit={(e) => void handleSubmit(e)}>
       <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
       <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1.5 }}>
           {errorMessage !== null && (
             <Alert severity="error" sx={{ mb: 1 }}>
               {errorMessage}
@@ -160,7 +160,7 @@ function ContactForm({ mode, contact, onClose, onSuccess }: ContactFormProps) {
                 helperText={
                   segment.length > 0 && !isSegmentValid
                     ? 'O segmento deve ter entre 2 e 50 caracteres.'
-                    : 'Opcional. Classificação do aluno ou cliente (ex: Plano Black, Plano Fit, Corporativo).'
+                    : 'Opcional. Classificação comercial ou modalidade atribuída ao contato (ex: Plano Black, Plano Fit, Corporativo).'
                 }
               />
             )}
@@ -193,15 +193,13 @@ export function ContactDialog({
 }: ContactDialogProps) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      {open && (
-        <ContactForm
-          key={`${mode}-${contact?.id ?? 0}`}
-          mode={mode}
-          contact={contact}
-          onClose={onClose}
-          onSuccess={onSuccess}
-        />
-      )}
+      <ContactForm
+        key={`${mode}-${contact?.id ?? 0}`}
+        mode={mode}
+        contact={contact}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
     </Dialog>
   )
 }

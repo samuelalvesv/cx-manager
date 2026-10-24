@@ -239,4 +239,53 @@ public sealed class ContactRequestValidatorTests
         Assert.False(condition: result.IsValid);
         Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(GetContactsRequest.Search));
     }
+
+    [Theory]
+    [InlineData("name", "asc")]
+    [InlineData("email", "desc")]
+    [InlineData("segment", "asc")]
+    [InlineData("createdAt", "desc")]
+    public async Task GetContacts_WithValidSortParameters_ShouldBeValid(string sortBy, string sortDir)
+    {
+        GetContactsRequestValidator validator = new();
+        GetContactsRequest request = new()
+        {
+            Page = 1,
+            PageSize = 10,
+            SortBy = sortBy,
+            SortDir = sortDir
+        };
+
+        ValidationResult result = await validator.ValidateAsync(
+            instance: request,
+            cancellation: TestContext.Current.CancellationToken);
+
+        Assert.True(condition: result.IsValid);
+        Assert.Empty(collection: result.Errors);
+    }
+
+    [Theory]
+    [InlineData("invalidField", "sideways")]
+    [InlineData("", "")]
+    [InlineData("   ", "   ")]
+    [InlineData("NAME", "ASC")]
+    public async Task GetContacts_WithInvalidSortParameters_ShouldFail(string invalidSortBy, string invalidSortDir)
+    {
+        GetContactsRequestValidator validator = new();
+        GetContactsRequest request = new()
+        {
+            Page = 1,
+            PageSize = 10,
+            SortBy = invalidSortBy,
+            SortDir = invalidSortDir
+        };
+
+        ValidationResult result = await validator.ValidateAsync(
+            instance: request,
+            cancellation: TestContext.Current.CancellationToken);
+
+        Assert.False(condition: result.IsValid);
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(GetContactsRequest.SortBy));
+        Assert.Contains(collection: result.Errors, filter: static e => e.PropertyName == nameof(GetContactsRequest.SortDir));
+    }
 }

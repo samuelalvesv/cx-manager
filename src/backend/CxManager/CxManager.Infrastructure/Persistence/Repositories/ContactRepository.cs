@@ -13,6 +13,8 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
         int page,
         int pageSize,
         string? search = null,
+        string? sortBy = null,
+        string? sortDir = null,
         CancellationToken cancellationToken = default)
     {
         using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
@@ -39,7 +41,17 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
                 SELECT id AS Id, company_id AS CompanyId, name AS Name, email AS Email, segment AS Segment, created_at AS CreatedAt, deleted_at AS DeletedAt
                 FROM contacts
                 WHERE company_id = @CompanyId AND deleted_at IS NULL
-                ORDER BY name ASC
+                ORDER BY
+                    CASE WHEN (@SortBy IS NULL OR @SortBy = 'name') AND @SortDir = 'desc' THEN name END DESC,
+                    CASE WHEN @SortBy = 'email' AND (@SortDir IS NULL OR @SortDir = 'asc') THEN LOWER(email) END ASC,
+                    CASE WHEN @SortBy = 'email' AND @SortDir = 'desc' THEN LOWER(email) END DESC,
+                    CASE WHEN @SortBy = 'segment' AND segment IS NULL THEN 1 WHEN @SortBy = 'segment' THEN 0 ELSE 0 END ASC,
+                    CASE WHEN @SortBy = 'segment' AND (@SortDir IS NULL OR @SortDir = 'asc') THEN LOWER(segment) END ASC,
+                    CASE WHEN @SortBy = 'segment' AND @SortDir = 'desc' THEN LOWER(segment) END DESC,
+                    CASE WHEN @SortBy = 'createdAt' AND (@SortDir IS NULL OR @SortDir = 'asc') THEN created_at END ASC,
+                    CASE WHEN @SortBy = 'createdAt' AND @SortDir = 'desc' THEN created_at END DESC,
+                    name ASC,
+                    id ASC
                 LIMIT @PageSize OFFSET @Offset;
                 """;
 
@@ -48,6 +60,8 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
                 param: new
                 {
                     CompanyId = companyId,
+                    SortBy = sortBy,
+                    SortDir = sortDir,
                     PageSize = pageSize,
                     Offset = offset
                 });
@@ -87,7 +101,17 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
             WHERE contacts_fts MATCH @FtsQuery
               AND c.company_id = @CompanyId
               AND c.deleted_at IS NULL
-            ORDER BY c.name ASC
+            ORDER BY
+                CASE WHEN (@SortBy IS NULL OR @SortBy = 'name') AND @SortDir = 'desc' THEN c.name END DESC,
+                CASE WHEN @SortBy = 'email' AND (@SortDir IS NULL OR @SortDir = 'asc') THEN LOWER(c.email) END ASC,
+                CASE WHEN @SortBy = 'email' AND @SortDir = 'desc' THEN LOWER(c.email) END DESC,
+                CASE WHEN @SortBy = 'segment' AND c.segment IS NULL THEN 1 WHEN @SortBy = 'segment' THEN 0 ELSE 0 END ASC,
+                CASE WHEN @SortBy = 'segment' AND (@SortDir IS NULL OR @SortDir = 'asc') THEN LOWER(c.segment) END ASC,
+                CASE WHEN @SortBy = 'segment' AND @SortDir = 'desc' THEN LOWER(c.segment) END DESC,
+                CASE WHEN @SortBy = 'createdAt' AND (@SortDir IS NULL OR @SortDir = 'asc') THEN c.created_at END ASC,
+                CASE WHEN @SortBy = 'createdAt' AND @SortDir = 'desc' THEN c.created_at END DESC,
+                c.name ASC,
+                c.id ASC
             LIMIT @PageSize OFFSET @Offset;
             """;
 
@@ -97,6 +121,8 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
             {
                 CompanyId = companyId,
                 FtsQuery = ftsQuery,
+                SortBy = sortBy,
+                SortDir = sortDir,
                 PageSize = pageSize,
                 Offset = offset
             });

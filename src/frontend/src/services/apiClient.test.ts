@@ -5,6 +5,7 @@ import {
   getSelectedCompanyId,
   setSelectedCompanyId,
 } from './apiClient.ts'
+import { getContacts, isContact } from './contactService.ts'
 
 interface SamplePayload {
   readonly id: number
@@ -115,7 +116,7 @@ describe('apiClient', () => {
       vi.stubGlobal('fetch', fetchMock)
 
       await expect(apiFetch('/api/invalid', isSamplePayload)).rejects.toThrow(
-        'Resposta da API em formato inesperado.',
+        'Não foi possível processar os dados recebidos do servidor.',
       )
     })
 
@@ -134,6 +135,71 @@ describe('apiClient', () => {
       await expect(apiFetch('/api/missing', isSamplePayload)).rejects.toThrow(
         'Empresa não encontrada no banco de dados.',
       )
+    })
+
+    it('deve exibir mensagem amigável em português sem statusText em inglês quando corpo não for JSON', async () => {
+      const response = new Response('Bad Gateway', {
+        status: 502,
+        statusText: 'Bad Gateway',
+      })
+      const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(response)
+
+      vi.stubGlobal('fetch', fetchMock)
+
+      await expect(apiFetch('/api/unavailable', isSamplePayload)).rejects.toThrow(
+        'Não foi possível concluir a comunicação com o servidor (código 502).',
+      )
+    })
+  })
+
+  describe('isContact', () => {
+    it('deve aceitar contato com segmento preenchido ou nulo', () => {
+      expect(
+        isContact({
+          id: 1,
+          name: 'Ana Silva',
+          email: 'ana@exemplo.com.br',
+          segment: 'Plano Black',
+          createdAt: '2026-01-10T12:00:00Z',
+        }),
+      ).toBe(true)
+
+      expect(
+        isContact({
+          id: 2,
+          name: 'Carlos Souza',
+          email: 'carlos@exemplo.com.br',
+          segment: null,
+          createdAt: '2026-01-11T12:00:00Z',
+        }),
+      ).toBe(true)
+    })
+
+    it('deve incluir parâmetros de ordenação sortBy e sortDir na consulta de contatos', async () => {
+      const responsePayload = {
+        items: [],
+        total: 0,
+        page: 2,
+        pageSize: 10,
+      }
+
+      const response = new Response(JSON.stringify(responsePayload), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(response)
+      vi.stubGlobal('fetch', fetchMock)
+
+      setSelectedCompanyId(1)
+      await getContacts(2, 10, 'ana', 'createdAt', 'desc')
+
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      const firstCall = fetchMock.mock.calls[0]
+      expect(firstCall).toBeDefined()
+      if (firstCall) {
+        const [calledUrl] = firstCall
+        expect(calledUrl).toBe('/api/contacts?page=2&pageSize=10&search=ana&sortBy=createdAt&sortDir=desc')
+      }
     })
   })
 

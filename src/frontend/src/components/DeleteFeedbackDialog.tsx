@@ -1,16 +1,7 @@
-import {
-  Alert,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from '@mui/material'
-import { useState } from 'react'
+import { DialogContentText } from '@mui/material'
 import { deleteFeedback } from '../services/feedbackService.ts'
 import type { FeedbackResponse } from '../types/feedback.ts'
+import { ConfirmDeleteDialog } from './ConfirmDeleteDialog.tsx'
 
 export interface DeleteFeedbackDialogProps {
   readonly open: boolean
@@ -25,73 +16,29 @@ export function DeleteFeedbackDialog({
   onClose,
   onSuccess,
 }: DeleteFeedbackDialogProps) {
-  const [submitting, setSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const handleDelete = async () => {
-    if (feedbackItem === null || submitting) {
+  const handleConfirm = async () => {
+    if (feedbackItem === null) {
       return
     }
-
-    setSubmitting(true)
-    setErrorMessage(null)
-
-    try {
-      await deleteFeedback(feedbackItem.id)
-      onSuccess(feedbackItem.id)
-      onClose()
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Falha ao excluir a avaliação.'
-      setErrorMessage(message)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleClose = () => {
-    if (!submitting) {
-      setErrorMessage(null)
-      onClose()
-    }
+    await deleteFeedback(feedbackItem.id)
+    onSuccess(feedbackItem.id)
   }
 
   return (
-    <Dialog
+    <ConfirmDeleteDialog
       open={open}
-      onClose={handleClose}
-      maxWidth="xs"
-      fullWidth
-      aria-labelledby="delete-feedback-dialog-title"
+      title="Excluir Avaliação?"
+      confirmLabel="Confirmar Exclusão"
+      submittingLabel="Excluindo..."
+      defaultErrorMessage="Falha ao excluir a avaliação."
+      onClose={onClose}
+      onConfirm={handleConfirm}
     >
-      <DialogTitle id="delete-feedback-dialog-title" sx={{ fontWeight: 700 }}>
-        Excluir Avaliação?
-      </DialogTitle>
-      <DialogContent>
-        {errorMessage !== null && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrorMessage(null)}>
-            {errorMessage}
-          </Alert>
-        )}
-        <DialogContentText>
-          Tem certeza de que deseja remover a avaliação da pesquisa{' '}
-          <strong>{feedbackItem?.surveyName}</strong> (Nota: {feedbackItem?.score})? Esta ação
-          realizará a exclusão lógica do registro e ele não entrará mais nos relatórios analíticos.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={handleClose} disabled={submitting} color="inherit">
-          Cancelar
-        </Button>
-        <Button
-          onClick={() => { void handleDelete() }}
-          color="error"
-          variant="contained"
-          disabled={submitting}
-          startIcon={submitting ? <CircularProgress size={18} color="inherit" /> : null}
-        >
-          {submitting ? 'Excluindo...' : 'Confirmar Exclusão'}
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <DialogContentText>
+        Tem certeza de que deseja remover a avaliação da pesquisa{' '}
+        <strong>{feedbackItem?.surveyName}</strong> (Nota: {feedbackItem?.score})? Esta avaliação
+        será desativada e deixará de ser contabilizada nos indicadores e relatórios de satisfação.
+      </DialogContentText>
+    </ConfirmDeleteDialog>
   )
 }

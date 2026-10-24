@@ -1,90 +1,33 @@
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
-import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined'
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import {
   Alert,
   Box,
   Button,
   Card,
   Chip,
-  Divider,
   Drawer,
   IconButton,
   Skeleton,
   Stack,
-  Tooltip,
   Typography,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { getContactFeedbacks } from '../services/feedbackService.ts'
 import type { Contact } from '../types/contact.ts'
 import type { FeedbackResponse } from '../types/feedback.ts'
+import { ContactAvatar } from './contacts/ContactAvatar.tsx'
 import { DeleteFeedbackDialog } from './DeleteFeedbackDialog.tsx'
 import { EmptyState } from './EmptyState.tsx'
 import { FeedbackDialog } from './FeedbackDialog.tsx'
+import { FeedbackTimelineItem } from './feedbacks/FeedbackTimelineItem.tsx'
 
 export interface ContactFeedbacksDrawerProps {
   readonly open: boolean
   readonly contact: Contact | null
   readonly onClose: () => void
-}
-
-function getChannelIcon(channel: string) {
-  const normalized = channel.toLowerCase()
-  if (normalized.includes('whatsapp')) {
-    return <WhatsAppIcon sx={{ fontSize: 16 }} />
-  }
-  if (normalized.includes('email') || normalized.includes('e-mail')) {
-    return <EmailOutlinedIcon sx={{ fontSize: 16 }} />
-  }
-  return <LinkOutlinedIcon sx={{ fontSize: 16 }} />
-}
-
-function getScoreChipProps(score: number, surveyType: string) {
-  const isNps = surveyType.toUpperCase() === 'NPS'
-
-  if (isNps) {
-    if (score >= 9) {
-      return {
-        label: `${score} • Promotor`,
-        color: 'success' as const,
-      }
-    }
-    if (score >= 7) {
-      return {
-        label: `${score} • Neutro`,
-        color: 'warning' as const,
-      }
-    }
-    return {
-      label: `${score} • Detrator`,
-      color: 'error' as const,
-    }
-  }
-
-  // CSAT (1-5)
-  if (score >= 4) {
-    return {
-      label: `${score}/5 • Satisfeito`,
-      color: 'success' as const,
-    }
-  }
-  if (score === 3) {
-    return {
-      label: `${score}/5 • Neutro`,
-      color: 'warning' as const,
-    }
-  }
-  return {
-    label: `${score}/5 • Insatisfeito`,
-    color: 'error' as const,
-  }
 }
 
 export function ContactFeedbacksDrawer({
@@ -96,7 +39,6 @@ export function ContactFeedbacksDrawer({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Dialog states
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
   const [feedbackToEdit, setFeedbackToEdit] = useState<FeedbackResponse | null>(null)
@@ -204,16 +146,19 @@ export function ContactFeedbacksDrawer({
         },
       }}
     >
-      {/* Header da Gaveta */}
-      <Box sx={{ p: 2.5, bgcolor: 'background.default', borderBottom: 1, borderColor: 'divider' }}>
+      {/* Cabeçalho da Gaveta com Avatar */}
+      <Box sx={{ p: 2.5, bgcolor: 'action.hover', borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Histórico de Avaliações
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {contact?.name ?? 'Contato'}
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <ContactAvatar name={contact?.name ?? 'Contato'} size={42} />
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                Histórico de Avaliações
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {contact?.name ?? 'Contato'}
+              </Typography>
+            </Box>
           </Box>
           <IconButton
             size="small"
@@ -253,7 +198,7 @@ export function ContactFeedbacksDrawer({
         </Box>
       </Box>
 
-      {/* Conteúdo: Linha do Tempo */}
+      {/* Conteúdo: Linha do Tempo Cronológica (@mui/lab/Timeline) */}
       <Box sx={{ p: 2.5, overflowY: 'auto', flex: 1 }}>
         {error !== null && (
           <Alert
@@ -299,112 +244,20 @@ export function ContactFeedbacksDrawer({
             }}
           />
         ) : (
-          <Stack spacing={2}>
-            {feedbacks.map((item) => {
-              const chipProps = getScoreChipProps(item.score, item.surveyType)
-              const formattedDate = new Date(item.respondedAt).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-
-              return (
-                <Card
-                  key={item.id}
-                  sx={{
-                    p: 2,
-                    border: 1,
-                    borderColor: 'divider',
-                    boxShadow: 'none',
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      borderColor: 'primary.light',
-                      boxShadow: 1,
-                    },
-                  }}
-                >
-                  {/* Linha Superior: Nota e Ações */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-                    <Chip
-                      label={chipProps.label}
-                      color={chipProps.color}
-                      size="small"
-                      sx={{ fontWeight: 700 }}
-                    />
-                    <Stack direction="row" spacing={0.5}>
-                      <Tooltip title="Editar avaliação">
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => { handleOpenEdit(item) }}
-                          aria-label={`Editar avaliação de ${item.surveyName}`}
-                        >
-                          <EditOutlinedIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Excluir avaliação">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => { handleOpenDelete(item) }}
-                          aria-label={`Excluir avaliação de ${item.surveyName}`}
-                        >
-                          <DeleteOutlinedIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </Box>
-
-                  {/* Informações da Pesquisa e Canal */}
-                  <Box sx={{ mb: 1 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      {item.surveyName}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5, flexWrap: 'wrap' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-                        {getChannelIcon(item.channel)}
-                        <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
-                          {item.channel}
-                        </Typography>
-                      </Box>
-                      <Divider orientation="vertical" flexItem sx={{ height: 12, my: 'auto' }} />
-                      <Typography variant="caption" color="text.secondary">
-                        {formattedDate}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Comentário */}
-                  {item.comment !== null && item.comment.trim().length > 0 ? (
-                    <Box
-                      sx={{
-                        mt: 1.5,
-                        p: 1.5,
-                        bgcolor: 'background.default',
-                        borderRadius: 1,
-                        borderLeft: 3,
-                        borderColor: 'primary.main',
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.primary' }}>
-                        &ldquo;{item.comment}&rdquo;
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                      Sem comentário adicional.
-                    </Typography>
-                  )}
-                </Card>
-              )
-            })}
+          <Stack spacing={0}>
+            {feedbacks.map((item, idx) => (
+              <FeedbackTimelineItem
+                key={item.id}
+                item={item}
+                isLast={idx === feedbacks.length - 1}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+              />
+            ))}
           </Stack>
         )}
       </Box>
 
-      {/* Diálogos */}
       {contact !== null && (
         <FeedbackDialog
           open={dialogOpen}

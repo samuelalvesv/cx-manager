@@ -27,6 +27,12 @@ export default defineConfig({
       output: {
         manualChunks(id: string) {
           if (id.includes('node_modules')) {
+            if (id.includes('@mui/x-charts') || id.includes('d3-')) {
+              return 'mui-charts'
+            }
+            if (id.includes('@mui/x-date-pickers') || id.includes('dayjs')) {
+              return 'mui-pickers'
+            }
             if (id.includes('@mui') || id.includes('@emotion')) {
               return 'mui'
             }

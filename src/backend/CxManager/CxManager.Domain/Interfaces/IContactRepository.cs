@@ -9,6 +9,8 @@ public interface IContactRepository
         int page,
         int pageSize,
         string? search = null,
+        string? sortBy = null,
+        string? sortDir = null,
         CancellationToken cancellationToken = default);
 
     Task<Contact?> GetByIdAsync(

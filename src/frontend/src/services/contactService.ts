@@ -1,6 +1,9 @@
 import type { Contact, CreateContactRequest, PagedContactsResponse, UpdateContactRequest } from '../types/contact.ts'
 import { apiFetch } from './apiClient.ts'
 
+export type ContactSortField = 'name' | 'email' | 'segment' | 'createdAt'
+export type SortDirection = 'asc' | 'desc'
+
 export function isContact(value: unknown): value is Contact {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -12,7 +15,7 @@ export function isContact(value: unknown): value is Contact {
     typeof candidate.id === 'number' &&
     typeof candidate.name === 'string' &&
     typeof candidate.email === 'string' &&
-    typeof candidate.segment === 'string' &&
+    (candidate.segment === null || typeof candidate.segment === 'string') &&
     typeof candidate.createdAt === 'string'
   )
 }
@@ -41,6 +44,8 @@ export async function getContacts(
   page: number = 1,
   pageSize: number = 20,
   search?: string,
+  sortBy?: ContactSortField,
+  sortDir?: SortDirection,
   signal?: AbortSignal,
 ): Promise<PagedContactsResponse> {
   const params = new URLSearchParams({
@@ -50,6 +55,14 @@ export async function getContacts(
 
   if (search !== undefined && search.trim().length > 0) {
     params.set('search', search.trim())
+  }
+
+  if (sortBy !== undefined) {
+    params.set('sortBy', sortBy)
+  }
+
+  if (sortDir !== undefined) {
+    params.set('sortDir', sortDir)
   }
 
   const options = signal !== undefined ? { signal } : {}

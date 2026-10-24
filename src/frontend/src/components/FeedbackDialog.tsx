@@ -14,14 +14,18 @@ import {
   Select,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
   type SelectChangeEvent,
 } from '@mui/material'
-import { useEffect, useState, type ChangeEvent, type SubmitEvent } from 'react'
+import { useEffect, useState, type ChangeEvent, type MouseEvent, type SubmitEvent } from 'react'
 import { createFeedback, updateFeedback } from '../services/feedbackService.ts'
 import { getSurveys } from '../services/surveyService.ts'
 import type { FeedbackResponse } from '../types/feedback.ts'
 import type { Survey } from '../types/survey.ts'
+import { CHANNEL_OPTIONS, formatChannelLabel, getChannelIcon } from './feedbacks/feedbackFormatters.tsx'
+import { ScoreSelectorField } from './feedbacks/ScoreSelectorField.tsx'
 
 export interface FeedbackDialogProps {
   readonly open: boolean
@@ -39,12 +43,6 @@ interface FeedbackFormProps {
   readonly onClose: () => void
   readonly onSuccess: (feedback: FeedbackResponse) => void
 }
-
-const CHANNEL_OPTIONS = [
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'email', label: 'E-mail' },
-  { value: 'link', label: 'Link Web' },
-] as const
 
 function FeedbackForm({ mode, contactId, feedbackToEdit, onClose, onSuccess }: FeedbackFormProps) {
   const [surveys, setSurveys] = useState<readonly Survey[]>([])
@@ -132,19 +130,15 @@ function FeedbackForm({ mode, contactId, feedbackToEdit, onClose, onSuccess }: F
       if (score < 1 || score > 5) {
         setScore(5)
       }
-    } else {
-      if (score < 0 || score > 10) {
-        setScore(10)
-      }
+    } else if (score < 0 || score > 10) {
+      setScore(10)
     }
   }
 
-  const handleScoreChange = (e: SelectChangeEvent<number>) => {
-    setScore(e.target.value)
-  }
-
-  const handleChannelChange = (e: SelectChangeEvent) => {
-    setChannel(e.target.value)
+  const handleChannelToggle = (_: MouseEvent<HTMLElement>, nextChannel: string | null) => {
+    if (nextChannel !== null) {
+      setChannel(nextChannel)
+    }
   }
 
   const handleCommentChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -193,19 +187,14 @@ function FeedbackForm({ mode, contactId, feedbackToEdit, onClose, onSuccess }: F
     }
   }
 
-  const availableScores = Array.from(
-    { length: maxScore - minScore + 1 },
-    (_, i) => maxScore - i,
-  )
-
   return (
     <Box component="form" onSubmit={(e) => { void handleSubmit(e) }} noValidate>
-      <DialogTitle sx={{ pb: 1, fontWeight: 700 }}>
+      <DialogTitle id="feedback-dialog-title" sx={{ fontWeight: 700 }}>
         {mode === 'create' ? 'Registrar Nova Avaliação' : 'Editar Avaliação'}
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 2 }}>
-        <Stack spacing={2.5}>
+      <DialogContent dividers>
+        <Stack spacing={2.5} sx={{ pt: 1.5 }}>
           {errorMessage !== null && (
             <Alert severity="error" onClose={() => setErrorMessage(null)}>
               {errorMessage}
@@ -237,14 +226,14 @@ function FeedbackForm({ mode, contactId, feedbackToEdit, onClose, onSuccess }: F
                 >
                   {surveys.map((s) => (
                     <MenuItem key={s.id} value={s.id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 1 }}>
                         <span>{s.name}</span>
                         <Chip
-                          label={s.type}
+                          label={s.type === 'NPS' ? 'Recomendação (NPS)' : 'Satisfação (CSAT)'}
                           size="small"
                           color={s.type === 'NPS' ? 'primary' : 'secondary'}
                           variant="outlined"
-                          sx={{ ml: 1, height: 20, fontSize: '0.75rem' }}
+                          sx={{ height: 20, fontSize: '0.75rem' }}
                         />
                       </Box>
                     </MenuItem>
@@ -253,18 +242,25 @@ function FeedbackForm({ mode, contactId, feedbackToEdit, onClose, onSuccess }: F
               </FormControl>
             )
           ) : (
-            <Box sx={{ p: 1.5, bgcolor: 'background.default', borderRadius: 1, border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, border: 1, borderColor: 'divider' }}>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                 Pesquisa Vinculada
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mt: 0.5 }}>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   {feedbackToEdit?.surveyName}
                 </Typography>
                 <Chip
-                  label={feedbackToEdit?.surveyType}
+                  label={feedbackToEdit?.surveyType === 'NPS' ? 'Recomendação (NPS)' : 'Satisfação (CSAT)'}
                   size="small"
                   color={feedbackToEdit?.surveyType === 'NPS' ? 'primary' : 'secondary'}
+                  variant="outlined"
+                  sx={{ height: 20, fontSize: '0.75rem' }}
+                />
+                <Chip
+                  icon={getChannelIcon(channel)}
+                  label={formatChannelLabel(channel)}
+                  size="small"
                   variant="outlined"
                   sx={{ height: 20, fontSize: '0.75rem' }}
                 />
@@ -272,76 +268,59 @@ function FeedbackForm({ mode, contactId, feedbackToEdit, onClose, onSuccess }: F
             </Box>
           )}
 
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="score-select-label">Nota ({surveyType}: {minScore} a {maxScore})</InputLabel>
-              <Select
-                labelId="score-select-label"
-                id="score-select"
-                value={score}
-                label={`Nota (${surveyType}: ${minScore} a {maxScore})`}
-                onChange={handleScoreChange}
-                disabled={submitting}
-              >
-                {availableScores.map((val) => (
-                  <MenuItem key={val} value={val}>
-                    {val} {surveyType === 'NPS' ? (val >= 9 ? '— Promotor' : val >= 7 ? '— Neutro' : '— Detrator') : ''}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <ScoreSelectorField
+            surveyType={surveyType}
+            score={score}
+            disabled={submitting}
+            onChange={setScore}
+          />
 
-            {mode === 'create' ? (
-              <FormControl fullWidth size="small">
-                <InputLabel id="channel-select-label">Canal de Resposta</InputLabel>
-                <Select
-                  labelId="channel-select-label"
-                  id="channel-select"
-                  value={channel}
-                  label="Canal de Resposta"
-                  onChange={handleChannelChange}
-                  disabled={submitting}
-                >
-                  {CHANNEL_OPTIONS.map((c) => (
-                    <MenuItem key={c.value} value={c.value}>
-                      {c.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            ) : (
-              <FormControl fullWidth size="small" disabled>
-                <InputLabel id="channel-disabled-label">Canal</InputLabel>
-                <Select
-                  labelId="channel-disabled-label"
-                  value={channel}
-                  label="Canal"
-                >
-                  <MenuItem value={channel}>
-                    {CHANNEL_OPTIONS.find((c) => c.value === channel)?.label ?? channel}
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            )}
-          </Stack>
+          {mode === 'create' && (
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontWeight: 600, mb: 0.75 }}>
+                Canal de Resposta
+              </Typography>
+              <ToggleButtonGroup
+                value={channel}
+                exclusive
+                fullWidth
+                size="small"
+                disabled={submitting}
+                onChange={handleChannelToggle}
+                aria-label="Canal de resposta"
+              >
+                {CHANNEL_OPTIONS.map((c) => (
+                  <ToggleButton
+                    key={c.value}
+                    value={c.value}
+                    color="primary"
+                    sx={{ gap: 0.75, fontWeight: 600, textTransform: 'none' }}
+                  >
+                    {getChannelIcon(c.value)}
+                    {c.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+          )}
 
           <TextField
-            label="Comentário do Aluno (Opcional)"
+            label="Comentário do Contato (Opcional)"
             value={comment}
             onChange={handleCommentChange}
             multiline
             rows={3}
             fullWidth
             size="small"
-            placeholder="Feedback registrado pelo aluno..."
+            placeholder="Relato ou observação enviada pelo contato..."
             disabled={submitting}
-            helperText={`${comment.length}/1000 caracteres`}
+            helperText={`${String(comment.length)}/1000 caracteres`}
             error={!isCommentValid}
           />
         </Stack>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
+      <DialogActions sx={{ px: 3, py: 2 }}>
         <Button onClick={onClose} disabled={submitting} color="inherit">
           Cancelar
         </Button>
@@ -378,15 +357,14 @@ export function FeedbackDialog({
       fullWidth
       aria-labelledby="feedback-dialog-title"
     >
-      {open ? (
-        <FeedbackForm
-          mode={mode}
-          contactId={contactId}
-          feedbackToEdit={feedbackToEdit}
-          onClose={onClose}
-          onSuccess={onSuccess}
-        />
-      ) : null}
+      <FeedbackForm
+        key={`${mode}-${String(contactId)}-${String(feedbackToEdit?.id ?? 0)}`}
+        mode={mode}
+        contactId={contactId}
+        feedbackToEdit={feedbackToEdit}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
     </Dialog>
   )
 }

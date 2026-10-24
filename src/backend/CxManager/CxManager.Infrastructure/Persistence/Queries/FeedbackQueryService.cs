@@ -101,8 +101,15 @@ public sealed class FeedbackQueryService(IDbConnectionFactory connectionFactory)
             ORDER BY r.responded_at DESC, r.id DESC;
             """;
 
-        string? fromParam = from?.ToString(format: "yyyy-MM-ddT00:00:00.0000000+00:00", provider: CultureInfo.InvariantCulture);
-        string? toParam = to?.AddDays(value: 1).ToString(format: "yyyy-MM-ddT00:00:00.0000000+00:00", provider: CultureInfo.InvariantCulture);
+        string? fromParam = from.HasValue
+            ? new DateTimeOffset(date: from.Value, time: TimeOnly.MinValue, offset: TimeSpan.Zero)
+                .ToString(format: "O", formatProvider: CultureInfo.InvariantCulture)
+            : null;
+
+        string? toParam = to.HasValue
+            ? new DateTimeOffset(date: to.Value.AddDays(value: 1), time: TimeOnly.MinValue, offset: TimeSpan.Zero)
+                .ToString(format: "O", formatProvider: CultureInfo.InvariantCulture)
+            : null;
 
         var parameters = new
         {

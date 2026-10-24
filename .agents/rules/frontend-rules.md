@@ -10,7 +10,7 @@ applyTo: "src/frontend/**/*.{ts,tsx,css,html,json}"
 - `types/`: Interfaces e tipos imutáveis (`readonly`) espelhando 1:1 os contratos REST de `CxManager.Contract`.
 - `services/`: Camada isolada de comunicação HTTP com a API (`/api`), validação de resposta, tratamento padronizado do envelope de erro e suporte a cancelamento via `AbortSignal`.
 - `hooks/`: Custom hooks para gerenciamento de estado de servidor, paginação, filtros e debounce de busca.
-- `components/`: Componentes visuais reutilizáveis baseados em MUI Material (`@mui/material` e `@mui/icons-material`), diálogos de confirmação, estados de esqueleto/vazio/erro e elementos de formulário.
+- `components/`: Componentes visuais reutilizáveis baseados no ecossistema MUI v9 (`@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers` e `@mui/x-charts`), diálogos de confirmação, estados de esqueleto/vazio/erro e elementos de formulário.
 - `pages/`: Visões principais da aplicação.
 - `theme/`: Tema centralizado do MUI (`createTheme`, `ThemeProvider`, `CssBaseline`) e tokens semânticos de design.
 
@@ -41,8 +41,8 @@ applyTo: "src/frontend/**/*.{ts,tsx,css,html,json}"
   - Aplicar *debounce* na busca textual e resetar para a primeira página ao alterar o filtro buscado.
   - Exigir confirmação explícita do usuário em diálogo modal (`Dialog` do MUI) antes de executar operações destrutivas (`DELETE`).
   - Refletir criações, edições e exclusões imediatamente no estado da interface sem recarregar a página do navegador (`window.location.reload()` é proibido).
-- **Padronização Visual com MUI Material v9**:
-  - Utilizar exclusivamente os componentes e o sistema de tema do `@mui/material` e `@mui/icons-material` com paleta semântica centralizada em `src/theme/`.
+- **Padronização Visual com MUI Material v9 e MUI X v9**:
+  - Utilizar exclusivamente os componentes e o sistema de tema do ecossistema oficial MUI (`@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers` e `@mui/x-charts`) com paleta semântica e localização (`ptBR`) centralizadas em `src/theme/`.
   - É proibido espalhar estilos inline (`style={{ ... }}`) ou cores hexadecimais hardcoded nos componentes; toda customização de layout deve utilizar o tema centralizado via prop tipada `sx` do MUI.
 - **Validação Estática e Build**:
   - Todo código TypeScript/React deve passar sem erros ou avisos em `rtk npm --prefix src/frontend run lint`, `rtk npm --prefix src/frontend run typecheck` e `rtk npm --prefix src/frontend run build`.

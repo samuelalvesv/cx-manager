@@ -94,6 +94,48 @@ public sealed class ContactEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task GetContacts_WithSortingParameters_ShouldReturn200AndSortedItems()
+    {
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts?page=1&pageSize=10&sortBy=name&sortDir=desc");
+        request.Headers.Add("X-Company-Id", "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        PagedResponse<ContactResponse>? paged = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.PagedResponseContactResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: paged);
+        Assert.True(condition: paged.Items.Count >= 2);
+        Assert.True(
+            condition: string.Compare(
+                strA: paged.Items[0].Name,
+                strB: paged.Items[1].Name,
+                comparisonType: StringComparison.OrdinalIgnoreCase) >= 0);
+    }
+
+    [Fact]
+    public async Task GetContacts_WithInvalidSortingParameters_ShouldReturn400BadRequest()
+    {
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/contacts?page=1&pageSize=10&sortBy=invalido&sortDir=DESC");
+        request.Headers.Add("X-Company-Id", "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.BadRequest, actual: response.StatusCode);
+    }
+
+    [Fact]
     public async Task GetContacts_WithFtsSearch_ShouldFilterResults()
     {
         using var request = new HttpRequestMessage(

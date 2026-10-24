@@ -91,6 +91,27 @@ public sealed class ResponseExportEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task Export_WithValidDateFilter_ShouldReturn200AndFilteredRows()
+    {
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: "/api/responses/export?from=2026-01-01&to=2026-01-31");
+        request.Headers.Add(name: "X-Company-Id", value: "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        string csvContent = await response.Content.ReadAsStringAsync(cancellationToken: TestContext.Current.CancellationToken);
+        string[] lines = csvContent.Split(["\r\n", "\n"], options: StringSplitOptions.RemoveEmptyEntries);
+
+        Assert.True(condition: lines.Length > 1);
+        Assert.Equal(expected: "id,survey,contact,score,comment,channel,respondedAt", actual: lines[0]);
+    }
+
+    [Fact]
     public async Task Export_WithInvalidDateFilter_ShouldReturn400BadRequest()
     {
         using var request = new HttpRequestMessage(

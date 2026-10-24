@@ -136,6 +136,53 @@ public sealed class AnalyticsEndpointsTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task GetSummary_WithFromDateInFuture_ShouldReturnEmptySummary()
+    {
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: new Uri(uriString: "/api/analytics/summary?from=2026-10-01", uriKind: UriKind.Relative));
+        request.Headers.Add(name: "X-Company-Id", value: "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        AnalyticsSummaryResponse? summary = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.AnalyticsSummaryResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: summary);
+        Assert.Equal(expected: 0, actual: summary.ResponsesCount);
+        Assert.Equal(expected: 0, actual: summary.NpsResponses);
+        Assert.Null(@object: summary.CsatAvg);
+    }
+
+    [Fact]
+    public async Task GetSummary_FilteredByJanuary2026DateRange_ShouldReturnOnlyJanuaryResponses()
+    {
+        using var request = new HttpRequestMessage(
+            method: HttpMethod.Get,
+            requestUri: new Uri(uriString: "/api/analytics/summary?from=2026-01-01&to=2026-01-31", uriKind: UriKind.Relative));
+        request.Headers.Add(name: "X-Company-Id", value: "1");
+
+        HttpResponseMessage response = await _client.SendAsync(
+            request: request,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        AnalyticsSummaryResponse? summary = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.AnalyticsSummaryResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: summary);
+        Assert.Equal(expected: 104, actual: summary.NpsResponses);
+        Assert.Equal(expected: 17, actual: summary.NpsScore);
+    }
+
+    [Fact]
     public async Task GetSummary_WithMalformedDate_ShouldReturn400BadRequest()
     {
         using var request = new HttpRequestMessage(

@@ -78,6 +78,20 @@ public sealed class ContactRepositoryTests : IAsyncDisposable
         Assert.Equal(expected: 3, actual: total2);
         Assert.Single(collection: page2);
         Assert.Equal(expected: "Carlos Daniel", actual: page2[0].Name);
+
+        (IReadOnlyList<Contact> sortedDesc, int totalDesc) = await _contactRepository.GetPagedByCompanyAsync(
+            companyId: company1Id,
+            page: 1,
+            pageSize: 10,
+            search: null,
+            sortBy: "name",
+            sortDir: "desc",
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: 3, actual: totalDesc);
+        Assert.Equal(expected: "Carlos Daniel", actual: sortedDesc[0].Name);
+        Assert.Equal(expected: "Bruno Alves", actual: sortedDesc[1].Name);
+        Assert.Equal(expected: "Ana Clara", actual: sortedDesc[2].Name);
     }
 
     [Fact]

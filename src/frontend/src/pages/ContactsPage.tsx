@@ -1,40 +1,29 @@
 import AddIcon from '@mui/icons-material/Add'
 import ClearIcon from '@mui/icons-material/Clear'
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined'
-import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import SearchIcon from '@mui/icons-material/Search'
 import {
   Alert,
   Button,
   Card,
-  Chip,
   Container,
+  Divider,
   IconButton,
   InputAdornment,
-  Skeleton,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
+  LinearProgress,
   TablePagination,
-  TableRow,
   TextField,
-  Tooltip,
-  Typography,
 } from '@mui/material'
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { ContactDialog } from '../components/ContactDialog.tsx'
 import { ContactFeedbacksDrawer } from '../components/ContactFeedbacksDrawer.tsx'
+import { ContactsDesktopTable } from '../components/contacts/ContactsDesktopTable.tsx'
+import { ContactsMobileList } from '../components/contacts/ContactsMobileList.tsx'
 import { DeleteContactDialog } from '../components/DeleteContactDialog.tsx'
-import { EmptyState } from '../components/EmptyState.tsx'
 import { PageHeader } from '../components/PageHeader.tsx'
 import { useCompany } from '../context/useCompany.ts'
-import { getContacts } from '../services/contactService.ts'
+import { getContacts, type ContactSortField, type SortDirection } from '../services/contactService.ts'
 import type { Contact } from '../types/contact.ts'
 
 export function ContactsPage() {
@@ -43,12 +32,13 @@ export function ContactsPage() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [sortBy, setSortBy] = useState<ContactSortField>('name')
+  const [sortDir, setSortDir] = useState<SortDirection>('asc')
   const [searchInput, setSearchInput] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Modals state
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
@@ -58,16 +48,19 @@ export function ContactsPage() {
   const [contactForHistory, setContactForHistory] = useState<Contact | null>(null)
   const [prevCompanyId, setPrevCompanyId] = useState(selectedCompanyId)
 
-  // Reset pagination and search during render when company changes
   if (selectedCompanyId !== prevCompanyId) {
     setPrevCompanyId(selectedCompanyId)
     setPage(1)
+    setSortBy('name')
+    setSortDir('asc')
     setSearchInput('')
     setDebouncedSearch('')
   }
 
-  // Debounce search input
   useEffect(() => {
+    if (searchInput === debouncedSearch) {
+      return undefined
+    }
     const handler = setTimeout(() => {
       setDebouncedSearch(searchInput)
       setPage(1)
@@ -76,7 +69,7 @@ export function ContactsPage() {
     return () => {
       clearTimeout(handler)
     }
-  }, [searchInput])
+  }, [searchInput, debouncedSearch])
 
   useEffect(() => {
     let active = true
@@ -90,7 +83,7 @@ export function ContactsPage() {
 
       setLoading(true)
       try {
-        const response = await getContacts(page, pageSize, debouncedSearch, controller.signal)
+        const response = await getContacts(page, pageSize, debouncedSearch, sortBy, sortDir, controller.signal)
         if (!active) {
           return
         }
@@ -114,13 +107,13 @@ export function ContactsPage() {
       active = false
       controller.abort()
     }
-  }, [selectedCompanyId, page, pageSize, debouncedSearch])
+  }, [selectedCompanyId, page, pageSize, debouncedSearch, sortBy, sortDir])
 
   const handleRetry = async () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await getContacts(page, pageSize, debouncedSearch)
+      const response = await getContacts(page, pageSize, debouncedSearch, sortBy, sortDir)
       setContacts(response.items)
       setTotal(response.total)
     } catch (err: unknown) {
@@ -146,6 +139,16 @@ export function ContactsPage() {
   const handleRowsPerPageChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newPageSize = Number.parseInt(event.target.value, 10)
     setPageSize(newPageSize)
+    setPage(1)
+  }
+
+  const handleRequestSort = (field: ContactSortField) => {
+    if (sortBy === field) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortBy(field)
+      setSortDir('asc')
+    }
     setPage(1)
   }
 
@@ -185,7 +188,7 @@ export function ContactsPage() {
 
   if (selectedCompanyId === null) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 2.5, sm: 3, md: 4 } }}>
         <Alert severity="info">
           Selecione uma empresa no cabeçalho superior para gerenciar seus contatos.
         </Alert>
@@ -194,11 +197,10 @@ export function ContactsPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Cabeçalho da Página */}
+    <Container maxWidth="lg" sx={{ py: { xs: 2.5, sm: 3, md: 4 } }}>
       <PageHeader
         title="Gestão de Contatos"
-        subtitle="Cadastro e busca ágil de clientes e alunos da organização."
+        subtitle="Cadastro, segmentação e histórico de avaliações dos contatos da organização."
         icon={<PeopleAltOutlinedIcon sx={{ color: 'primary.main', fontSize: 28 }} />}
         action={
           <Button
@@ -212,7 +214,6 @@ export function ContactsPage() {
         }
       />
 
-      {/* Barra de Filtros e Busca Textual com Debounce */}
       <Card sx={{ mb: 3, p: 2, border: 1, borderColor: 'divider', boxShadow: 'none' }}>
         <TextField
           placeholder="Buscar contato por nome ou e-mail..."
@@ -246,7 +247,6 @@ export function ContactsPage() {
         />
       </Card>
 
-      {/* Estado de Erro */}
       {error !== null && (
         <Alert
           severity="error"
@@ -266,120 +266,38 @@ export function ContactsPage() {
         </Alert>
       )}
 
-      {/* Tabela de Contatos */}
-      <Card sx={{ border: 1, borderColor: 'divider', boxShadow: 'none' }}>
-        <TableContainer>
-          <Table aria-label="Tabela de contatos cadastrados">
-            <TableHead sx={{ bgcolor: 'background.default' }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Nome</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>E-mail</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Segmento / Plano</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Data de Cadastro</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                [1, 2, 3, 4, 5].map((key) => (
-                  <TableRow key={key}>
-                    <TableCell><Skeleton variant="text" width={160} /></TableCell>
-                    <TableCell><Skeleton variant="text" width={200} /></TableCell>
-                    <TableCell><Skeleton variant="rounded" width={90} height={24} /></TableCell>
-                    <TableCell><Skeleton variant="text" width={100} /></TableCell>
-                    <TableCell align="right"><Skeleton variant="rounded" width={80} height={32} sx={{ ml: 'auto' }} /></TableCell>
-                  </TableRow>
-                ))
-              ) : contacts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} sx={{ p: 0 }}>
-                    <EmptyState
-                      icon={<PeopleAltOutlinedIcon sx={{ fontSize: 48 }} />}
-                      title="Nenhum contato encontrado"
-                      description={
-                        debouncedSearch.length > 0
-                          ? `Nenhum resultado corresponde à busca por "${debouncedSearch}". Ajuste os termos pesquisados.`
-                          : 'Esta organização ainda não possui contatos cadastrados.'
-                      }
-                      action={
-                        debouncedSearch.length === 0
-                          ? {
-                              label: 'Cadastrar Primeiro Contato',
-                              icon: <AddIcon />,
-                              onClick: handleOpenCreate,
-                            }
-                          : undefined
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              ) : (
-                contacts.map((contact) => (
-                  <TableRow
-                    key={contact.id}
-                    hover
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => { handleOpenHistory(contact) }}
-                  >
-                    <TableCell sx={{ fontWeight: 600 }}>{contact.name}</TableCell>
-                    <TableCell sx={{ color: 'text.secondary' }}>{contact.email}</TableCell>
-                    <TableCell>
-                      {contact.segment !== null && contact.segment.length > 0 ? (
-                        <Chip
-                          label={contact.segment}
-                          size="small"
-                          color={contact.segment.toLowerCase().includes('black') ? 'primary' : 'default'}
-                          variant="outlined"
-                        />
-                      ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          —
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-                      {new Date(contact.createdAt).toLocaleDateString('pt-BR')}
-                    </TableCell>
-                    <TableCell align="right" onClick={(e) => { e.stopPropagation() }}>
-                      <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
-                        <Tooltip title="Histórico de avaliações">
-                          <IconButton
-                            size="small"
-                            color="info"
-                            onClick={() => { handleOpenHistory(contact) }}
-                            aria-label={`Histórico de avaliações de ${contact.name}`}
-                          >
-                            <RateReviewOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Editar contato">
-                          <IconButton
-                            size="small"
-                            color="primary"
-                            onClick={() => { handleOpenEdit(contact) }}
-                            aria-label={`Editar ${contact.name}`}
-                          >
-                            <EditOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Excluir contato">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => { handleOpenDelete(contact) }}
-                            aria-label={`Excluir ${contact.name}`}
-                          >
-                            <DeleteOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <Card sx={{ position: 'relative', border: 1, borderColor: 'divider', boxShadow: 'none' }}>
+        {loading && contacts.length > 0 && (
+          <LinearProgress sx={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2 }} />
+        )}
+
+        <ContactsMobileList
+          contacts={contacts}
+          loading={loading}
+          debouncedSearch={debouncedSearch}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onRequestSort={handleRequestSort}
+          onOpenCreate={handleOpenCreate}
+          onOpenEdit={handleOpenEdit}
+          onOpenDelete={handleOpenDelete}
+          onOpenHistory={handleOpenHistory}
+        />
+
+        <ContactsDesktopTable
+          contacts={contacts}
+          loading={loading}
+          debouncedSearch={debouncedSearch}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onRequestSort={handleRequestSort}
+          onOpenCreate={handleOpenCreate}
+          onOpenEdit={handleOpenEdit}
+          onOpenDelete={handleOpenDelete}
+          onOpenHistory={handleOpenHistory}
+        />
+
+        <Divider />
 
         <TablePagination
           rowsPerPageOptions={[5, 10, 20, 50]}
@@ -389,12 +307,21 @@ export function ContactsPage() {
           page={page - 1}
           onPageChange={handlePageChange}
           onRowsPerPageChange={handleRowsPerPageChange}
-          labelRowsPerPage="Itens por página:"
-          labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `mais de ${to}`}`}
+          sx={{
+            '.MuiTablePagination-toolbar': {
+              flexWrap: 'wrap',
+              justifyContent: { xs: 'center', sm: 'flex-end' },
+              gap: 1,
+              px: { xs: 1, sm: 2 },
+              py: { xs: 1, sm: 0 },
+            },
+            '.MuiTablePagination-spacer': {
+              display: { xs: 'none', sm: 'block' },
+            },
+          }}
         />
       </Card>
 
-      {/* Modais */}
       <ContactDialog
         open={dialogOpen}
         mode={dialogMode}

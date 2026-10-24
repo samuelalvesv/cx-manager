@@ -88,7 +88,7 @@ function CompanyForm({ mode, company, onClose, onSuccess }: CompanyFormProps) {
     <form onSubmit={(e) => void handleSubmit(e)}>
       <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
       <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1.5 }}>
           {errorMessage !== null && (
             <Alert severity="error" sx={{ mb: 1 }}>
               {errorMessage}
@@ -156,15 +156,13 @@ export function CompanyDialog({
 }: CompanyDialogProps) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      {open && (
-        <CompanyForm
-          key={`${mode}-${company?.id ?? 0}`}
-          mode={mode}
-          company={company}
-          onClose={onClose}
-          onSuccess={onSuccess}
-        />
-      )}
+      <CompanyForm
+        key={`${mode}-${company?.id ?? 0}`}
+        mode={mode}
+        company={company}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
     </Dialog>
   )
 }

@@ -27,7 +27,7 @@ export function PageHeader({
         mb: 3,
       }}
     >
-      <Box>
+      <Box sx={{ minWidth: 0, flex: '1 1 260px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
           {icon}
           <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
@@ -41,7 +41,18 @@ export function PageHeader({
         )}
         {badges && <Box sx={{ mt: 1.5 }}>{badges}</Box>}
       </Box>
-      {action && <Box>{action}</Box>}
+      {action && (
+        <Box
+          sx={{
+            width: { xs: '100%', sm: 'auto' },
+            '& > .MuiButton-root': {
+              width: { xs: '100%', sm: 'auto' },
+            },
+          }}
+        >
+          {action}
+        </Box>
+      )}
     </Box>
   )
 }

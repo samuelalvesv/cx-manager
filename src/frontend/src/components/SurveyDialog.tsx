@@ -96,7 +96,7 @@ function SurveyForm({ mode, survey, onClose, onSuccess }: SurveyFormProps) {
     <form onSubmit={(e) => void handleSubmit(e)}>
       <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
       <DialogContent dividers>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1.5 }}>
           {errorMessage !== null && (
             <Alert severity="error" sx={{ mb: 1 }}>
               {errorMessage}
@@ -114,7 +114,7 @@ function SurveyForm({ mode, survey, onClose, onSuccess }: SurveyFormProps) {
             helperText={
               name.length > 0 && !isNameValid
                 ? 'O nome deve ter entre 2 e 100 caracteres.'
-                : 'Identificação da pesquisa (ex: NPS Pós-Treino, CSAT Atendimento).'
+                : 'Identificação da pesquisa (ex: Avaliação Pós-Treino, Satisfação com o Atendimento).'
             }
             disabled={submitting}
           />
@@ -125,15 +125,24 @@ function SurveyForm({ mode, survey, onClose, onSuccess }: SurveyFormProps) {
                 Tipo de Métrica e Escala
               </FormLabel>
               <RadioGroup value={type} onChange={handleTypeChange}>
-                <Box sx={{ mb: 1.5, p: 1.5, borderRadius: 1, border: '1px solid', borderColor: type === 'NPS' ? 'primary.main' : 'divider' }}>
+                <Box
+                  sx={{
+                    mb: 1.5,
+                    p: 1.5,
+                    borderRadius: 1,
+                    border: 1,
+                    borderColor: type === 'NPS' ? 'primary.main' : 'divider',
+                    bgcolor: type === 'NPS' ? 'action.hover' : 'transparent',
+                  }}
+                >
                   <FormControlLabel
                     value="NPS"
                     control={<Radio size="small" />}
                     label={
                       <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            NPS — Net Promoter Score
+                            Índice de Recomendação (NPS)
                           </Typography>
                           <Chip label="Escala 0 a 10" size="small" color="primary" variant="outlined" />
                         </Box>
@@ -144,20 +153,28 @@ function SurveyForm({ mode, survey, onClose, onSuccess }: SurveyFormProps) {
                     }
                   />
                 </Box>
-                <Box sx={{ p: 1.5, borderRadius: 1, border: '1px solid', borderColor: type === 'CSAT' ? 'secondary.main' : 'divider' }}>
+                <Box
+                  sx={{
+                    p: 1.5,
+                    borderRadius: 1,
+                    border: 1,
+                    borderColor: type === 'CSAT' ? 'secondary.main' : 'divider',
+                    bgcolor: type === 'CSAT' ? 'action.hover' : 'transparent',
+                  }}
+                >
                   <FormControlLabel
                     value="CSAT"
                     control={<Radio size="small" />}
                     label={
                       <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
                           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            CSAT — Customer Satisfaction
+                            Índice de Satisfação (CSAT)
                           </Typography>
                           <Chip label="Escala 1 a 5" size="small" color="secondary" variant="outlined" />
                         </Box>
                         <Typography variant="caption" color="text.secondary">
-                          Satisfação pontual baseada na média aritmética simples das notas de 1 a 5.
+                          Avaliação direta de satisfação com média das notas de 1 a 5.
                         </Typography>
                       </Box>
                     }
@@ -167,20 +184,20 @@ function SurveyForm({ mode, survey, onClose, onSuccess }: SurveyFormProps) {
               <FormHelperText>O tipo de métrica define a escala permitida para as respostas e não pode ser alterado após a criação.</FormHelperText>
             </FormControl>
           ) : (
-            <Box sx={{ p: 1.5, bgcolor: 'background.default', borderRadius: 1 }}>
+            <Box sx={{ p: 1.5, bgcolor: 'action.hover', borderRadius: 1, border: 1, borderColor: 'divider' }}>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                 Tipo de Métrica (fixo)
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
                 <Chip
-                  label={survey?.type === 'NPS' ? 'NPS (Escala 0 a 10)' : 'CSAT (Escala 1 a 5)'}
+                  label={survey?.type === 'NPS' ? 'Recomendação • NPS (0 a 10)' : 'Satisfação • CSAT (1 a 5)'}
                   color={survey?.type === 'NPS' ? 'primary' : 'secondary'}
                   size="small"
                 />
                 <Typography variant="caption" color="text.secondary">
                   {survey?.type === 'NPS'
-                    ? 'Net Promoter Score com classificação de 0 a 10.'
-                    : 'Customer Satisfaction Score com média de 1 a 5.'}
+                    ? 'Avaliação de lealdade e recomendação na escala de 0 a 10.'
+                    : 'Avaliação direta de satisfação com média de 1 a 5.'}
                 </Typography>
               </Box>
             </Box>
@@ -213,15 +230,13 @@ export function SurveyDialog({
 }: SurveyDialogProps) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      {open && (
-        <SurveyForm
-          key={`${mode}-${survey?.id ?? 0}`}
-          mode={mode}
-          survey={survey}
-          onClose={onClose}
-          onSuccess={onSuccess}
-        />
-      )}
+      <SurveyForm
+        key={`${mode}-${survey?.id ?? 0}`}
+        mode={mode}
+        survey={survey}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
     </Dialog>
   )
 }

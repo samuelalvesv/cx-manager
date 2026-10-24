@@ -68,7 +68,7 @@ export async function apiFetch<T>(
   })
 
   if (!response.ok) {
-    let errorMessage = `Erro HTTP ${response.status}: ${response.statusText}`
+    let errorMessage = `Não foi possível concluir a comunicação com o servidor (código ${response.status}).`
     try {
       const errorJson: unknown = await response.json()
       const parsedMessage = parseApiErrorMessage(errorJson)
@@ -88,7 +88,7 @@ export async function apiFetch<T>(
     return result
   }
 
-  throw new Error('Resposta da API em formato inesperado.')
+  throw new Error('Não foi possível processar os dados recebidos do servidor.')
 }
 
 export async function apiFetchBlob(
@@ -109,7 +109,7 @@ export async function apiFetchBlob(
   })
 
   if (!response.ok) {
-    let errorMessage = `Erro HTTP ${response.status}: ${response.statusText}`
+    let errorMessage = `Não foi possível concluir a comunicação com o servidor (código ${response.status}).`
     try {
       const errorJson: unknown = await response.json()
       const parsedMessage = parseApiErrorMessage(errorJson)

@@ -23,6 +23,8 @@ public sealed class GetContactsUseCase(
             page: request.Page,
             pageSize: request.PageSize,
             search: request.Search,
+            sortBy: request.SortBy,
+            sortDir: request.SortDir,
             cancellationToken: cancellationToken);
 
         IReadOnlyList<ContactResponse> mappedItems = ContactMapper.ToResponseList(contacts: items);
