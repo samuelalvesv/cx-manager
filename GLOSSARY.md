@@ -5,7 +5,7 @@ Sistema de gestão de experiência do cliente (Customer Experience) para acompan
 ## Language
 
 **Contact**:
-Aluno cadastrado da rede de academias que pode receber pesquisas e responder avaliações de satisfação.
+Pessoa ou participante cadastrado na organização que pode receber pesquisas e responder avaliações de satisfação.
 _Avoid_: Aluno, Estudante, Cliente, Usuário, Account
 
 **Survey**:
@@ -17,7 +17,7 @@ Registro individual de nota e comentário emitido por um contato para uma pesqui
 _Avoid_: Answer, Response, Voto, Opinião
 
 **Segment**:
-Classificação comercial ou modalidade de plano atribuída ao contato na academia (ex.: "Plano Black", "Plano Fit", "Corporativo").
+Classificação comercial ou modalidade de plano atribuída ao contato na organização (ex.: "Plano Black", "Plano Fit", "Corporativo").
 _Avoid_: Categoria, Plano, Grupo, Perfil
 
 **Channel**:

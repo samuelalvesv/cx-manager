@@ -1,11 +1,11 @@
-# Especificação: Plataforma de Experiência do Cliente (Mini CX)
+# Especificação: Plataforma de Gestão de Experiência do Cliente (CxManager)
 
 ## Status
 completed
 
 ## Declaração do Problema
 
-O time de Customer Experience (CX) de redes de academias com múltiplas unidades (como a Vita Bem-Estar) necessita de um sistema integrado, confiável e de alta performance para gerenciar o cadastro de empresas parceiras, criar e administrar pesquisas de satisfação (NPS e CSAT), gerenciar contatos (os alunos), coletar e manter o histórico de respostas por múltiplos canais (WhatsApp, e-mail, link web) e acompanhar métricas consolidadas em tempo real.
+O time de Customer Experience (CX) de redes de serviços com múltiplas unidades (como redes de academias, saúde e bem-estar) necessita de um sistema integrado, confiável e de alta performance para gerenciar o cadastro de empresas parceiras, criar e administrar pesquisas de satisfação (NPS e CSAT), gerenciar contatos (os clientes e alunos), coletar e manter o histórico de respostas por múltiplos canais (WhatsApp, e-mail, link web) e acompanhar métricas consolidadas em tempo real.
 
 Sistemas existentes frequentemente misturam escalas de avaliação incompatíveis, desrespeitam solicitações de privacidade e exclusão de dados (LGPD), apresentam lentidão ou falhas de correspondência em buscas textuais com nomes acentuados e realizam agregações pesadas na memória da aplicação, degradando a performance. Além disso, soluções sem suporte nativo a multi-empresa e sem capacidade de gerenciar o ciclo de vida completo de pesquisas e respostas tornam a operação engessada.
 
@@ -59,7 +59,7 @@ A plataforma garante:
 33. Como usuário, eu quero visualizar esqueletos visuais (skeletons) durante o carregamento de dados na tela, para que a percepção de performance seja imediata e sem saltos bruscos de layout.
 34. Como usuário, eu quero visualizar alertas amigáveis com botão de tentar novamente em caso de falha de conexão com a API, para que eu resolva instabilidades temporárias sem recarregar a página inteira.
 35. Como usuário, eu quero visualizar mensagens contextuais de estado vazio quando uma busca ou filtro não encontrar resultados, para que eu entenda o motivo da tela limpa e ajuste meus critérios.
-36. Como desenvolvedor, eu quero que a base de dados SQLite seja provisionada e carregada automaticamente a partir do seed inicial da Vita Bem-Estar em uma transação única na subida da API, para que o sistema fique funcional de forma reproduzível.
+36. Como desenvolvedor, eu quero que a base de dados SQLite seja provisionada e carregada automaticamente a partir do seed inicial de demonstração em uma transação única na subida da API, para que o sistema fique funcional de forma reproduzível.
 37. Como desenvolvedor, eu quero que qualquer mutação em contatos, pesquisas ou respostas limpe imediatamente o cache analítico da empresa, para que o painel de satisfação reflita os novos números sem leituras defasadas.
 
 ## Decisões de Implementação

@@ -1,6 +1,6 @@
 # Especificação Técnica Consolidada — CxManager
 
-Documento canônico com os requisitos funcionais, não-funcionais, regras de banco, contratos da API, estratégias de cache e suíte de testes do CxManager, sintetizado a partir do desafio técnico (`challenge-dev.local`) e das ADRs acordadas (ADR-0001 a ADR-0005).
+Documento canônico com os requisitos funcionais, não-funcionais, regras de banco, contratos da API, estratégias de cache e suíte de testes do CxManager, sintetizado a partir dos requisitos de produto, contratos REST e das ADRs acordadas (ADR-0001 a ADR-0005).
 
 ---
 
@@ -177,7 +177,7 @@ Documento canônico com os requisitos funcionais, não-funcionais, regras de ban
 ## 6. Suíte de Testes Automatizados (4 Pilares)
 
 1. **`AnalyticsConferenceTests`**:
-   - Validação dos valores de conferência do desafio com o banco SQLite carregado com `seed.json`:
+   - Validação dos valores analíticos de conferência e baseline com o banco SQLite carregado com `seed.json`:
      - Total de respostas ativas: `1246`
      - Respostas válidas NPS: `978`
      - Promotores / Neutros / Detratores: `477 / 256 / 245`

@@ -11,7 +11,7 @@ public sealed class HttpCompanyContext(IHttpContextAccessor httpContextAccessor)
     // Toggle para habilitar/desabilitar fallback transparente de empresa.
     // Para desativar o fallback e exigir estritamente o header X-Company-Id ou ?companyId=, altere para false.
     private const bool EnableDefaultCompanyFallback = true;
-    public const long DefaultCompanyId = 1L; // empresa 1 Vita Bem-Estar por padrão
+    public const long DefaultCompanyId = 1L; // Organização padrão (id 1)
 
     private long? _cachedCompanyId;
     private bool _resolved;
@@ -80,8 +80,8 @@ public sealed class HttpCompanyContext(IHttpContextAccessor httpContextAccessor)
             return;
         }
 
-        // 3. Fallback transparente para compatibilidade com chamadas padrão do desafio
+        // 3. Fallback transparente para requisições sem contexto explícito de organização
         if (!_cachedCompanyId.HasValue && EnableDefaultCompanyFallback)
-            _cachedCompanyId = DefaultCompanyId; // empresa 1 Vita Bem-Estar por padrão
+            _cachedCompanyId = DefaultCompanyId;
     }
 }

@@ -1,6 +1,6 @@
 # 0005. CRUD Completo de Todas as Entidades do Domínio
 
-Para transformar a aplicação em uma plataforma de gestão de experiência do cliente completa e extensível, decidimos expandir a API além do escopo mínimo do desafio técnico (que previa CRUD apenas para contatos), implementando operações completas de criação, leitura, atualização e exclusão lógica para todas as entidades fundamentais do domínio:
+Para transformar a aplicação em uma plataforma de gestão de experiência do cliente completa e extensível, decidimos expandir a API para além da gestão básica de contatos, implementando operações completas de criação, leitura, atualização e exclusão lógica para todas as entidades fundamentais do domínio:
 
 1. **Empresas (`companies`)**:
    - Criação (`POST /api/companies`), consulta (`GET /api/companies`, `GET /api/companies/{id}`), edição (`PUT /api/companies/{id}`) e desativação/exclusão lógica (`DELETE /api/companies/{id}`).

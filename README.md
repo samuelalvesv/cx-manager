@@ -13,7 +13,7 @@ O sistema adota Clean Architecture com separação rigorosa de responsabilidades
 3. [Como Executar os Testes e Validações](#3-como-executar-os-testes-e-validações)
 4. [Deploy Automatizado no Microsoft Azure](#4-deploy-automatizado-no-microsoft-azure)
 5. [Diferenciais Técnicos](#5-diferenciais-técnicos)
-6. [O Que Faria Diferente com Mais Tempo](#6-o-que-faria-diferente-com-mais-tempo)
+6. [Roadmap e Oportunidades de Evolução](#6-roadmap-e-oportunidades-de-evolução)
 7. [Desenvolvimento Produtivo com IA](#7-desenvolvimento-produtivo-com-ia)
 
 ---
@@ -217,7 +217,7 @@ O projeto `CxManager.ArchitectureTests` valida em tempo de execução de testes 
 
 ---
 
-## 6. O Que Faria Diferente com Mais Tempo
+## 6. Roadmap e Oportunidades de Evolução
 
 1. **Testes Ponta a Ponta (E2E) no Navegador com Playwright**:
    Estruturar uma suíte de testes E2E cobrindo a jornada completa do usuário no navegador real (criação de contato, aplicação de filtros com debounce, visualização dos gráficos e exportação de CSV).
@@ -239,6 +239,6 @@ O ciclo de desenvolvimento do CxManager foi estruturado com foco em governança 
 - **Governança em `.agents/`**:
   O diretório centraliza a identidade, as diretrizes arquiteturais e os runbooks operacionais do projeto. As regras residem em [.agents/rules/](.agents/rules/) (convenções C#, regras de frontend, integridade de dados e governança Git), enquanto runbooks operacionais residem em [.agents/skills/](.agents/skills/) (auditorias especializadas por camada, propagação de features de ponta a ponta e automação de commits semânticos).
 - **Rastreabilidade e Backlog em `.scratch/`**:
-  O diretório [.scratch/](.scratch/) atua como rastreador estruturado de demandas e especificações técnicas vivas ([`.scratch/mini-cx/issues/`](.scratch/mini-cx/issues/)), mapeando etapas de implementação, critérios de aceite e acompanhamento de tarefas.
+  O diretório [.scratch/](.scratch/) atua como rastreador estruturado de demandas e especificações técnicas vivas ([`.scratch/cx-manager/issues/`](.scratch/cx-manager/issues/)), mapeando etapas de implementação, critérios de aceite e acompanhamento de tarefas.
 - **Contexto e Decisões em `docs/`**:
   Decisões arquiteturais fundamentais são formalizadas através de registros de decisão em [docs/adr/](docs/adr/) (ADR-0001 a ADR-0005), acompanhadas pelo glossário de domínio unificado ([`GLOSSARY.md`](GLOSSARY.md)) e pela especificação técnica consolidada ([`docs/SPECIFICATION.md`](docs/SPECIFICATION.md)).
