@@ -1,5 +1,6 @@
 import AddBusinessIcon from '@mui/icons-material/AddBusiness'
 import BusinessIcon from '@mui/icons-material/Business'
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
 import {
   CircularProgress,
@@ -16,11 +17,13 @@ import {
 import { useState } from 'react'
 import { useCompany } from '../context/useCompany.ts'
 import { CompanyDialog } from './CompanyDialog.tsx'
+import { DeleteCompanyDialog } from './DeleteCompanyDialog.tsx'
 
 export function CompanySelectorBar() {
   const { companies, selectedCompany, selectedCompanyId, selectCompany, refreshCompanies, loading } = useCompany()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const handleCompanyChange = (event: SelectChangeEvent<number>) => {
     const value = event.target.value
@@ -39,8 +42,16 @@ export function CompanySelectorBar() {
     setDialogOpen(true)
   }
 
+  const handleOpenDelete = () => {
+    setDeleteDialogOpen(true)
+  }
+
   const handleDialogSuccess = (savedCompany: { readonly id: number }) => {
     void refreshCompanies(savedCompany.id)
+  }
+
+  const handleDeleteSuccess = () => {
+    void refreshCompanies()
   }
 
   return (
@@ -98,6 +109,21 @@ export function CompanySelectorBar() {
               </IconButton>
             </span>
           </Tooltip>
+
+          <Tooltip title="Desativar empresa ativa">
+            <span>
+              <IconButton
+                color="error"
+                onClick={handleOpenDelete}
+                disabled={selectedCompany === null}
+                size="small"
+                aria-label="Desativar empresa ativa"
+                sx={{ border: 1, borderColor: 'divider' }}
+              >
+                <DeleteOutlinedIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
         </>
       )}
       {loading && <CircularProgress size={20} color="primary" />}
@@ -108,6 +134,13 @@ export function CompanySelectorBar() {
         company={dialogMode === 'edit' ? selectedCompany : null}
         onClose={() => setDialogOpen(false)}
         onSuccess={handleDialogSuccess}
+      />
+
+      <DeleteCompanyDialog
+        open={deleteDialogOpen}
+        company={selectedCompany}
+        onClose={() => setDeleteDialogOpen(false)}
+        onSuccess={handleDeleteSuccess}
       />
     </>
   )

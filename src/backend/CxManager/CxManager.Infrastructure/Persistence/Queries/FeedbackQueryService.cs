@@ -70,7 +70,7 @@ public sealed class FeedbackQueryService(IDbConnectionFactory connectionFactory)
             sql: sql,
             param: new { ContactId = contactId, CompanyId = companyId });
 
-        return [.. rows.Select(selector: static r => r.ToModel())];
+        return rows.Select(selector: static r => r.ToModel()).ToList();
     }
 
     public async Task<IReadOnlyList<FeedbackExportModel>> GetForExportAsync(
@@ -126,7 +126,7 @@ public sealed class FeedbackQueryService(IDbConnectionFactory connectionFactory)
 
         IEnumerable<FeedbackExportDbModel> rows = await connection.QueryAsync<FeedbackExportDbModel>(command: command);
 
-        return [.. rows.Select(selector: static r => r.ToModel())];
+        return rows.Select(selector: static r => r.ToModel()).ToList();
     }
 
     private sealed class FeedbackExportDbModel

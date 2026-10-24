@@ -37,6 +37,10 @@ public interface IContactRepository
         long companyId,
         CancellationToken cancellationToken = default);
 
+    Task<int> GetActiveCountByCompanyAsync(
+        long companyId,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ExistsActiveEmailAsync(
         long companyId,
         string email,

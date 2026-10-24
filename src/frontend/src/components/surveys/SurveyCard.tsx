@@ -48,9 +48,17 @@ export function SurveyCard({ survey, onEdit, onDelete }: SurveyCardProps) {
           {survey.name}
         </Typography>
 
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-          Criada em: {formattedDate}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
+          <Chip
+            label={`${survey.responsesCount} ${survey.responsesCount === 1 ? 'avaliação' : 'avaliações'}`}
+            size="small"
+            variant="outlined"
+            sx={{ fontWeight: 500, fontSize: '0.75rem' }}
+          />
+          <Typography variant="caption" color="text.secondary">
+            Criada em: {formattedDate}
+          </Typography>
+        </Box>
       </CardContent>
 
       <CardActions sx={{ px: 2, py: 1.5, borderTop: 1, borderColor: 'divider', justifyContent: 'flex-end', gap: 1 }}>

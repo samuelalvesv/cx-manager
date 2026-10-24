@@ -350,8 +350,8 @@ dotnet_diagnostic.IDE0303.severity = warning
 # IDE0304 — Usar expressão de coleção para builder
 dotnet_diagnostic.IDE0304.severity = warning
 
-# IDE0305 — Usar expressão de coleção para fluent
-dotnet_diagnostic.IDE0305.severity = warning
+# IDE0305 — Usar expressão de coleção para fluent (.ToList(), .ToArray())
+dotnet_diagnostic.IDE0305.severity = none
 
 # ==========================================================================
 # 18. FORMATAÇÃO — Opções .NET

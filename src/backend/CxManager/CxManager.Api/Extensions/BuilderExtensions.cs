@@ -11,6 +11,7 @@ using CxManager.Application.UseCases.Companies.Commands.DeleteCompany;
 using CxManager.Application.UseCases.Companies.Commands.UpdateCompany;
 using CxManager.Application.UseCases.Companies.Queries;
 using CxManager.Application.UseCases.Companies.Queries.GetCompanyById;
+using CxManager.Application.UseCases.Companies.Queries.GetCompanyImpact;
 using CxManager.Application.UseCases.Contacts.Commands.CreateContact;
 using CxManager.Application.UseCases.Contacts.Commands.DeleteContact;
 using CxManager.Application.UseCases.Contacts.Commands.UpdateContact;
@@ -73,6 +74,7 @@ public static class BuilderExtensions
         // Casos de uso de aplicação - Empresas
         builder.Services.AddScoped<IGetCompaniesUseCase, GetCompaniesUseCase>();
         builder.Services.AddScoped<IGetCompanyByIdUseCase, GetCompanyByIdUseCase>();
+        builder.Services.AddScoped<IGetCompanyImpactUseCase, GetCompanyImpactUseCase>();
         builder.Services.AddScoped<ICreateCompanyUseCase, CreateCompanyUseCase>();
         builder.Services.AddScoped<IUpdateCompanyUseCase, UpdateCompanyUseCase>();
         builder.Services.AddScoped<IDeleteCompanyUseCase, DeleteCompanyUseCase>();

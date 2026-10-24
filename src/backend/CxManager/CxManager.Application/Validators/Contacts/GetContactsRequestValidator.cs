@@ -17,12 +17,12 @@ public sealed class GetContactsRequestValidator : PagedRequestValidator<GetConta
             .When(predicate: static x => !string.IsNullOrEmpty(x.Search));
 
         RuleFor(expression: static x => x.SortBy)
-            .Must(predicate: static sortBy => AllowedSortFields.Contains(value: sortBy!, comparer: StringComparer.Ordinal))
+            .Must(predicate: static sortBy => AllowedSortFields.Contains(value: sortBy, comparer: StringComparer.Ordinal))
             .WithMessage(errorMessage: "O campo de ordenação deve ser 'name', 'email', 'segment' ou 'createdAt'.")
             .When(predicate: static x => x.SortBy is not null);
 
         RuleFor(expression: static x => x.SortDir)
-            .Must(predicate: static sortDir => AllowedSortDirections.Contains(value: sortDir!, comparer: StringComparer.Ordinal))
+            .Must(predicate: static sortDir => AllowedSortDirections.Contains(value: sortDir, comparer: StringComparer.Ordinal))
             .WithMessage(errorMessage: "A direção de ordenação deve ser 'asc' ou 'desc'.")
             .When(predicate: static x => x.SortDir is not null);
     }

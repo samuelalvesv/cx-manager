@@ -5,6 +5,7 @@ export interface Survey {
   readonly name: string
   readonly type: SurveyType
   readonly createdAt: string
+  readonly responsesCount: number
 }
 
 export interface CreateSurveyRequest {

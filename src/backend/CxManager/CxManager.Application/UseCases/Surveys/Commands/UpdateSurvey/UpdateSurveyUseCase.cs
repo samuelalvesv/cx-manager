@@ -35,6 +35,11 @@ public sealed class UpdateSurveyUseCase(
 
         analyticsCache.InvalidateCompany(companyId: companyId);
 
-        return SurveyMapper.ToResponse(survey: survey);
+        int responsesCount = await surveyRepository.GetActiveResponsesCountAsync(
+            surveyId: survey.Id,
+            companyId: companyId,
+            cancellationToken: cancellationToken);
+
+        return SurveyMapper.ToResponse(survey: survey, responsesCount: responsesCount);
     }
 }

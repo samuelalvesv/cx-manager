@@ -66,7 +66,7 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
                     Offset = offset
                 });
 
-            return ([.. rows.Select(selector: static r => r.ToDomain())], total);
+            return (rows.Select(selector: static r => r.ToDomain()).ToList(), total);
         }
 
         string[] tokens = trimmedSearch.Split(separator: ' ', options: StringSplitOptions.RemoveEmptyEntries);
@@ -127,7 +127,7 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
                 Offset = offset
             });
 
-        return ([.. ftsRows.Select(selector: static r => r.ToDomain())], ftsTotal);
+        return (ftsRows.Select(selector: static r => r.ToDomain()).ToList(), ftsTotal);
     }
 
     public async Task<Contact?> GetByIdAsync(long id, long companyId, CancellationToken cancellationToken = default)
@@ -274,6 +274,17 @@ public sealed class ContactRepository(IDbConnectionFactory connectionFactory) : 
             });
 
         return directCount > 0;
+    }
+
+    public async Task<int> GetActiveCountByCompanyAsync(long companyId, CancellationToken cancellationToken = default)
+    {
+        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+
+        const string sql = "SELECT COUNT(1) FROM contacts WHERE company_id = @CompanyId AND deleted_at IS NULL;";
+
+        return await connection.ExecuteScalarAsync<int>(
+            sql: sql,
+            param: new { CompanyId = companyId });
     }
 
     private sealed class ContactDbModel

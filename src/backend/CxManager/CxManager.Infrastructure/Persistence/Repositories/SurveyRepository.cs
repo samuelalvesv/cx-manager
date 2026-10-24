@@ -24,7 +24,7 @@ public sealed class SurveyRepository(IDbConnectionFactory connectionFactory) : I
             sql: sql,
             param: new { CompanyId = companyId });
 
-        return [.. rows.Select(selector: static r => r.ToDomain())];
+        return rows.Select(selector: static r => r.ToDomain()).ToList();
     }
 
     public async Task<Survey?> GetByIdAsync(long id, long companyId, CancellationToken cancellationToken = default)
@@ -120,6 +120,52 @@ public sealed class SurveyRepository(IDbConnectionFactory connectionFactory) : I
             param: new { Id = id, CompanyId = companyId });
 
         return count > 0;
+    }
+
+    public async Task<IReadOnlyDictionary<long, int>> GetActiveResponsesCountsByCompanyAsync(long companyId, CancellationToken cancellationToken = default)
+    {
+        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+
+        const string sql = """
+            SELECT r.survey_id AS SurveyId, COUNT(1) AS ResponsesCount
+            FROM responses r
+            INNER JOIN surveys s ON s.id = r.survey_id
+            WHERE s.company_id = @CompanyId
+              AND s.deleted_at IS NULL
+              AND r.deleted_at IS NULL
+            GROUP BY r.survey_id;
+            """;
+
+        IEnumerable<SurveyCountDbModel> rows = await connection.QueryAsync<SurveyCountDbModel>(
+            sql: sql,
+            param: new { CompanyId = companyId });
+
+        return rows.ToDictionary(static r => r.SurveyId, static r => r.ResponsesCount);
+    }
+
+    public async Task<int> GetActiveResponsesCountAsync(long surveyId, long companyId, CancellationToken cancellationToken = default)
+    {
+        using DbConnection connection = await connectionFactory.CreateConnectionAsync(cancellationToken: cancellationToken);
+
+        const string sql = """
+            SELECT COUNT(1)
+            FROM responses r
+            INNER JOIN surveys s ON s.id = r.survey_id
+            WHERE r.survey_id = @SurveyId
+              AND s.company_id = @CompanyId
+              AND r.deleted_at IS NULL
+              AND s.deleted_at IS NULL;
+            """;
+
+        return await connection.ExecuteScalarAsync<int>(
+            sql: sql,
+            param: new { SurveyId = surveyId, CompanyId = companyId });
+    }
+
+    private sealed class SurveyCountDbModel
+    {
+        public long SurveyId { get; init; }
+        public int ResponsesCount { get; init; }
     }
 
     private sealed class SurveyDbModel

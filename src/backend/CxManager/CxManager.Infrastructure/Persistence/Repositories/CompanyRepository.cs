@@ -21,7 +21,7 @@ public sealed class CompanyRepository(IDbConnectionFactory connectionFactory) : 
 
         IEnumerable<CompanyDbModel> rows = await connection.QueryAsync<CompanyDbModel>(sql: sql);
 
-        return [.. rows.Select(selector: static r => r.ToDomain())];
+        return rows.Select(selector: static r => r.ToDomain()).ToList();
     }
 
     public async Task<Company?> GetByIdAsync(long id, CancellationToken cancellationToken = default)

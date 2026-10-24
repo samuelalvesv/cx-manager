@@ -1,4 +1,9 @@
-import type { Company, CreateCompanyRequest, UpdateCompanyRequest } from '../types/company.ts'
+import type {
+  Company,
+  CompanyImpactSummary,
+  CreateCompanyRequest,
+  UpdateCompanyRequest,
+} from '../types/company.ts'
 import { apiFetch } from './apiClient.ts'
 
 export function isCompany(value: unknown): value is Company {
@@ -77,4 +82,28 @@ export async function deleteCompany(
     ...(signal !== undefined ? { signal } : {}),
   }
   return await apiFetch<void>(`/api/companies/${id}`, isVoid, options)
+}
+
+export function isCompanyImpactSummary(value: unknown): value is CompanyImpactSummary {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const candidate = value as { readonly [K in keyof CompanyImpactSummary]?: unknown }
+
+  return (
+    typeof candidate.companyId === 'number' &&
+    typeof candidate.companyName === 'string' &&
+    typeof candidate.activeContactsCount === 'number' &&
+    typeof candidate.totalResponsesCount === 'number' &&
+    Array.isArray(candidate.surveys)
+  )
+}
+
+export async function getCompanyImpact(companyId: number, signal?: AbortSignal): Promise<CompanyImpactSummary> {
+  const options = {
+    skipCompanyId: true,
+    ...(signal !== undefined ? { signal } : {}),
+  }
+  return await apiFetch<CompanyImpactSummary>(`/api/companies/${companyId}/impact`, isCompanyImpactSummary, options)
 }

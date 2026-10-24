@@ -15,6 +15,7 @@ export interface ConfirmDeleteDialogProps {
   readonly confirmLabel: string
   readonly submittingLabel: string
   readonly defaultErrorMessage: string
+  readonly maxWidth?: 'xs' | 'sm' | 'md'
   readonly children: ReactNode
   readonly onClose: () => void
   readonly onConfirm: () => Promise<void>
@@ -26,6 +27,7 @@ export function ConfirmDeleteDialog({
   confirmLabel,
   submittingLabel,
   defaultErrorMessage,
+  maxWidth = 'xs',
   children,
   onClose,
   onConfirm,
@@ -60,7 +62,7 @@ export function ConfirmDeleteDialog({
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth={maxWidth} fullWidth>
       <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
       <DialogContent dividers>
         {errorMessage !== null && (

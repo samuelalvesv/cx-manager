@@ -12,7 +12,8 @@ export function isSurvey(value: unknown): value is Survey {
     typeof candidate.id === 'number' &&
     typeof candidate.name === 'string' &&
     (candidate.type === 'NPS' || candidate.type === 'CSAT') &&
-    typeof candidate.createdAt === 'string'
+    typeof candidate.createdAt === 'string' &&
+    typeof candidate.responsesCount === 'number'
   )
 }
 

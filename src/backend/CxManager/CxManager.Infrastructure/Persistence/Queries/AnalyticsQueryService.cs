@@ -134,23 +134,25 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
 
         IEnumerable<MonthlyNpsDbRow> rows = await connection.QueryAsync<MonthlyNpsDbRow>(command: command);
 
-        return [.. rows.Select(selector: static r =>
-        {
-            int npsScore = NpsCalculator.CalculateScore(
-                promotersCount: r.PromotersCount,
-                detractorsCount: r.DetractorsCount,
-                totalNpsResponses: r.ResponsesCount);
-
-            return new MonthlyNpsModel
+        return rows
+            .Select(selector: static r =>
             {
-                Month = r.Month,
-                ResponsesCount = r.ResponsesCount,
-                PromotersCount = r.PromotersCount,
-                NeutralsCount = r.NeutralsCount,
-                DetractorsCount = r.DetractorsCount,
-                NpsScore = npsScore
-            };
-        })];
+                int npsScore = NpsCalculator.CalculateScore(
+                    promotersCount: r.PromotersCount,
+                    detractorsCount: r.DetractorsCount,
+                    totalNpsResponses: r.ResponsesCount);
+
+                return new MonthlyNpsModel
+                {
+                    Month = r.Month,
+                    ResponsesCount = r.ResponsesCount,
+                    PromotersCount = r.PromotersCount,
+                    NeutralsCount = r.NeutralsCount,
+                    DetractorsCount = r.DetractorsCount,
+                    NpsScore = npsScore
+                };
+            })
+            .ToList();
     }
 
     public async Task<IReadOnlyList<SegmentNpsModel>> GetNpsBySegmentAsync(
@@ -194,24 +196,27 @@ public sealed class AnalyticsQueryService(IDbConnectionFactory connectionFactory
 
         IEnumerable<SegmentNpsDbRow> rows = await connection.QueryAsync<SegmentNpsDbRow>(command: command);
 
-        return [.. rows.Select(selector: static r =>
-        {
-            int npsScore = NpsCalculator.CalculateScore(
-                promotersCount: r.PromotersCount,
-                detractorsCount: r.DetractorsCount,
-                totalNpsResponses: r.ResponsesCount);
-
-            return new SegmentNpsModel
+        return rows
+            .Select(selector: static r =>
             {
-                Segment = r.Segment,
-                ResponsesCount = r.ResponsesCount,
-                PromotersCount = r.PromotersCount,
-                NeutralsCount = r.NeutralsCount,
-                DetractorsCount = r.DetractorsCount,
-                NpsScore = npsScore
-            };
-        }).OrderByDescending(keySelector: static x => x.NpsScore)
-          .ThenBy(keySelector: static x => x.Segment)];
+                int npsScore = NpsCalculator.CalculateScore(
+                    promotersCount: r.PromotersCount,
+                    detractorsCount: r.DetractorsCount,
+                    totalNpsResponses: r.ResponsesCount);
+
+                return new SegmentNpsModel
+                {
+                    Segment = r.Segment,
+                    ResponsesCount = r.ResponsesCount,
+                    PromotersCount = r.PromotersCount,
+                    NeutralsCount = r.NeutralsCount,
+                    DetractorsCount = r.DetractorsCount,
+                    NpsScore = npsScore
+                };
+            })
+            .OrderByDescending(keySelector: static x => x.NpsScore)
+            .ThenBy(keySelector: static x => x.Segment)
+            .ToList();
     }
 
     private static object BuildQueryParams(long companyId, DateOnly? from, DateOnly? to, long? surveyId)

@@ -25,7 +25,8 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory) 
             deleted_at TEXT
         );
 
-        -- Índice para otimizar listagem e filtros de pesquisas ativas por empresa
+        -- Atende a GET /api/surveys e JOINs de pesquisas ativas:
+        -- Otimiza a listagem e os filtros de pesquisas ativas (deleted_at IS NULL) escopadas pela empresa.
         CREATE INDEX IF NOT EXISTS ix_surveys_company_active ON surveys(company_id, deleted_at);
 
         -- Tabela de contatos vinculada à empresa
@@ -39,11 +40,17 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory) 
             deleted_at TEXT
         );
 
-        -- Índice exclusivo parcial garantindo unicidade de e-mail ativo por empresa (liberado após soft delete)
+        -- Atende a POST e PUT /api/contacts:
+        -- Garante no nível do banco a unicidade case-insensitive de e-mail entre contatos ativos da mesma empresa,
+        -- liberando o endereço automaticamente para novos cadastros caso o contato seja excluído logicamente (deleted_at IS NOT NULL).
         CREATE UNIQUE INDEX IF NOT EXISTS ix_contacts_company_email_active ON contacts(company_id, LOWER(email)) WHERE deleted_at IS NULL;
 
-        -- Índice para busca e paginação de contatos ativos por empresa
+        -- Atende a GET /api/contacts (contagem total e paginação sem busca FTS):
+        -- Otimiza a filtragem de contatos ativos escopados pela empresa.
         CREATE INDEX IF NOT EXISTS ix_contacts_company_active ON contacts(company_id, deleted_at);
+
+        -- Atende a GET /api/contacts (ordenação padrão por nome):
+        -- Evita custo de ordenação temporária em memória (TEMP B-TREE) na listagem paginada padrão com ORDER BY name ASC.
         CREATE INDEX IF NOT EXISTS ix_contacts_company_name_active ON contacts(company_id, name ASC) WHERE deleted_at IS NULL;
 
         -- Tabela de respostas vinculada à pesquisa e ao contato
@@ -58,10 +65,12 @@ public sealed class DatabaseInitializer(IDbConnectionFactory connectionFactory) 
             deleted_at TEXT
         );
 
-        -- Índice para listagem cronológica do histórico de respostas ativas por contato
+        -- Atende a GET /api/contacts/{id}/responses:
+        -- Permite recuperar o histórico de respostas ativas do contato diretamente na ordem cronológica decrescente (responded_at DESC).
         CREATE INDEX IF NOT EXISTS ix_responses_contact_active ON responses(contact_id, deleted_at, responded_at DESC);
 
-        -- Índice para agregações analíticas de respostas ativas por pesquisa e período
+        -- Atende a GET /api/analytics/summary, GET /api/analytics/nps-by-month, GET /api/analytics/nps-by-segment e GET /api/responses/export:
+        -- Acelera junções e filtros combinados por pesquisa (survey_id), exclusão lógica e recorte temporal (responded_at) nas agregações SQL.
         CREATE INDEX IF NOT EXISTS ix_responses_survey_active ON responses(survey_id, deleted_at, responded_at);
 
         -- Tabela virtual FTS5 para busca textual rápida e sem acentuação em nome e e-mail

@@ -2,7 +2,7 @@ IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(ar
 
 IResourceBuilder<ProjectResource> api = builder.AddProject<Projects.CxManager_Api>(name: "cxmanager-api");
 
-var frontend = builder.AddNpmApp(name: "frontend", workingDirectory: "../../../frontend", scriptName: "dev")
+IResourceBuilder<NodeAppResource> frontend = builder.AddNpmApp(name: "frontend", workingDirectory: "../../../frontend", scriptName: "dev")
     .WithReference(source: api)
     .WithHttpEndpoint(port: 5173, env: "PORT");
 

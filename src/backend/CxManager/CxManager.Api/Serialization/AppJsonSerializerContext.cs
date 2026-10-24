@@ -19,6 +19,8 @@ namespace CxManager.Api.Serialization;
 [JsonSerializable(typeof(ErrorResponse))]
 [JsonSerializable(typeof(CompanyResponse))]
 [JsonSerializable(typeof(IReadOnlyList<CompanyResponse>))]
+[JsonSerializable(typeof(CompanyImpactSummaryResponse))]
+[JsonSerializable(typeof(CompanySurveyImpactItemResponse))]
 [JsonSerializable(typeof(CreateCompanyRequest))]
 [JsonSerializable(typeof(UpdateCompanyRequest))]
 [JsonSerializable(typeof(GetCompanyByIdRequest))]

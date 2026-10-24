@@ -18,6 +18,14 @@ public sealed class GetSurveysUseCase(
             companyId: companyId,
             cancellationToken: cancellationToken);
 
-        return SurveyMapper.ToResponseList(surveys: surveys);
+        IReadOnlyDictionary<long, int> counts = await surveyRepository.GetActiveResponsesCountsByCompanyAsync(
+            companyId: companyId,
+            cancellationToken: cancellationToken);
+
+        return surveys
+            .Select(selector: s => SurveyMapper.ToResponse(
+                survey: s,
+                responsesCount: counts.GetValueOrDefault(s.Id, 0)))
+            .ToList();
     }
 }

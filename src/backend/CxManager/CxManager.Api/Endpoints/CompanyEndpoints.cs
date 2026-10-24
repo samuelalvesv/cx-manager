@@ -4,6 +4,7 @@ using CxManager.Application.UseCases.Companies.Commands.DeleteCompany;
 using CxManager.Application.UseCases.Companies.Commands.UpdateCompany;
 using CxManager.Application.UseCases.Companies.Queries;
 using CxManager.Application.UseCases.Companies.Queries.GetCompanyById;
+using CxManager.Application.UseCases.Companies.Queries.GetCompanyImpact;
 using CxManager.Contract.Requests.Companies;
 using CxManager.Contract.Responses.Companies;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -41,6 +42,23 @@ public static class CompanyEndpoints
             })
             .WithName("GetCompanyById")
             .WithSummary("Retorna os detalhes de uma empresa ativa.")
+            .WithValidation<GetCompanyByIdRequest>();
+
+        group.MapGet(
+            pattern: "/{id:long}/impact",
+            handler: async Task<Ok<CompanyImpactSummaryResponse>> (
+                [AsParameters] GetCompanyByIdRequest request,
+                IGetCompanyImpactUseCase useCase,
+                CancellationToken cancellationToken) =>
+            {
+                CompanyImpactSummaryResponse impact = await useCase.ExecuteAsync(
+                    companyId: request.Id,
+                    cancellationToken: cancellationToken);
+
+                return TypedResults.Ok(value: impact);
+            })
+            .WithName("GetCompanyImpact")
+            .WithSummary("Retorna o resumo de impacto de desativação da empresa.")
             .WithValidation<GetCompanyByIdRequest>();
 
         group.MapPost(

@@ -350,6 +350,37 @@ public sealed class CompanyEndpointsTests : IAsyncDisposable
         Assert.Equal(expected: HttpStatusCode.NoContent, actual: response.StatusCode);
     }
 
+    [Fact]
+    public async Task GetCompanyImpact_WithValidCompanyId_ShouldReturnImpactSummary()
+    {
+        HttpResponseMessage response = await _client.GetAsync(
+            requestUri: new Uri(uriString: "/api/companies/1/impact", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.OK, actual: response.StatusCode);
+
+        CompanyImpactSummaryResponse? impact = await response.Content.ReadFromJsonAsync(
+            jsonTypeInfo: AppJsonSerializerContext.Default.CompanyImpactSummaryResponse,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.NotNull(@object: impact);
+        Assert.Equal(expected: 1, actual: impact.CompanyId);
+        Assert.NotEmpty(collection: impact.CompanyName);
+        Assert.True(condition: impact.ActiveContactsCount >= 0);
+        Assert.True(condition: impact.TotalResponsesCount >= 0);
+        Assert.NotNull(@object: impact.Surveys);
+    }
+
+    [Fact]
+    public async Task GetCompanyImpact_WithNonExistentCompanyId_ShouldReturn404()
+    {
+        HttpResponseMessage response = await _client.GetAsync(
+            requestUri: new Uri(uriString: "/api/companies/99999/impact", uriKind: UriKind.Relative),
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(expected: HttpStatusCode.NotFound, actual: response.StatusCode);
+    }
+
     public async ValueTask DisposeAsync()
     {
         _client.Dispose();
